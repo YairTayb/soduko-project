@@ -109,7 +109,7 @@ void add_move ( struct Cell** grid, int grid_height, int grid_width, struct List
 		} else {
 
 			/*if there exists a list after this current move we need to free it.*/
-			free_partial_list(list->current_move->next);
+			free_partial_list(list->current_move->next,list->board_height);
 			list->current_move->next = new_move;
 			new_move->prev = list->current_move;
 			list->current_move = list->current_move->next;
@@ -145,8 +145,9 @@ struct Cell** psuedo_redo(struct List_of_moves*  list){
 	}
 }
 
-void psuedo_reset(struct List_of_moves*  list){
+struct Cell** psuedo_reset(struct List_of_moves*  list){
 	list->current_move = find_list_head(list);
+	return list->current_move->data;
 }
 
 

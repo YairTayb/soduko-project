@@ -38,7 +38,7 @@ struct Cell {
 
 void print_board(struct Cell** grid, int grid_width, int grid_height,int box_width, int box_height);
 struct Cell** create_empty_board(int grid_height, int grid_width);
-void copy_board(struct Cell **grid1, struct Cell **grid2, int grid_height, int grid_width);
+void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int grid_height, int grid_width);
 void empty_board(struct Cell** board_to_empty,int grid_height, int grid_width);
-void free_board(struct Cell** grid, int grid_height)
+void free_board(struct Cell** grid, int grid_height);
 #endif
