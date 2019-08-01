@@ -35,8 +35,29 @@ void restart_game( struct Cell **grid, int grid_height, int grid_width, struct L
     copy_board(temp,grid, list->board_height ,list->board_width);
 }
 
-int main(){
 
+char * parse_board( struct Cell **grid, int grid_height, int grid_width){
+
+    
+
+
+}
+
+
+/**
+ * Parsing the board into a string.
+ * 
+ * 
+*/
+char* save ( struct Cell **grid, int grid_height, int grid_width, int mode){
+    
+    int i,j;
+
+    if (mode == edit_mode){
+        /*tests for board status*/
+    } else if(mode == solve_mode){
+
+    }
 }
 
 
