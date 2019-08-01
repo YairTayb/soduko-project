@@ -10,7 +10,7 @@ int undo ( struct Cell **grid, int grid_height, int grid_width, struct List_of_m
 
     struct Cell** temp = psuedo_undo(list);
     if(temp == NULL){
-        /*ERROR HANDLING*/
+        /*ERROR HANDLING - no undo available*/
         return FAILURE;
     } else{
         copy_board(temp, grid, grid_height, grid_width);
@@ -22,7 +22,7 @@ int redo( struct Cell **grid, int grid_height, int grid_width, struct List_of_mo
 
     struct Cell** temp = psuedo_redo(list);
     if(temp == NULL){
-        /*ERROR HANDLING*/
+        /*ERROR HANDLING - no redo available*/
         return FAILURE;
     } else{
         copy_board(temp, grid, grid_height, grid_width);
@@ -36,9 +36,9 @@ void restart_game( struct Cell **grid, int grid_height, int grid_width, struct L
 }
 
 
-char * parse_board( struct Cell **grid, int grid_height, int grid_width){
-
+char * parse_board( struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width){
     
+
 
 
 }
