@@ -23,5 +23,4 @@ typedef struct comm {
 
 
 command parse_command();
-
 #endif

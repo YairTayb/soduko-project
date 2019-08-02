@@ -171,10 +171,45 @@ command parse_command(){
 
     return received_command;
 }
+
+/*
+char* board_to_string(struct Cell** grid){
+
+}*/
+/**
+ * converts a string to a board
+ * NOTICE: TWO DIGIT NUMBERS 
+ * 
+ * 
+ */
+void string_to_board(struct Cell** grid, int grid_height, int grid_width, char* board_string ){
+    int i,j, k, temp_num;
+    char *token = strtok(board_string," \t\r\n");
+    for ( i = 0; i < grid_height ; i++ ){
+        for( j = 0; j < grid_width; j++){
+            if(token[strlen(token)-1]=='.'){
+
+                grid[i][j].is_const=TRUE;
+                printf("!");
+            }
+            grid[i][j].value=token[0]-'0';
+            printf("%s,",token);
+            token = strtok(NULL, " \t\r\n");
+        }
+        printf("\n");
+    }
+
+
+}
+
+
 int main(){
     int i;
     int count = 15;
     command test_command;
+    char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
+    string_to_board(NULL,3,3,string_board);
+    /*
     while(count >= 0){
         test_command= parse_command();
         if(test_command.command_chosen == set_command){
@@ -188,7 +223,9 @@ int main(){
         printf("\n");
         printf("path is:%s \n", test_command.path);
         count--;
-    }
+    }*/
+
+
    
 
 
