@@ -187,10 +187,18 @@ command parse_command(){
     return received_command;
 }
 
-/*
-char* board_to_string(struct Cell** grid){
 
-}*/
+char** board_to_string(struct Cell** grid, int grid_height, int grid_width){
+
+    int i, j;
+    /*allocating memory to the new character represantation of the board.*/
+    char ** parsed_board = (char **)(malloc(sizeof(char **)*grid_height));
+    for (i = 0; i < grid_height; i++){
+        parsed_board[i] = (char *)(malloc((sizeof(char) * 4) + 2));/*4 chars for each cell and 2 for the \n*/
+    }
+    /*parsing the actual board*/
+
+}
 /**
  * converts a string to a board
  * 
