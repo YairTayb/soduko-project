@@ -204,6 +204,142 @@ int count_solutions(struct Cell **grid, int grid_height, int grid_width, int box
     return count;
 }
 
+int _count_solutions_iterative(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
+        int row, int col, struct stack* s){
+    int count = 0;
+    struct move m;
+    int j;
+    int found = FALSE;
+    int val = 1;
+
+    while (!empty(s)) {
+        printf("Current cell: (%d,%d). Val: %d\n", row, col, val);
+        print_board(grid, grid_height, grid_width, box_height, box_width);
+
+        if (row >= grid_height) {
+            count++;
+            printf("End of grid. Increasing counter to %d\n", count);
+            m = pop(s);
+            row = m.row;
+            col = m.col;
+            val = m.value + 1;
+            grid[row][col].value = UNASSIGNED;
+            printf("Reverting to cell (%d, %d). Value: %d\n", row, col, val);
+        }
+
+        if (grid[row][col].is_const == TRUE || grid[row][col].value != UNASSIGNED) {
+            /* We are within a legitimate cell. */
+            printf("Const or filled cell (%d,%d). Skipping.\n", row, col);
+            if (col + 1 >= grid_width) {
+                row++;
+                col = 0;
+            }
+
+            else {
+                col++;
+            }
+        }
+
+        found = FALSE;
+        printf("Searching value for cell (%d,%d). Val: %d\n", row, col, val);
+        for (j = val; j <= (box_height * box_width); j++) {
+            if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, j)) {
+                printf("Found value %d for cell (%d, %d)\n", j, row, col);
+                grid[row][col].value = j;
+                m.row = row;
+                m.col = col;
+                m.value = j;
+                push(s, m);
+                found = TRUE;
+                val = 1;
+
+                if (col + 1>= grid_width) {
+                    row++;
+                    col = 0;
+                }
+
+                else {
+                    col++;
+                }
+
+                break;
+            }
+        }
+        if (!found){
+            printf("No value found for cell (%d, %d). Reverting to UNASSIGNED and poping from queue\n", row, col);
+            grid[row][col].value = UNASSIGNED;
+            m = pop(s);
+            row =m.row;
+            col = m.col;
+            val = m.value + 1;
+            grid[row][col].value = UNASSIGNED;
+            printf("Popped from queue: (%d, %d, %d)\n", row, col, val);
+
+        }
+    }
+
+    return count;
+}
+int count_solutions_iterative(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
+    struct stack s;
+    struct move m;
+    int row = 0;
+    int col = 0;
+    int count = 0;
+    int i;
+
+    initialize(&s);
+
+    while (!is_empty(grid, row, col)){
+        if (row >= grid_height){
+            /* No empty cells */
+            return 1;
+        }
+        else if (col + 1>= grid_width) {
+            row++;
+            col = 0;
+        }
+
+        else {
+            col++;
+        }
+    }
+
+    printf("First empty cell: (%d,%d)\n", row, col);
+
+    /* Find a valid value for the first empty cell*/
+    for (i=1; i<=(box_height*box_width); i++){
+        printf("Starting with %d\n", i);
+        if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, i)){
+            grid[row][col].value = i;
+            m.row = row;
+            m.col = col;
+            m.value = i;
+            push(&s, m);
+
+            printf("Valid value for first cell (%d,%d): %d\n", row, col, i);
+
+            if (col + 1>= grid_width) {
+                row++;
+                col = 0;
+            }
+
+            else {
+                col++;
+            }
+
+            count += _count_solutions_iterative(grid, grid_height, grid_width, box_height, box_width, row, col, &s);
+
+            printf("Empty Queue\n");
+            print_board(grid, grid_height, grid_width, box_height, box_width);
+        }
+        printf("Finished with %d.\n", i);
+    }
+
+    return count;
+}
+
+
 /**
  * Check if a game was won
  * @param grid The game board
@@ -229,9 +365,11 @@ int is_game_won(struct Cell **grid, int grid_height, int grid_width) {
 int main(){
     struct Cell **board;
     int sol_count = 0;
-    board = create_empty_board(6, 6);
-    print_board(board, 6, 6, 2, 3);
-    sol_count = count_solutions(board, 6, 6, 2, 3, 0, 0);
+    board = create_empty_board(4, 4);
+    print_board(board, 4, 4, 2, 2);
+    sol_count = count_solutions(board, 4, 4, 2, 2, 0, 0);
+    printf("%d\n", sol_count);
+    sol_count = count_solutions_iterative(board, 4, 4, 2, 2);
     printf("%d\n", sol_count);
     return 1;
 }

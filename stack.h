@@ -4,8 +4,7 @@
 #define EMPTY 0
 
 typedef struct move {
-    int old_val;
-    int new_val;
+    int value;
     int row;
     int col;
 } move;
