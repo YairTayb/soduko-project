@@ -7,6 +7,21 @@
 #include "mainaux.h"
 
 
+int string_to_int(char *number ){
+    int i, num;
+    i = 0;
+    num = 0;
+    /*check length before*/
+    while(number[i] != '.' && number[i] ){
+        num = num * 10;
+        num += number[i] -'0';
+        i++;
+    }
+    return num;
+
+
+}
+
 /**
  * Parse a game command from input stream. A command that receives an input and returns a command struct
  *containing the parsed command from the user.
@@ -160,7 +175,7 @@ command parse_command(){
                 strcpy(received_command.path, token);
             } else {
 
-                received_command.params[i]= token[0]-'0' ;
+                received_command.params[i]= string_to_int(token) ;
             }
         }
 
@@ -172,13 +187,20 @@ command parse_command(){
     return received_command;
 }
 
-/*
-char* board_to_string(struct Cell** grid){
 
-}*/
+char** board_to_string(struct Cell** grid, int grid_height, int grid_width){
+
+    int i, j;
+    /*allocating memory to the new character represantation of the board.*/
+    char ** parsed_board = (char **)(malloc(sizeof(char **)*grid_height));
+    for (i = 0; i < grid_height; i++){
+        parsed_board[i] = (char *)(malloc((sizeof(char) * 4) + 2));/*4 chars for each cell and 2 for the \n*/
+    }
+    /*parsing the actual board*/
+
+}
 /**
  * converts a string to a board
- * NOTICE: TWO DIGIT NUMBERS 
  * 
  * 
  */
@@ -192,7 +214,7 @@ void string_to_board(struct Cell** grid, int grid_height, int grid_width, char* 
                 grid[i][j].is_const=TRUE;
                 printf("!");
             }
-            grid[i][j].value=token[0]-'0';
+            grid[i][j].value=string_to_int(token);
             printf("%s,",token);
             token = strtok(NULL, " \t\r\n");
         }
@@ -207,9 +229,9 @@ int main(){
     int i;
     int count = 15;
     command test_command;
-    char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
-    string_to_board(NULL,3,3,string_board);
-    /*
+    /*char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
+    string_to_board(NULL,3,3,string_board);*/
+    
     while(count >= 0){
         test_command= parse_command();
         if(test_command.command_chosen == set_command){
@@ -223,10 +245,19 @@ int main(){
         printf("\n");
         printf("path is:%s \n", test_command.path);
         count--;
-    }*/
-
-
-   
-
+    }
+    /*
+    i = string_to_int("11.");
+    printf("%d \n", i);
+    i = string_to_int("11");
+    printf("%d \n", i);
+    i = string_to_int("9.");
+    printf("%d \n", i);
+    i = string_to_int("9");
+    printf("%d \n", i);
+    i = string_to_int(".");
+    printf("%d \n", i);
+    i = string_to_int("0");
+    printf("%d \n", i);*/
 
 }
