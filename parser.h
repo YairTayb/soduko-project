@@ -22,9 +22,7 @@ typedef struct comm {
     char path[MAX_PATH_LENGTH];
 } command;
 
-typedef enum Mode{
-    init, edit, solve
-}game_mode;
+
 
 command parse_command();
 #endif

@@ -65,34 +65,56 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
 
     return COMMAND_COMPLETED;
 }
+void print_changes(struct Cell **before, struct Cell **after, int grid_height, int grid_width, command_changed_from comm){
+
+    int i, j;
+    for(i = 0;i < grid_height; i++){
+        for(j = 0; j < grid_width; j++){
+            /*check if the value has changed*/
+            if(before[i][j].value != after[i][j].value){
+
+                if(comm == undo){
+                    printf("Undo ");
+                } else if(comm == redo){
+                    printf("Redo ");
+                } 
+                printf("%d,%d from %d to %d .\n",i,j, before[i][j].value , after[i][j].value);
+
+            }
+        }
+    }
+}
+
 
 int undo(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
 
-    struct Cell **temp = psuedo_undo(list);
+    struct Node* temp = psuedo_undo(list);
     if (temp == NULL) {
         /*ERROR HANDLING - no undo available*/
         return FAILURE;
     } else {
-        copy_board(temp, grid, grid_height, grid_width);
+        print_changes(grid,temp->data,grid_height,grid_width,undo);
+        copy_board(temp->data, grid, grid_height, grid_width);
         return SUCCESS;
     }
 }
 
 int redo(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
 
-    struct Cell **temp = psuedo_redo(list);
+    struct Node*temp = psuedo_redo(list);
     if (temp == NULL) {
         /*ERROR HANDLING - no redo available*/
         return FAILURE;
     } else {
-        copy_board(temp, grid, grid_height, grid_width);
+        print_changes(grid,temp->data,grid_height,grid_width,redo);
+        copy_board(temp->data, grid, grid_height, grid_width);
         return SUCCESS;
     }
 }
 
 void restart_game(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
-    struct Cell **temp = psuedo_reset(list);
-    copy_board(temp, grid, list->board_height, list->board_width);
+    struct Node* temp = psuedo_reset(list);
+    copy_board(temp->data, grid, list->board_height, list->board_width);
 }
 
 
