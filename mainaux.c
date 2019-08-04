@@ -224,8 +224,8 @@ void print_errornous_board_message() {
  * Print hint message
  * @param hint_value The hint value to print
  */
-void print_hint_message(int hint_value) {
-    printf(HINT_MSG, hint_value);
+void print_hint_message(int row, int col, int hint_value) {
+    printf(HINT_MSG, row, col, hint_value);
 }
 
 
