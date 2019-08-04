@@ -346,13 +346,13 @@ int count_solutions_iterative(struct Cell **grid, int grid_height, int grid_widt
 
 
 /**
- * Check if a game was won
+ * Check if the board is complete (completely filled)
  * @param grid The game board
  * @param grid_height The board height
  * @param grid_width The board width
  * @return 1 = Game was won, 0 - Game is not won.
  */
-int is_game_won(struct Cell **grid, int grid_height, int grid_width) {
+int is_board_complete(struct Cell **grid, int grid_height, int grid_width) {
     int i;
     int j;
     for (i = 0; i < grid_height; i++) {
@@ -363,4 +363,68 @@ int is_game_won(struct Cell **grid, int grid_height, int grid_width) {
     }
 
     return TRUE;
+}
+
+
+/**
+ * Solve a board game grid recursively
+ * @param grid The game board
+ * @param grid_height The board height
+ * @param grid_width The width of the board
+ * @param box_height The box height
+ * @param box_width The box width
+ * @param row The row of the cell to start solving from
+ * @param col The column of the cell to start solving from
+ * @param flag 1 randomly 2 deterministic
+ * @return 1 = Solved, 0 = No solution found
+ */
+int solve_grid(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row,
+                                 int col) {
+    int num;
+
+    if (row == grid_height)
+        return TRUE;
+
+    if (!is_empty(grid, row, col)) {
+        /* Current cell is not empty - skip it and try the next one */
+        if (col + 1 < grid_width) {
+            /* If we can go further right - then go there and solve from there */
+            return solve_grid(grid, grid_height, grid_width, box_height, box_width, row, col + 1);
+        } else {
+            /* End of the row - go to the next one and try to solve from there */
+            return solve_grid(grid, grid_height, grid_width, box_height, box_width, row + 1, 0);
+        }
+    }
+
+    else {
+        for (num = 1; num <= (box_height * box_width); num++) {
+            /* Check if num is valid value for the current cell */
+            if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, num)) {
+                /* Fill the cell with the proposed num */
+                grid[row][col].value = num;
+
+                if (col + 1 < grid_width) {
+                    /* If we can go further right - then go there */
+                    if (solve_grid(grid, grid_height, grid_width, box_height, box_width, row, col + 1)) {
+                        /* Success! */
+                        return TRUE;
+                    }
+                }
+
+                else {
+                    /* End of the row - go to the next one */
+                    if (solve_grid(grid, grid_height, grid_width, box_height, box_width, row + 1, 0)) {
+                        /* Success! */
+                        return TRUE;
+                    }
+                }
+
+                /* No solution found with current num as value in current cell - backtrack */
+                grid[row][col].value = UNASSIGNED;
+            }
+        }
+
+        /* No solution found for current board - return False (to trigger backtracking) */
+        return FALSE;
+    }
 }
