@@ -129,13 +129,17 @@ char *parse_board(struct Cell **grid, int grid_height, int grid_width, int box_h
  * 
  * 
 */
-char *save(struct Cell **grid, int grid_height, int grid_width, int mode) {
+int save(struct Cell **grid, int grid_height, int grid_width, game_mode mode) {
 
     int i, j;
 
-    if (mode == edit_mode) {
-        /*tests for board status*/
-    } else if (mode == solve_mode) {
+    if (mode == edit) {
+        if ( is_board_errornous(grid,grid_height, grid_width)){
+            /*ERROR HANDLING*/
+            return ERRORNOUS_BOARD;
+        }
+
+    } else if (mode == solve) {
 
     }
 }
