@@ -143,3 +143,98 @@ void free_board(struct Cell** grid, int grid_height){
     }
     free(grid);
 }
+
+int is_board_errornous(struct Cell **board, int grid_height, int grid_width) {
+    int i, j;
+    for (i = 0; i < grid_height; i++) {
+        for (j = 0; j < grid_width; j++) {
+            if (board[i][j].is_valid = FALSE)
+                return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+
+/**
+ * Check if an input is in valid range
+ * @param num The input
+ * @param max_num_in_range The upper bound of the range
+ * @return 1 = Valid, 0 = Invalid.
+ */
+int is_valid_input(int num, int max_num_in_range) {
+    return num >= 0 && num <= max_num_in_range;
+}
+
+/**
+ * Print validation failed message.
+ */
+void print_validation_failed() {
+    printf(VALIDATION_FAILED);
+}
+
+/**
+ * Print validation passed message.
+ */
+void print_validation_passed() {
+    printf(VALIDATION_PASSED);
+}
+
+/**
+ * Print invalid value error
+ */
+void print_invalid_value(int range) {
+    printf(INVALID_VALUE_ERROR, range);
+}
+
+/**
+ * Print fixed cell error
+ */
+void print_fixed_cell_error(int row, int col) {
+    printf(CELL_IS_FIXED_ERROR);
+}
+
+/**
+ * Print winning message
+ */
+void print_winning_message() {
+    printf(WIN_MSG);
+}
+
+/**
+ * Print hint message
+ * @param hint_value The hint value to print
+ */
+void print_hint_message(int hint_value) {
+    printf(HINT_MSG, hint_value);
+}
+
+
+/**
+ * Get the number of hints to remain on the board
+ * @param num_of_hints The pointer to the variable that holds the number of hints
+ * @return 1 = Success, 0 = Error.
+ */
+int get_cells_number_input(int* num_of_hints){
+    /* Scanning user input */
+    int result;
+    printf(NUMBER_OF_CELLS_TO_FILL_MSG);
+    result = scanf("%d%*c", num_of_hints);
+    if(result==EOF){
+        printf(EXIT_MSG);
+        exit(0);
+    }
+    if (result == 0)
+        return result;
+
+    while (*num_of_hints < 0 || *num_of_hints > 80) {
+        printf(INVALID_NUMBER_OF_CELLS_TO_FILL);
+        printf(NUMBER_OF_CELLS_TO_FILL_MSG);
+        result = scanf("%d%*c", num_of_hints);
+        if (result == 0)
+            return result;
+    }
+
+    return 1;
+}

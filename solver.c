@@ -7,6 +7,29 @@
 #include "stack.h"
 
 /**
+ * Update the errors on the board. Iterate over every cell in the board and check if its value is valid.
+ * If it is valid, mark the cell as valid, otherwise mark as error.
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height The box height
+ * @param box_width The box width
+ */
+void update_board_errors(struct Cell **board, int grid_height, int grid_width, int box_height, int box_width){
+    int i, j;
+    for (i = 0; i < grid_height; i++) {
+        for (j = 0; j < grid_width; j++) {
+            /* Check if the call is valid and mark properly */
+            if (is_valid(board, grid_height, grid_width, box_height, box_width, row, col, board[row][col].value))
+                board[row][col].is_valid = TRUE;
+            else
+                board[row][col].is_valid = FALSE;
+        }
+    }
+}
+
+
+/**
  * Check whether a number is already used in a given row
  * @param grid The game board
  * @param grid_width The width of the board
