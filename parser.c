@@ -188,17 +188,50 @@ command parse_command(){
 }
 
 
-char** board_to_string(struct Cell** grid, int grid_height, int grid_width){
 
-    int i, j;
-    /*allocating memory to the new character represantation of the board.*/
-    char ** parsed_board = (char **)(malloc(sizeof(char **)*grid_height));
-    for (i = 0; i < grid_height; i++){
-        parsed_board[i] = (char *)(malloc((sizeof(char) * 4) + 2));/*4 chars for each cell and 2 for the \n*/
+void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int fd, game_mode mode_of_game){
+
+    int i, j, token;
+    char temp;
+
+    for(i = 0; i < grid_height; i++){
+        for(j = 0; j < grid_width; j++){
+
+            if(mode_of_game == edit){
+                if(grid[i][j].value == EMPTY){
+                    token = fprintf(fd, "%d ",grid[i][j].value);
+                } else {
+                    token = fprintf(fd, "%d. ",grid[i][j].value);
+                }
+            } else {
+                token = fprintf(fd, "%d ",grid[i][j].value);
+            }
+            if (!token){
+                /*ERROR HANDLING*/
+                exit(-1);
+            }
+        }
+        token = fprintf(fd, "\n",grid[i][j].value);
+         if (!token){
+            /*ERROR HANDLING*/
+            exit(-1);
+        }
     }
-    /*parsing the actual board*/
 
 }
+
+
+/*
+char** board_to_string(struct Cell** grid, int grid_height, int grid_width, int fd){
+
+    int i, j;
+    char ** parsed_board = (char **)(malloc(sizeof(char **)*grid_height));
+    for (i = 0; i < grid_height; i++){
+        parsed_board[i] = (char *)(malloc((sizeof(char) * 4) + 2));
+    }
+    
+
+}*/
 /**
  * converts a string to a board
  * 
@@ -231,7 +264,7 @@ int main(){
     command test_command;
     /*char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
     string_to_board(NULL,3,3,string_board);*/
-    
+    /*
     while(count >= 0){
         test_command= parse_command();
         if(test_command.command_chosen == set_command){
@@ -245,7 +278,7 @@ int main(){
         printf("\n");
         printf("path is:%s \n", test_command.path);
         count--;
-    }
+    }*/
     /*
     i = string_to_int("11.");
     printf("%d \n", i);

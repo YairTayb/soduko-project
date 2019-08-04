@@ -1,6 +1,7 @@
 #ifndef SUDOKU_PARSER_H
 #define SUDOKU_PARSER_H
 
+#define EMPTY 0
 #define TRUE 1
 #define FALSE 0
 #define MAX_COMMAND_LENGTH 1024
@@ -21,6 +22,9 @@ typedef struct comm {
     char path[MAX_PATH_LENGTH];
 } command;
 
+typedef enum Mode{
+    init, edit, solve
+}game_mode;
 
 command parse_command();
 #endif

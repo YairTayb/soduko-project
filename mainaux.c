@@ -88,7 +88,7 @@ void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int g
  * @return
  */
 struct Cell **create_empty_board(int grid_height, int grid_width) {
-    struct Cell **grid = (struct Cell **) malloc(grid_height * grid_width * sizeof(struct Cell));
+    struct Cell **grid = (struct Cell **) malloc(grid_height * grid_width * sizeof(struct Cell));/**/
     int i;
     int j;
 
