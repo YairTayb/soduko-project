@@ -22,24 +22,24 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
     /* Validate the input */
     if (!is_valid_input(row, grid_height - 1)) {
         print_invalid_value(1, grid_height);
-        return SET_INCOMPLETE;
+        return COMMAND_INCOMPLETE;
     }
 
     if (!is_valid_input(col, grid_width - 1)) {
         print_invalid_value(1, grid_width);
-        return SET_INCOMPLETE;
+        return COMMAND_INCOMPLETE;
     }
 
     if (!is_valid_input(value, (box_height * box_width))) {
         print_invalid_value(0, (box_height * box_width));
-        return SET_INCOMPLETE;
+        return COMMAND_INCOMPLETE;
     }
 
     /* Validate the cell is not fixed - if it is and we are in solve mode -
      * print error and don't perform command */
     if (mode == solve && grid[row][col].is_const == TRUE) {
         print_fixed_cell_error(row, col);
-        return SET_INCOMPLETE;
+        return COMMAND_INCOMPLETE;
     }
 
     /* Set the cell */
@@ -63,7 +63,7 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
         }
     }
 
-    return SET_COMPLETED;
+    return COMMAND_COMPLETED;
 }
 void print_changes(struct Cell **before, struct Cell **after, int grid_height, int grid_width, command_changed_from comm){
 
@@ -155,18 +155,18 @@ int save(struct Cell **grid, int grid_height, int grid_width, game_mode mode) {
  * @return 1 = Validation successful, 0 = No solution found, -2 = Board is errornous, command was not executed.
  */
 int validate(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
-
-    if (is_board_errornous(grid, grid_height, grid_width)) {
-        print_errornous_board_message();
-        return ERRORNOUS_BOARD;
-    }
-
     /* Create a temporary board for storing the new solution */
     struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
     copy_board(grid, new_solution, grid_height, grid_width);
 
-    /* If board is solvable - update the solution */
+    if (is_board_errornous(grid, grid_height, grid_width)) {
+        print_errornous_board_message();
+        free_board(new_solution);
+        return ERRORNOUS_BOARD;
+    }
 
+
+    /* If board is solvable - update the solution */
     if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
         print_validation_passed();
         /* Free memory allocation for previous solution */
@@ -231,5 +231,46 @@ int autofill(struct Cell **grid, int grid_height, int grid_width, int box_height
 
     /* Update the board errors */
     update_board_errors(grid, grid_height, grid_width, box_height, box_width);
+
+}
+
+int hint(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
+    /* Create a temporary board for storing the new solution */
+    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    copy_board(grid, new_solution, grid_height, grid_width);
+
+    if (is_board_errornous(grid, grid_height, grid_width)) {
+        print_errornous_board_message();
+        free_board(new_solution, grid_height);
+        return ERRORNOUS_BOARD;
+    }
+
+    /* Validate the cell is not fixed - if it is print an error and don't perform command */
+    if (grid[row][col].is_const == TRUE) {
+        print_fixed_cell_error(row, col);
+        free_board(new_solution, grid_height);
+        return COMMAND_INCOMPLETE;
+    }
+
+    /* Validate the cell is empty - if it isn't print an error and don't perform command */
+    if (!is_empty(grid, row, col)){
+        print_cell_is_not_empty(row, col);
+        free_board(new_solution, grid_height);
+        return COMMAND_INCOMPLETE;
+    }
+
+    if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
+        print_hint_message(row, col, new_solution[row][col].value);
+        /* Free memory allocation for previous solution */
+        free_board(new_solution, grid_height);
+        return COMMAND_COMPLETED;
+
+    } else {
+        /* No solution for the current board */
+        /* Free memory allocation for previous solution */
+        free_board(new_solution, grid_height);
+        print_validation_failed();
+        return COMMAND_INCOMPLETE;
+    }
 
 }
