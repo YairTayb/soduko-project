@@ -189,7 +189,7 @@ command parse_command(){
 
 
 
-void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game){
+int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game){
 
     int i, j, token;
     char temp;
@@ -197,7 +197,7 @@ void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, in
     token = fprintf(fd, "%d %d\n",box_width, box_height);
     if (!token){
                 /*ERROR HANDLING FOR FPRINTF*/
-                exit(-1);
+                return FAILURE;
         }
 
     for(i = 0; i < grid_height; i++){
@@ -220,15 +220,16 @@ void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, in
             }
             if (!token){
                 /*ERROR HANDLING FOR FPRINTF*/
-                exit(-1);
+                return FAILURE;
             }
         }
         token = fprintf(fd, "\n",grid[i][j].value);
          if (!token){
             /*ERROR HANDLING FOR FPRINTF*/
-            exit(-1);
+            return FAILURE;
         }
     }
+    return 1;
 
 }
 

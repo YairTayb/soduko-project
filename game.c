@@ -129,19 +129,38 @@ char *parse_board(struct Cell **grid, int grid_height, int grid_width, int box_h
  * 
  * 
 */
-int save(struct Cell **grid, int grid_height, int grid_width, game_mode mode) {
+int save(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, game_mode mode, char* path) {
 
-    int i, j;
+    int i, j, tok;
+    FILE* fd;
+    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    copy_board(grid, new_solution, grid_height, grid_width);
+
 
     if (mode == edit) {
         if ( is_board_errornous(grid,grid_height, grid_width)){
             /*ERROR HANDLING*/
+            free_board(new_solution,grid_height);
             return ERRORNOUS_BOARD;
         }
-
-    } else if (mode == solve) {
-
+        if (!solve_grid(new_solution,grid_height, grid_width,box_height,box_width,0,0) ){
+            /*ERROR HANDLING*/
+            print_validation_failed();
+            free_board(new_solution,grid_height);
+            return COMMAND_INCOMPLETE;
+        }
+    } 
+    fd = fopen(path, "w");
+    if (!fd){
+        /*ERROR HANLING*/
+        return COMMAND_INCOMPLETE;
     }
+    tok = write_board_to_file(grid, grid_height, grid_width, box_width, box_height, fd, mode);
+    if(tok == FAILURE){
+        /*ERROR HANDLING- HOW TO TREAT?*/
+        return COMMAND_INCOMPLETE;
+    } 
+    return COMMAND_COMPLETED;
 }
 
 

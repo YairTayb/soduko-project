@@ -1,6 +1,7 @@
 #ifndef SUDOKU_PARSER_H
 #define SUDOKU_PARSER_H
 
+#define FAILURE -1
 #define EMPTY 0
 #define TRUE 1
 #define FALSE 0
@@ -22,7 +23,7 @@ typedef struct comm {
     char path[MAX_PATH_LENGTH];
 } command;
 
-
+void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);
 
 command parse_command();
 #endif
