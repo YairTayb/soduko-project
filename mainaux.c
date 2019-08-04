@@ -92,7 +92,7 @@ void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int g
  * @return
  */
 struct Cell **create_empty_board(int grid_height, int grid_width) {
-    struct Cell **grid = (struct Cell **) malloc(grid_height * grid_width * sizeof(struct Cell));/**/
+    struct Cell **grid = (struct Cell **) malloc(grid_height * sizeof(struct Cell));/**/
     int i;
     int j;
 
@@ -152,7 +152,7 @@ int is_board_errornous(struct Cell **board, int grid_height, int grid_width) {
     int i, j;
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
-            if (board[i][j].is_valid = FALSE)
+            if (board[i][j].is_valid == FALSE)
                 return TRUE;
         }
     }
@@ -193,10 +193,17 @@ void print_invalid_value(int lower_limit, int upper_limit) {
 }
 
 /**
+ * Print invalid value error
+ */
+void print_num_of_solutions(int solutions_count) {
+    printf(SOLUTIONS_COUNT_MSG, solutions_count);
+}
+
+/**
  * Print fixed cell error
  */
 void print_fixed_cell_error(int row, int col) {
-    printf(CELL_IS_FIXED_ERROR);
+    printf(CELL_IS_FIXED_ERROR, row, col);
 }
 
 /**

@@ -144,21 +144,66 @@ int validate(struct Cell **grid, int grid_height, int grid_width, int box_height
     if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
         print_validation_passed();
         /* Free memory allocation for previous solution */
-        free_board(new_solution);
+        free_board(new_solution, grid_height);
         return TRUE;
 
     } else {
         /* No solution for the current board */
         /* Free memory allocation for previous solution */
-        free_board(new_solution);
+        free_board(new_solution, grid_height);
         print_validation_failed();
         return FALSE;
     }
-
 }
 
 
+/**
+ * Count number of possible solutions for the current board
+ * @param grid The game board
+ * @param grid_height The height of game board
+ * @param grid_width The width of the game board
+ * @param box_height The height of a sudoku box
+ * @param box_width The width of a sudoku box
+ */
+void num_solutions(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width){
+    int solutions_count;
 
+    if (is_board_errornous(grid, grid_height, grid_width)) {
+        print_errornous_board_message();
+        return ERRORNOUS_BOARD;
+    }
 
+    solutions_count = count_solutions_iterative(grid, grid_height, grid_width, box_height, box_width);
+    print_num_of_solutions(solutions_count);
+}
 
+int autofill(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
+    int i;
+    int j;
+    int num;
 
+    struct Cell **temp_board = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    copy_board(grid, temp_board, grid_height, grid_width);
+
+    for (i=0; i<grid_height; i++){
+        for (j=0; j<grid_width; j++){
+            if (is_empty(grid, row, col) && count_valid_values(grid, grid_height, grid_width, box_height, box_width) == 1){
+                /* Find the one possible valid value for the current cell */
+                for (num = 1; num < (box_height * box_width); num++){
+                    if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, num)) {
+                        /* Set the cell */
+                        temp_board[row][col].value = num;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    copy_board(temp_board, grid, grid_height, grid_width);
+    free_board(temp_board, grid_height);
+
+    /* Update the board errors */
+    update_board_errors(grid, grid_height, grid_width, box_height, box_width);
+
+}

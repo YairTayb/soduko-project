@@ -25,6 +25,7 @@
 #define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
 #define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d-%d]\n"
 #define WIN_MSG "Puzzle solved successfully\n"
+#define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
 #define ERROR_BOARD_MSG "Board contains errors!\n"
 #define HINT_MSG "Hint: set cell to %d\n"
 #define EXIT_MSG "Exiting...\n"
@@ -52,5 +53,6 @@ void print_errornous_board_message();
 void print_hint_message(int hint_value);
 void print_validation_failed();
 void print_validation_passed();
+void print_num_of_solutions(int solutions_count);
 #endif
 
