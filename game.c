@@ -32,7 +32,8 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
 
     /* Check that the input valid for the given cell */
     if (!is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, value)) {
-        print_invalid_value();
+        if (mark_errors == TRUE)
+            print_invalid_value();
         return -1;
     }
 

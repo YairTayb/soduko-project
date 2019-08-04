@@ -9,7 +9,7 @@ typedef enum Mode{
 
 
 int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
-        int row, int col, int value);
+        int row, int col, int value, game_mode mode, int mark_errors);
 
 
 #endif
