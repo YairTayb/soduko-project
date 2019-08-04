@@ -203,6 +203,13 @@ void print_winning_message() {
 }
 
 /**
+ * Print errornous board message
+ */
+void print_errornous_board_message() {
+    printf(ERROR_BOARD_MSG);
+}
+
+/**
  * Print hint message
  * @param hint_value The hint value to print
  */

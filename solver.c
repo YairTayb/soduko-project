@@ -346,13 +346,13 @@ int count_solutions_iterative(struct Cell **grid, int grid_height, int grid_widt
 
 
 /**
- * Check if a game was won
+ * Check if the board is complete (completely filled)
  * @param grid The game board
  * @param grid_height The board height
  * @param grid_width The board width
  * @return 1 = Game was won, 0 - Game is not won.
  */
-int is_game_won(struct Cell **grid, int grid_height, int grid_width) {
+int is_board_complete(struct Cell **grid, int grid_height, int grid_width) {
     int i;
     int j;
     for (i = 0; i < grid_height; i++) {

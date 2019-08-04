@@ -1,4 +1,5 @@
 #include "game.h"
+#include "solver.h"
 #include "moves_list.h"
 
 #include <stdlib.h>
@@ -21,33 +22,38 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
     /* Validate the input */
     if (!is_valid_input(value, (box_height * box_width))) {
         print_invalid_value((box_height * box_width));
-        return -1;
+        return SET_INCOMPLETE;
     }
 
-    /* Validate the cell is not fixed */
+    /* Validate the cell is not fixed - if it is and we are in solve mode -
+     * print error and don't perform command */
     if (mode == solve && grid[row][col].is_const == TRUE) {
         print_fixed_cell_error(row, col);
-        return -1;
-    }
-
-    /* Check that the input valid for the given cell */
-    if (!is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, value)) {
-        if (mark_errors == TRUE)
-            print_invalid_value();
-        return -1;
+        return SET_INCOMPLETE;
     }
 
     /* Set the cell */
     grid[row][col].value = value;
+    update_board_errors(grid, grid_height, grid_width, box_height, box_width);
+
     print_board(grid, GRID_WIDTH, GRID_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
 
     /* Check if the game was won */
-    if (is_game_won(grid, grid_height, grid_width)) {
-        print_winning_message();
-        return 1;
+    if (is_board_complete(grid, grid_height, grid_width)) {
+        /* Board is fully filled */
+        if (is_board_errornous(grid, grid_height, grid_width)) {
+            /* Board contains errors - notify user */
+            print_errornous_board_message();
+            return ERRORNOUS_BOARD;
+
+        } else {
+            /* Board is completed and valid - game was won */
+            print_winning_message();
+            return GAME_WON;
+        }
     }
 
-    return 0;
+    return SET_COMPLETED;
 
 }
 

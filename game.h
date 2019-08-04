@@ -3,6 +3,11 @@
 
 #include "mainaux.h"
 
+#define GAME_WON 1
+#define SET_COMPLETED 0
+#define SET_INCOMPLETE -1
+#define ERRORNOUS_BOARD -2
+
 typedef enum Mode{
     init, edit, solve
 } game_mode;
