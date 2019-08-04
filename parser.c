@@ -5,7 +5,7 @@
 
 #include "parser.h"
 #include "mainaux.h"
-
+#include "game.h"
 
 int string_to_int(char *number ){
     int i, num;
@@ -189,10 +189,16 @@ command parse_command(){
 
 
 
-void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int fd, game_mode mode_of_game){
+void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game){
 
     int i, j, token;
     char temp;
+
+    token = fprintf(fd, "%d %d\n",box_width, box_height);
+    if (!token){
+                /*ERROR HANDLING FOR FPRINTF*/
+                exit(-1);
+        }
 
     for(i = 0; i < grid_height; i++){
         for(j = 0; j < grid_width; j++){
@@ -204,16 +210,22 @@ void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, in
                     token = fprintf(fd, "%d. ",grid[i][j].value);
                 }
             } else {
-                token = fprintf(fd, "%d ",grid[i][j].value);
+                if(grid[i][j].is_const == TRUE){
+                    token = fprintf(fd, "%d. ",grid[i][j].value);
+
+                } else {
+                    token = fprintf(fd, "%d ",grid[i][j].value);
+
+                }
             }
             if (!token){
-                /*ERROR HANDLING*/
+                /*ERROR HANDLING FOR FPRINTF*/
                 exit(-1);
             }
         }
         token = fprintf(fd, "\n",grid[i][j].value);
          if (!token){
-            /*ERROR HANDLING*/
+            /*ERROR HANDLING FOR FPRINTF*/
             exit(-1);
         }
     }
@@ -259,9 +271,9 @@ void string_to_board(struct Cell** grid, int grid_height, int grid_width, char* 
 
 
 int main(){
-    int i;
+   /* int i;
     int count = 15;
-    command test_command;
+    command test_command;*/
     /*char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
     string_to_board(NULL,3,3,string_board);*/
     /*
@@ -292,5 +304,47 @@ int main(){
     printf("%d \n", i);
     i = string_to_int("0");
     printf("%d \n", i);*/
+
+    int int_grid[9][9] = {{4, 0, 1, 0, 0, 0, 0, 5, 2},
+                          {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 5, 0, 0, 4, 1, 0, 0, 0},
+                          {0, 0, 0, 2, 0, 0, 5, 4, 0},
+                          {0, 1, 0, 4, 0, 0, 0, 2, 3},
+                          {0, 4, 2, 0, 0, 0, 1, 0, 0},
+                          {0, 0, 4, 0, 0, 0, 0, 0, 0},
+                          {0, 7, 0, 1, 0, 0, 0, 0, 4},
+                          {0, 0, 0, 7, 0, 0, 0, 0, 0}};
+    struct Cell **grid = (struct Cell **) malloc(GRID_HEIGHT * sizeof(struct Cell));
+    int i;
+    int j;
+    /*check if malloc failed*/
+    if(!grid){
+        printf(FUNCTION_FAILED, "malloc");
+        exit(0);
+    }
+
+    for (i = 0; i < GRID_HEIGHT; i++){
+        grid[i] = (struct Cell *) malloc(GRID_WIDTH * sizeof(struct Cell));
+        /*check if malloc failed*/
+        if(!grid[i]){
+            printf(FUNCTION_FAILED, "malloc");
+            exit(0);
+        }
+
+    }
+
+    /* Initiate the board */
+    for (i = 0; i < GRID_HEIGHT; i++) {
+        for (j = 0; j < GRID_WIDTH; j++) {
+            grid[i][j].value = int_grid[i][j];
+            grid[i][j].is_const = FALSE;
+        }
+    }
+    write_board_to_file(grid, 9, 9, 3, 3, stdout ,solve);
+
+
+
+
+
 
 }

@@ -27,6 +27,10 @@ void init_move_list(struct List_of_moves*  list){
 struct Node* create_new_move (struct Cell **grid, struct List_of_moves* list) {
 
 	struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+	if(!new_node){
+		/*ERROR HANDLING - MALLOC FAILED*/
+		exit(-1);
+	}
 	struct Cell **temp_board = create_empty_board(list->board_height, list->board_width);
 	copy_board(grid, temp_board, list->board_height, list->board_width);
 	new_node->data = temp_board;
@@ -120,35 +124,37 @@ void add_move ( struct Cell** grid, int grid_height, int grid_width, struct List
 
 
 
-/*-----------------might to change to return data -----------------------------------*/
 /*
 *	A method to cast undo on the list of moves.
 *	returns the previous move if succeed, NULL if cannot undo.
 **/
-struct Cell** psuedo_undo(struct List_of_moves*  list){
+struct Node* psuedo_undo(struct List_of_moves*  list){
 	
-	if (list->current_move->prev == NULL){
+	if (list->current_move == NULL || list->current_move->prev == NULL){
 		return NULL;
 	} else {
 		list->current_move = list->current_move->prev;
-		return list->current_move->data;
+		return list->current_move;
 	}
 }
 
-struct Cell** psuedo_redo(struct List_of_moves*  list){
+struct Node* psuedo_redo(struct List_of_moves*  list){
 
-	if (list->current_move->next == NULL){
+	if (list->current_move == NULL || list->current_move->next == NULL){
 		return NULL;
 	} else {
 		list->current_move = list->current_move->next;
-		return list->current_move->data;
+		return list->current_move;
 	}
 }
 
-struct Cell** psuedo_reset(struct List_of_moves*  list){
+struct Node* psuedo_reset(struct List_of_moves*  list){
 	list->current_move = find_list_head(list);
 	return list->current_move->data;
 }
 
 
-/*-----------------might to change to return data -----------------------------------*/
+void restart_list(struct List_of_moves*  list){
+	free_whole_list(list);
+	list->current_move = NULL;
+}
