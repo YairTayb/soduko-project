@@ -124,17 +124,13 @@ int is_valid(struct Cell **grid, int grid_height, int grid_width, int box_height
  * @param range Upper bound of the numbers range that is valid for the cell.
  * @return Number of valid values found
  */
-int
-find_valid_values(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
-                  int *values, int range) {
+int count_valid_values(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
+                  int range) {
     int num;
     int counter = 0;
-    int i = 0;
     for (num = 1; num <= range; num++) {
         /* For each number up to the range bound - check if its valid */
         if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, num)) {
-            values[i] = num;
-            i++;
             counter++;
         }
     }
@@ -156,29 +152,16 @@ int is_empty(struct Cell **grid, int row, int col) {
 }
 
 /**
- * Check whether the cell is valid
+ * Check whether the cell is valid or errornous
  * @param grid The game board
  * @param row The row of the cell
  * @param col The column of the cell
- * @return 1 = Empty, 0 = Filled
+ * @return 1 = errornous, 0 = valid
  */
-int is_cell_valid(struct Cell **grid, int row, int col) {
-    if (grid[row][col].is_valid == TRUE)
+int is_cell_errornous(struct Cell **grid, int row, int col) {
+    if (grid[row][col].is_valid == FALSE)
         return TRUE;
     return FALSE;
-}
-
-/**
- * Given an array and an index, remove the number at the index from the array.
- * @param arr The array to remove the number from
- * @param index The index of the number to remove
- * @param arr_length The length of the array
- */
-void delete_from_array(int *arr, int index, int arr_length) {
-    int c;
-    for (c = index; c < arr_length - 1; c++) {
-        arr[c] = arr[c + 1];
-    }
 }
 
 
