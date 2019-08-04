@@ -3,6 +3,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include "mainaux.h"
+#include "game.h"
 
 /**
  * Print the current board to the user
@@ -12,7 +13,8 @@
  * @param box_height The height of a sudoku box
  * @param box_width The width of a sudoku box
  */
-void print_board(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
+void print_board(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
+        game_mode mode, int mark_errors) {
     int i, j, k, line_length, boxes_amount;
     boxes_amount = grid_width / box_width;
 
@@ -40,7 +42,10 @@ void print_board(struct Cell **grid, int grid_height, int grid_width, int box_he
                 printf(EMPTY_CELL);
 
             else if (grid[i][j].is_const == FALSE) {
-                printf(NORMAL_CELL, grid[i][j].value);
+                if (grid[i][j].is_valid == FALSE && (mark_errors == TRUE || mode == edit))
+                    printf(ERROR_CELL, grid[i][j].value);
+                else
+                    printf(NORMAL_CELL, grid[i][j].value);
             } else {
                 /* Its is a constant value */
                 printf(CONST_CELL, grid[i][j].value);
@@ -51,7 +56,6 @@ void print_board(struct Cell **grid, int grid_height, int grid_width, int box_he
                 /* The box frame */
                 printf("|\n");
             }
-
         }
     }
 
@@ -184,8 +188,8 @@ void print_validation_passed() {
 /**
  * Print invalid value error
  */
-void print_invalid_value(int range) {
-    printf(INVALID_VALUE_ERROR, range);
+void print_invalid_value(int lower_limit, int upper_limit) {
+    printf(INVALID_VALUE_ERROR, lower_limit, upper_limit);
 }
 
 /**

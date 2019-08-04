@@ -15,13 +15,23 @@
  * @param col The column of the cell to set
  * @param row The width of the cell to set
  * @param value The value to set to the cell
- * @return 1 = Game was won, 0 = Set was successful, -1 = Error.
+ * @return 1 = Game was won, 0 = Set was successful, -1 = Error, -2 = Board is errornous.
  */
 int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
         int row, int col, int value, game_mode mode, int mark_errors) {
     /* Validate the input */
+    if (!is_valid_input(row, grid_height - 1)) {
+        print_invalid_value(1, grid_height);
+        return SET_INCOMPLETE;
+    }
+
+    if (!is_valid_input(col, grid_width - 1)) {
+        print_invalid_value(1, grid_width);
+        return SET_INCOMPLETE;
+    }
+
     if (!is_valid_input(value, (box_height * box_width))) {
-        print_invalid_value((box_height * box_width));
+        print_invalid_value(0, (box_height * box_width));
         return SET_INCOMPLETE;
     }
 
@@ -54,7 +64,6 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
     }
 
     return SET_COMPLETED;
-
 }
 
 int undo(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
@@ -109,6 +118,44 @@ char *save(struct Cell **grid, int grid_height, int grid_width, int mode) {
     }
 }
 
+
+/**
+ * Perform validate command.
+ * @param grid The game board
+ * @param grid_height The height of game board
+ * @param grid_width The width of the game board
+ * @param box_height The height of a sudoku box
+ * @param box_width The width of a sudoku box
+ * @return 1 = Validation successful, 0 = No solution found, -2 = Board is errornous, command was not executed.
+ */
+int validate(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
+
+    if (is_board_errornous(grid, grid_height, grid_width)) {
+        print_errornous_board_message();
+        return ERRORNOUS_BOARD;
+    }
+
+    /* Create a temporary board for storing the new solution */
+    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    copy_board(grid, new_solution, grid_height, grid_width);
+
+    /* If board is solvable - update the solution */
+
+    if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
+        print_validation_passed();
+        /* Free memory allocation for previous solution */
+        free_board(new_solution);
+        return TRUE;
+
+    } else {
+        /* No solution for the current board */
+        /* Free memory allocation for previous solution */
+        free_board(new_solution);
+        print_validation_failed();
+        return FALSE;
+    }
+
+}
 
 
 
