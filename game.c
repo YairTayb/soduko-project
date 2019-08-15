@@ -46,7 +46,7 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
     grid[row][col].value = value;
     update_board_errors(grid, grid_height, grid_width, box_height, box_width);
 
-    print_board(grid, GRID_WIDTH, GRID_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
+    print_board(grid, grid_width, grid_width, box_height, box_width, mode, mark_errors);
 
     /* Check if the game was won */
     if (is_board_complete(grid, grid_height, grid_width)) {
@@ -133,20 +133,16 @@ int save(struct Cell **grid, int grid_height, int grid_width, int box_height, in
 
     int i, j, tok;
     FILE* fd;
-    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
-    copy_board(grid, new_solution, grid_height, grid_width);
 
-
-    if (mode == edit) {
+    if (mode == edit_mode) {
         if ( is_board_errornous(grid,grid_height, grid_width)){
             /*ERROR HANDLING*/
-            free_board(new_solution,grid_height);
+            print_errornous_board_message();
             return ERRORNOUS_BOARD;
         }
         if (!solve_grid(new_solution,grid_height, grid_width,box_height,box_width,0,0) ){
             /*ERROR HANDLING*/
             print_validation_failed();
-            free_board(new_solution,grid_height);
             return COMMAND_INCOMPLETE;
         }
     } 
@@ -175,7 +171,7 @@ int save(struct Cell **grid, int grid_height, int grid_width, int box_height, in
  */
 int validate(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
     /* Create a temporary board for storing the new solution */
-    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    struct Cell **new_solution = create_empty_board(grid_height, grid_width);
     copy_board(grid, new_solution, grid_height, grid_width);
 
     if (is_board_errornous(grid, grid_height, grid_width)) {
@@ -227,7 +223,7 @@ int autofill(struct Cell **grid, int grid_height, int grid_width, int box_height
     int j;
     int num;
 
-    struct Cell **temp_board = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    struct Cell **temp_board = create_empty_board(grid_height, grid_width);
     copy_board(grid, temp_board, grid_height, grid_width);
 
     for (i=0; i<grid_height; i++){
@@ -255,7 +251,7 @@ int autofill(struct Cell **grid, int grid_height, int grid_width, int box_height
 
 int hint(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
     /* Create a temporary board for storing the new solution */
-    struct Cell **new_solution = create_empty_board(GRID_HEIGHT, GRID_WIDTH);
+    struct Cell **new_solution = create_empty_board(grid_height, grid_width);
     copy_board(grid, new_solution, grid_height, grid_width);
 
     if (is_board_errornous(grid, grid_height, grid_width)) {
@@ -293,3 +289,162 @@ int hint(struct Cell **grid, int grid_height, int grid_width, int box_height, in
     }
 
 }
+
+
+int generate(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
+        int num_of_cells_to_fill, int num_of_cells_to_keep) {
+    int i, random_index, row, col, num_of_valid_values;
+    int is_error = FALSE;
+    int number_of_iterations = 0;
+    int filled_cells_count = 0;
+    int cleared_cells_count = 0;
+    int *valid_values;
+    struct Cell **temp_board = create_empty_board(grid_height, grid_width);
+
+    valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
+
+    if (!valid_values) {
+        printf(FUNCTION_FAILED, "malloc")
+        /* ERROR HANDLING - EXIT?? */
+        exit(EXIT_FAILURE);
+    }
+
+    if (count_empty_cells(grid, grid_height, grid_width) < num_of_cells_to_fill) {
+        printf("Not enough empty cells");
+        return COMMAND_INCOMPLETE;
+    }
+
+    if (num_of_cells_to_keep > (grid_height * grid_width)){
+        printf("Number of cells to keep is larger then total number of cells in the board");
+        return COMMAND_INCOMPLETE;
+    }
+
+    while (number_of_iterations < 1000) {
+        number_of_iterations++;
+        /* Reset the temp board to the original board */
+        copy_board(grid, temp_board, grid_height, grid_width);
+        is_error = FALSE;
+        filled_cells_count = 0;
+        cleared_cells_count = 0;
+
+        while (filled_cells_count < num_of_cells_to_fill) {
+            row = (rand() % (grid_height));
+            col = (rand() % (grid_width));
+            num_of_valid_values = 0;
+
+            if (is_empty(grid, row, col)) {
+
+                /* Find the possible values for the random cell */
+                for (i = 1; i <= (box_height * box_width); i++) {
+                    if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, i)) {
+                        valid_values[num_of_valid_values] = i;
+                        num_of_valid_values++;
+                    }
+                }
+
+                if (num_of_valid_values > 0) {
+                    /* Random cell has got at least one possible valid value */
+                    random_index = (rand() % (num_of_valid_values));
+                    temp_board[row][col].value = valid_values[random_index];
+                    filled_cells_count++;
+
+                }
+
+                else {
+                    /* No valid values available to the random empty cell*/
+                    is_error = TRUE;
+                    break;
+                }
+            }
+        }
+
+        if (is_error == TRUE) {
+            /* An error occurred when filling random cells - reset and try again */
+            continue;
+        }
+
+        /* Finished randomly filling the board. Try to solve it and check if there is a solution*/
+        if (solve_grid(grid, grid_height, grid_width, box_height, box_height, 0, 0) == FALSE) {
+            /* No valid solution to the board - try again */
+            continue;
+        }
+
+        /* Randomly clear cells from board until only given number are left */
+        while (cleared_cells_count < (grid_height * grid_width) - num_of_cells_to_keep) {
+            row = (rand() % (grid_height));
+            col = (rand() % (grid_width));
+
+            /* Verify cell is not yet empty */
+            if (is_empty(grid, row, col) == FALSE) {
+                grid[row][col].value = 0;
+                cleared_cells_count++;
+            }
+        }
+
+        /* Copy temp board to the original board and free memory */
+        free(valid_values);
+        copy_board(temp_board, grid, grid_height, grid_width);
+        return COMMAND_COMPLETED;
+    }
+
+    printf("Error in generate method (exceeded 1000 iterations)");
+    return COMMAND_INCOMPLETE;
+}
+
+void solve(struct Cell ***grid_pointer, chr *path, int *grid_height_pointer, int *grid_width_pointer,
+                    int *box_height_pointer,
+                    int *box_width_pointer) {
+    int return_code;
+
+    fd = fopen(path, "w");
+    if (!fd) {
+        /*ERROR HANDLING*/
+        return COMMAND_INCOMPLETE;
+    }
+
+    return_code = read_board_from_file(fd, grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+                                       box_width_pointer);
+
+    if (return_code == FAILURE) {
+        /*ERROR HANDLING- HOW TO TREAT?*/
+        return COMMAND_INCOMPLETE;
+    }
+    return COMMAND_COMPLETED;
+}
+
+
+void edit(struct Cell ***grid_pointer, chr *path, int *grid_height_pointer, int *grid_width_pointer,
+                    int *box_height_pointer,
+                    int *box_width_pointer) {
+    int return_code;
+
+    if (path == NULL){
+        /* TODO: Check that path is indeed NULL when no param is passed */
+        *(grid_pointer) = create_empty_board(DEFAULT_GRID_HEIGHT, DEFAULT_GRID_WIDTH);
+        *(grid_height_pointer) = DEFAULT_GRID_HEIGHT;
+        *(grid_width_pointer) = DEFAULT_GRID_WIDTH;
+        *(box_height_pointer) = DEFAULT_BOX_HEIGHT;
+        *(box_width_pointer) = DEFAULT_BOX_WIDTH;
+    }
+
+    fd = fopen(path, "w");
+    if (!fd) {
+        /*ERROR HANDLING*/
+        return COMMAND_INCOMPLETE;
+    }
+
+    return_code = read_board_from_file(fd, grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+                                       box_width_pointer);
+
+    if (return_code == FAILURE) {
+        /*ERROR HANDLING- HOW TO TREAT?*/
+        return COMMAND_INCOMPLETE;
+    }
+
+    /* TODO - Validate if board is not errornous and maybe mark all cells as fixed? */
+    update_board_errors(*(grid_pointer), *(grid_height_pointer), *(grid_width_pointer), *(box_height_pointer),
+                        *(box_width_pointer));
+
+    return COMMAND_COMPLETED;
+}
+

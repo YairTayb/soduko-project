@@ -50,6 +50,7 @@ void Print_list(struct List_of_moves*  list) {
 	struct Node* temp = list->current_move;
 	printf("Forward: ");
 	while(temp != NULL) {
+		/* TODO: Align to the real print_board */
 		print_board(temp->data,list->board_height, list->board_width,3,3);//TEMPORARY VALUES
 		temp = temp->next;
 	}

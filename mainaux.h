@@ -2,10 +2,10 @@
 #define SUDOKU_MAIN_AUX_H
 
 #define UNASSIGNED 0
-#define GRID_HEIGHT 9
-#define GRID_WIDTH 9
-#define BOX_HEIGHT 3
-#define BOX_WIDTH 3
+#define DEFAULT_GRID_HEIGHT 9
+#define DEFAULT_GRID_WIDTH 9
+#define DEFAULT_BOX_HEIGHT 3
+#define DEFAULT_BOX_WIDTH 3
 #define CHARACTERS_IN_CELL 3
 
 #define TRUE 1
@@ -34,13 +34,16 @@
 #define VALIDATION_PASSED "Validation passed: board is solvable\n"
 #define FUNCTION_FAILED "Error: %s has failed\n"
 
+#include "game.h"
+
 struct Cell {
     int value;
     int is_const;
     int is_valid;
 } cell;
 
-void print_board(struct Cell** grid, int grid_width, int grid_height,int box_width, int box_height);
+void print_board(struct Cell** grid, int grid_height, int grid_width,int box_height, int box_width,
+        game_mode mode, int mark_errors);
 struct Cell** create_empty_board(int grid_height, int grid_width);
 void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int grid_height, int grid_width);
 void empty_board(struct Cell** board_to_empty,int grid_height, int grid_width);

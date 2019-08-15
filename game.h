@@ -9,7 +9,7 @@
 #define ERRORNOUS_BOARD -2
 
 typedef enum Mode{
-    init, edit, solve
+    init_mode, edit_mode, solve_mode
 } game_mode;
 
 typedef enum CommandFrom{

@@ -7,6 +7,30 @@
 #include "stack.h"
 
 /**
+ * Count the number of empty cells in the board
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height The box height
+ * @param box_width The box width
+ * @return The number of empty cells in the board
+ */
+int count_empty_cells(struct Cell **board, int grid_height, int grid_width){
+    int i, j;
+    int counter = 0;
+    for (i = 0; i < grid_height; i++) {
+        for (j = 0; j < grid_width; j++) {
+            /* Check if the call is valid and mark properly */
+            if (is_empty(board, i, j) {
+                counter++;
+            }
+        }
+    }
+
+    return counter;
+}
+
+/**
  * Update the errors on the board. Iterate over every cell in the board and check if its value is valid.
  * If it is valid, mark the cell as valid, otherwise mark as error.
  * @param board The game board
@@ -279,6 +303,7 @@ int _count_solutions_iterative(struct Cell **grid, int grid_height, int grid_wid
 
     return count;
 }
+
 int count_solutions_iterative(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
     struct stack s;
     struct move m;

@@ -25,5 +25,9 @@ typedef struct comm {
 
 void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);
 
+int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+                         int *box_height_pointer,
+                         int *box_width_pointer;
+
 command parse_command();
 #endif

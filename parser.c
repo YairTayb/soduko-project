@@ -171,7 +171,7 @@ command parse_command(){
             /*whether we need to save a path or a parameter*/
             if(received_command.command_chosen == edit_command || 
             received_command.command_chosen == save_command || received_command.command_chosen == solve_command){
-
+                /* TODO: Check that the command  strcpy succeeded */
                 strcpy(received_command.path, token);
             } else {
 
@@ -233,6 +233,12 @@ int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int
 
 }
 
+int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width,
+                         int *box_height_pointer,
+                         int *box_width_pointer) {
+    /* TODO: Read the board from the file, allocate a new board with the relevant sizes, and fill
+     * TODO: the given parameters */
+}
 
 /*
 char** board_to_string(struct Cell** grid, int grid_height, int grid_width, int fd){
@@ -315,7 +321,7 @@ int main(){
                           {0, 0, 4, 0, 0, 0, 0, 0, 0},
                           {0, 7, 0, 1, 0, 0, 0, 0, 4},
                           {0, 0, 0, 7, 0, 0, 0, 0, 0}};
-    struct Cell **grid = (struct Cell **) malloc(GRID_HEIGHT * sizeof(struct Cell));
+    struct Cell **grid = (struct Cell **) malloc(DEFAULT_GRID_HEIGHT * sizeof(struct Cell));
     int i;
     int j;
     /*check if malloc failed*/
@@ -324,8 +330,8 @@ int main(){
         exit(0);
     }
 
-    for (i = 0; i < GRID_HEIGHT; i++){
-        grid[i] = (struct Cell *) malloc(GRID_WIDTH * sizeof(struct Cell));
+    for (i = 0; i < DEFAULT_GRID_HEIGHT; i++){
+        grid[i] = (struct Cell *) malloc(DEFAULT_GRID_WIDTH * sizeof(struct Cell));
         /*check if malloc failed*/
         if(!grid[i]){
             printf(FUNCTION_FAILED, "malloc");
@@ -335,8 +341,8 @@ int main(){
     }
 
     /* Initiate the board */
-    for (i = 0; i < GRID_HEIGHT; i++) {
-        for (j = 0; j < GRID_WIDTH; j++) {
+    for (i = 0; i < DEFAULT_GRID_HEIGHT; i++) {
+        for (j = 0; j < DEFAULT_GRID_WIDTH; j++) {
             grid[i][j].value = int_grid[i][j];
             grid[i][j].is_const = FALSE;
         }
