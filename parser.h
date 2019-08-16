@@ -7,6 +7,10 @@
 #define FALSE 0
 #define MAX_COMMAND_LENGTH 1024
 #define MAX_PATH_LENGTH 4096
+#define BUFFER_SIZE 1024
+
+#include "mainaux.h"
+#include "game.h"
 
 typedef enum Type {
     invalid_type, solve_command, edit_command, mark_errors_command,
@@ -23,11 +27,11 @@ typedef struct comm {
     char path[MAX_PATH_LENGTH];
 } command;
 
-void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);
+/*void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);*/
 
-int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width,
                          int *box_height_pointer,
-                         int *box_width_pointer;
+                         int *box_width_pointer);
 
 command parse_command();
 #endif

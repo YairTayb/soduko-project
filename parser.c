@@ -4,8 +4,8 @@
 #include <string.h>
 
 #include "parser.h"
-#include "mainaux.h"
-#include "game.h"
+/*#include "mainaux.h"*/
+/*#include "game.h"*/
 
 int string_to_int(char *number ){
     int i, num;
@@ -203,7 +203,7 @@ int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int
     for(i = 0; i < grid_height; i++){
         for(j = 0; j < grid_width; j++){
 
-            if(mode_of_game == edit){
+            if(mode_of_game == edit_mode){
                 if(grid[i][j].value == EMPTY){
                     token = fprintf(fd, "%d ",grid[i][j].value);
                 } else {
@@ -238,6 +238,90 @@ int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height
                          int *box_width_pointer) {
     /* TODO: Read the board from the file, allocate a new board with the relevant sizes, and fill
      * TODO: the given parameters */
+
+    int rows_amount, columns_amount, total_length;
+    int i,j,values_read_amount, curr_val;
+    int cur_row, cur_col;
+    char read_buffer[BUFFER_SIZE];
+    char *tok;
+
+    int read_token=0;
+    
+    
+    /*parsing the file into the board*/
+    values_read_amount = 0;
+
+    printf("A");
+    /*reading as much as we can*/
+    while(fread(read_buffer, sizeof(char),BUFFER_SIZE -1,fd) > 0){
+        printf("B");
+        tok = strtok(read_buffer," \t\r\n");
+        values_read_amount++;
+        /*parsing while we can*/
+        while (tok)
+        {
+            printf("C");
+
+            if(values_read_amount == 1){
+                rows_amount = (int)strtol(tok,NULL, 10);
+               /* *box_height_pointer = rows_amount;*/
+                printf("rows:%d\n",rows_amount);
+            } else if(values_read_amount == 2){
+                columns_amount = (int)strtol(tok,NULL, 10);
+                printf("cols:%d\n",columns_amount);
+                total_length = rows_amount * columns_amount;
+                *grid_pointer = create_empty_board(total_length, total_length);
+
+                /**box_width_pointer = columns_amount;*/
+                printf("~~\n");
+            } else {
+                /*determining rows and cols*/
+                
+
+                cur_row = (values_read_amount-3) / total_length;
+
+                if((values_read_amount-2) % total_length == 0){
+                    cur_col = total_length -1;
+                }
+                else{
+                    cur_col = (values_read_amount-2) % total_length -1;
+                }
+                curr_val = (int)strtol(tok,NULL, 10);
+
+                /*checking for legal values*/
+                if(curr_val < 0 || curr_val > total_length){
+                    /*could not read board-  wrong values inserted*/
+                    printf("FAILED! incorrect range! \n");
+                    return FAILURE;
+                }
+                printf("inserting at index:(%d,%d) values amount is:%d trying to insert:%d  ",cur_row,cur_col, (values_read_amount-2), curr_val);
+                /*BUG HERE (????) */
+                (*grid_pointer)[cur_row][cur_col].value = curr_val;
+                (*grid_pointer)[cur_row][cur_col].is_const = 0;
+                (*grid_pointer)[cur_row][cur_col].is_valid = 1;
+                printf("inserted :%d \n", curr_val);
+                fflush(stdout);
+            }
+            tok = strtok(NULL," \t\r\n");
+            values_read_amount++;
+        }
+        /*values_read_amount--;*/
+        printf("-----------------\n");
+    }
+    
+    printf("%s \n",read_buffer);
+    if(values_read_amount < total_length*total_length){
+        /*not enough values were read!*/
+        printf("FAILED! params \n");
+        return FAILURE;
+    }
+
+    printf("finished raeding\n");
+    return 1;
+    
+    
+
+
 }
 
 /*
@@ -312,6 +396,7 @@ int main(){
     i = string_to_int("0");
     printf("%d \n", i);*/
 
+    /*
     int int_grid[9][9] = {{4, 0, 1, 0, 0, 0, 0, 5, 2},
                           {0, 0, 0, 0, 0, 0, 0, 0, 0},
                           {0, 5, 0, 0, 4, 1, 0, 0, 0},
@@ -323,8 +408,8 @@ int main(){
                           {0, 0, 0, 7, 0, 0, 0, 0, 0}};
     struct Cell **grid = (struct Cell **) malloc(DEFAULT_GRID_HEIGHT * sizeof(struct Cell));
     int i;
-    int j;
-    /*check if malloc failed*/
+    int j;*/
+    /*
     if(!grid){
         printf(FUNCTION_FAILED, "malloc");
         exit(0);
@@ -332,26 +417,35 @@ int main(){
 
     for (i = 0; i < DEFAULT_GRID_HEIGHT; i++){
         grid[i] = (struct Cell *) malloc(DEFAULT_GRID_WIDTH * sizeof(struct Cell));
-        /*check if malloc failed*/
+        
         if(!grid[i]){
             printf(FUNCTION_FAILED, "malloc");
             exit(0);
         }
 
     }
-
-    /* Initiate the board */
+    
     for (i = 0; i < DEFAULT_GRID_HEIGHT; i++) {
         for (j = 0; j < DEFAULT_GRID_WIDTH; j++) {
             grid[i][j].value = int_grid[i][j];
             grid[i][j].is_const = FALSE;
         }
     }
-    write_board_to_file(grid, 9, 9, 3, 3, stdout ,solve);
-
-
-
-
+    write_board_to_file(grid, 9, 9, 3, 3, stdout ,solve_mode);*/
+    FILE *fd = fopen("test.txt","r");
+    struct Cell **grid;
+    char read_buffer[2500];
+    if(fd < 0){
+        printf("couldnt read the goddam file \n");
+        return -1;
+    }
+    /*fread(read_buffer, sizeof(int),BUFSIZ -1,fd);*/
+    read_board_from_file(fd,&grid,NULL,NULL,NULL,NULL);
+    //printf("the shit ass values is: %d \n", grid[0][0].value);
+    /*printf("%s \n", read_buffer);*/
+    printf("D ");
+    print_board(grid,9,9,3,3,solve_mode,0);
+    fflush(stdout);
 
 
 }

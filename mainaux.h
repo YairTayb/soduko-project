@@ -34,13 +34,14 @@
 #define VALIDATION_PASSED "Validation passed: board is solvable\n"
 #define FUNCTION_FAILED "Error: %s has failed\n"
 
-#include "game.h"
+
 
 struct Cell {
     int value;
     int is_const;
     int is_valid;
 } cell;
+#include "game.h"
 
 void print_board(struct Cell** grid, int grid_height, int grid_width,int box_height, int box_width,
         game_mode mode, int mark_errors);

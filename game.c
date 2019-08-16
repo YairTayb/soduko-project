@@ -134,17 +134,21 @@ int save(struct Cell **grid, int grid_height, int grid_width, int box_height, in
     int i, j, tok;
     FILE* fd;
 
+    struct Cell **board_copy = create_empty_board(grid_height,grid_width);
+    copy_board(grid,copy_board,grid_height,grid_width);
+
     if (mode == edit_mode) {
         if ( is_board_errornous(grid,grid_height, grid_width)){
             /*ERROR HANDLING*/
             print_errornous_board_message();
             return ERRORNOUS_BOARD;
         }
-        if (!solve_grid(new_solution,grid_height, grid_width,box_height,box_width,0,0) ){
-            /*ERROR HANDLING*/
+        
+        if (!count_solutions_iterative(copy_board,grid_height,grid_width,box_height,box_width)){
+            /*ERROR HANDLING */
             print_validation_failed();
             return COMMAND_INCOMPLETE;
-        }
+        } 
     } 
     fd = fopen(path, "w");
     if (!fd){
@@ -304,7 +308,7 @@ int generate(struct Cell **grid, int grid_height, int grid_width, int box_height
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
     if (!valid_values) {
-        printf(FUNCTION_FAILED, "malloc")
+        printf(FUNCTION_FAILED, "malloc");
         /* ERROR HANDLING - EXIT?? */
         exit(EXIT_FAILURE);
     }
@@ -391,10 +395,11 @@ int generate(struct Cell **grid, int grid_height, int grid_width, int box_height
     return COMMAND_INCOMPLETE;
 }
 
-void solve(struct Cell ***grid_pointer, chr *path, int *grid_height_pointer, int *grid_width_pointer,
+void solve(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
     int return_code;
+    FILE *fd;
 
     fd = fopen(path, "w");
     if (!fd) {
@@ -413,10 +418,11 @@ void solve(struct Cell ***grid_pointer, chr *path, int *grid_height_pointer, int
 }
 
 
-void edit(struct Cell ***grid_pointer, chr *path, int *grid_height_pointer, int *grid_width_pointer,
+void edit(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
     int return_code;
+    FILE *fd;
 
     if (path == NULL){
         /* TODO: Check that path is indeed NULL when no param is passed */
