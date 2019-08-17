@@ -1,13 +1,15 @@
 #ifndef SUDOKU_PARSER_H
 #define SUDOKU_PARSER_H
 
-#define FAILURE -1
+
 #define EMPTY 0
 #define TRUE 1
 #define FALSE 0
 #define MAX_COMMAND_LENGTH 1024
 #define MAX_PATH_LENGTH 4096
 #define BUFFER_SIZE 1024
+
+#include <stdio.h>
 
 #include "mainaux.h"
 #include "game.h"
@@ -32,6 +34,8 @@ typedef struct comm {
 int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width,
                          int *box_height_pointer,
                          int *box_width_pointer);
+
+int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);
 
 command parse_command();
 #endif

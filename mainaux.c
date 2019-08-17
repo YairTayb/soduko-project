@@ -85,6 +85,12 @@ void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int g
     }
 }
 
+void print_cell_is_not_empty(int row, int col){
+    printf(CELL_IS_NOT_EMPTY_ERROR);
+}
+
+
+
 /**
  * Create an empty board
  * @param grid_height The board height
@@ -257,3 +263,4 @@ int get_cells_number_input(int* num_of_hints){
 
     return 1;
 }
+

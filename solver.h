@@ -27,7 +27,7 @@ int is_cell_errornous(struct Cell **grid, int row, int col);
 
 int is_empty(struct Cell **grid, int row, int col);
 
-solve_grid(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row,
+int solve_grid(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row,
            int col);
 
 int count_empty_cells(struct Cell **board, int grid_height, int grid_width);

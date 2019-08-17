@@ -12,7 +12,7 @@ int string_to_int(char *number ){
     i = 0;
     num = 0;
     /*check length before*/
-    while(number[i] != '.' && number[i] ){
+    while(number[i] != '.' && number[i] && number[i] != EOF){
         num = num * 10;
         num += number[i] -'0';
         i++;
@@ -21,6 +21,19 @@ int string_to_int(char *number ){
 
 
 }
+
+int check_if_const(char *number){
+    int i;
+    i = strlen(number);
+    if(i <= 1){
+        return FALSE;
+    }
+    if(number[i-1] == '.' ){
+        return TRUE;
+    }
+    return FALSE;
+}
+
 
 /**
  * Parse a game command from input stream. A command that receives an input and returns a command struct
@@ -84,12 +97,10 @@ command parse_command(){
     /*Identifying the command entered.*/
 
     if(strcmp(token,"solve") == 0){
-        printf("AA1\n");
         received_command.command_chosen = solve_command;
         received_command.param_amount = 1;
 
     } else if(strcmp(token,"edit") == 0){
-        printf("AA2\n");
         received_command.command_chosen = edit_command;
         received_command.param_amount = 1;
 
@@ -102,7 +113,6 @@ command parse_command(){
         received_command.param_amount = 0;
 
     } else if(strcmp(token,"set") == 0) {
-        printf("AA4\n");
         received_command.command_chosen = set_command;
         received_command.param_amount = 3;
 
@@ -171,8 +181,11 @@ command parse_command(){
             /*whether we need to save a path or a parameter*/
             if(received_command.command_chosen == edit_command || 
             received_command.command_chosen == save_command || received_command.command_chosen == solve_command){
-                /* TODO: Check that the command  strcpy succeeded */
-                strcpy(received_command.path, token);
+                if(token != NULL){
+                    /* TODO: Check that the command  strcpy succeeded */
+                    strcpy(received_command.path, token);
+                } 
+                
             } else {
 
                 received_command.params[i]= string_to_int(token) ;
@@ -183,6 +196,10 @@ command parse_command(){
         i++;
     }
     /*if param amount is not 0 then we have the wrong amount of parameters.*/
+
+    if(received_command.command_chosen == edit_command && received_command.param_amount == 1){
+        received_command.path[0] = '\0';
+    }
 
     return received_command;
 }
@@ -233,11 +250,10 @@ int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int
 
 }
 
-int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width,
+int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
-    /* TODO: Read the board from the file, allocate a new board with the relevant sizes, and fill
-     * TODO: the given parameters */
+    
 
     int rows_amount, columns_amount, total_length;
     int i,j,values_read_amount, curr_val;
@@ -246,77 +262,70 @@ int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height
     char *tok;
 
     int read_token=0;
-    
+    printf("hatool");
     
     /*parsing the file into the board*/
     values_read_amount = 0;
 
-    printf("A");
     /*reading as much as we can*/
     while(fread(read_buffer, sizeof(char),BUFFER_SIZE -1,fd) > 0){
-        printf("B");
+        printf("hatool2");
         tok = strtok(read_buffer," \t\r\n");
         values_read_amount++;
         /*parsing while we can*/
         while (tok)
         {
-            printf("C");
-
+            printf("hatool3");
             if(values_read_amount == 1){
-                rows_amount = (int)strtol(tok,NULL, 10);
-               /* *box_height_pointer = rows_amount;*/
+                rows_amount = string_to_int(tok);
+                printf("POF");
+                *box_height_pointer = rows_amount;
+                printf("BOF");
                 printf("rows:%d\n",rows_amount);
             } else if(values_read_amount == 2){
-                columns_amount = (int)strtol(tok,NULL, 10);
+                columns_amount = string_to_int(tok);
                 printf("cols:%d\n",columns_amount);
                 total_length = rows_amount * columns_amount;
                 *grid_pointer = create_empty_board(total_length, total_length);
 
-                /**box_width_pointer = columns_amount;*/
-                printf("~~\n");
+                *box_width_pointer = columns_amount;
             } else {
-                /*determining rows and cols*/
-                
 
+                *grid_height_pointer = total_length;
+                *grid_width_pointer = total_length;
                 cur_row = (values_read_amount-3) / total_length;
-
                 if((values_read_amount-2) % total_length == 0){
                     cur_col = total_length -1;
                 }
                 else{
                     cur_col = (values_read_amount-2) % total_length -1;
                 }
-                curr_val = (int)strtol(tok,NULL, 10);
+                curr_val = (int)strtol(tok,NULL, 10);/**/
 
                 /*checking for legal values*/
                 if(curr_val < 0 || curr_val > total_length){
                     /*could not read board-  wrong values inserted*/
-                    printf("FAILED! incorrect range! \n");
+                    printf("FAILED! incorrect range! val is:%d \n",curr_val);
+                    free(*grid_pointer);
                     return FAILURE;
                 }
-                printf("inserting at index:(%d,%d) values amount is:%d trying to insert:%d  ",cur_row,cur_col, (values_read_amount-2), curr_val);
-                /*BUG HERE (????) */
+                printf("%d\n",values_read_amount);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
-                (*grid_pointer)[cur_row][cur_col].is_const = 0;
+                (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
-                printf("inserted :%d \n", curr_val);
-                fflush(stdout);
             }
             tok = strtok(NULL," \t\r\n");
             values_read_amount++;
         }
-        /*values_read_amount--;*/
-        printf("-----------------\n");
     }
     
-    printf("%s \n",read_buffer);
     if(values_read_amount < total_length*total_length){
         /*not enough values were read!*/
-        printf("FAILED! params \n");
+        free(*grid_pointer);
+        printf("FAILED! not enough params read from file! \n");
         return FAILURE;
     }
 
-    printf("finished raeding\n");
     return 1;
     
     
@@ -324,17 +333,9 @@ int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height
 
 }
 
-/*
-char** board_to_string(struct Cell** grid, int grid_height, int grid_width, int fd){
 
-    int i, j;
-    char ** parsed_board = (char **)(malloc(sizeof(char **)*grid_height));
-    for (i = 0; i < grid_height; i++){
-        parsed_board[i] = (char *)(malloc((sizeof(char) * 4) + 2));
-    }
-    
 
-}*/
+
 /**
  * converts a string to a board
  * 
@@ -360,9 +361,9 @@ void string_to_board(struct Cell** grid, int grid_height, int grid_width, char* 
 
 }
 
-
+/*
 int main(){
-   /* int i;
+    int i;
     int count = 15;
     command test_command;*/
     /*char string_board[4096] = {"1. 0 1  \n 1 1 1\n 0. 0 0 \n"};
@@ -432,20 +433,22 @@ int main(){
         }
     }
     write_board_to_file(grid, 9, 9, 3, 3, stdout ,solve_mode);*/
+    /*
     FILE *fd = fopen("test.txt","r");
+    int a,b,c,d; 
     struct Cell **grid;
     char read_buffer[2500];
     if(fd < 0){
         printf("couldnt read the goddam file \n");
         return -1;
     }
-    /*fread(read_buffer, sizeof(int),BUFSIZ -1,fd);*/
-    read_board_from_file(fd,&grid,NULL,NULL,NULL,NULL);
-    //printf("the shit ass values is: %d \n", grid[0][0].value);
-    /*printf("%s \n", read_buffer);*/
+    
+    read_board_from_file(fd,&grid,&a,&b,&c,&d);
+    
     printf("D ");
     print_board(grid,9,9,3,3,solve_mode,0);
     fflush(stdout);
 
+    
 
-}
+}*/

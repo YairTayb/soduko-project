@@ -1,18 +1,7 @@
 #define SUCCESS 1
-#define FAILURE 0
+#include "game.h"
 
-struct Node  {
-	struct Cell** data;
-	struct Node* next;
-	struct Node* prev;
-};
 
-struct List_of_moves
-{
-	struct Node* current_move;
-    int board_width;
-    int board_height;
-};
 
 struct Node* psuedo_undo(struct List_of_moves*  list);
 struct Node* psuedo_redo(struct List_of_moves*  list);

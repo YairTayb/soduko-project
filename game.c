@@ -1,7 +1,7 @@
 #include "game.h"
 #include "solver.h"
 #include "moves_list.h"
-
+#include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -37,7 +37,7 @@ int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int
 
     /* Validate the cell is not fixed - if it is and we are in solve mode -
      * print error and don't perform command */
-    if (mode == solve && grid[row][col].is_const == TRUE) {
+    if (mode == solve_mode && grid[row][col].is_const == TRUE) {
         print_fixed_cell_error(row, col);
         return COMMAND_INCOMPLETE;
     }
@@ -86,7 +86,7 @@ void print_changes(struct Cell **before, struct Cell **after, int grid_height, i
 }
 
 
-int undo(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
+int undo_move(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
 
     struct Node* temp = psuedo_undo(list);
     if (temp == NULL) {
@@ -99,7 +99,7 @@ int undo(struct Cell **grid, int grid_height, int grid_width, struct List_of_mov
     }
 }
 
-int redo(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
+int redo_move(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list) {
 
     struct Node*temp = psuedo_redo(list);
     if (temp == NULL) {
@@ -118,10 +118,7 @@ void restart_game(struct Cell **grid, int grid_height, int grid_width, struct Li
 }
 
 
-char *parse_board(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
 
-
-}
 
 
 /**
@@ -135,7 +132,7 @@ int save(struct Cell **grid, int grid_height, int grid_width, int box_height, in
     FILE* fd;
 
     struct Cell **board_copy = create_empty_board(grid_height,grid_width);
-    copy_board(grid,copy_board,grid_height,grid_width);
+    copy_board(grid,board_copy,grid_height,grid_width);
 
     if (mode == edit_mode) {
         if ( is_board_errornous(grid,grid_height, grid_width)){
@@ -144,7 +141,7 @@ int save(struct Cell **grid, int grid_height, int grid_width, int box_height, in
             return ERRORNOUS_BOARD;
         }
         
-        if (!count_solutions_iterative(copy_board,grid_height,grid_width,box_height,box_width)){
+        if (!count_solutions_iterative(board_copy,grid_height,grid_width,box_height,box_width)){
             /*ERROR HANDLING */
             print_validation_failed();
             return COMMAND_INCOMPLETE;
@@ -180,7 +177,7 @@ int validate(struct Cell **grid, int grid_height, int grid_width, int box_height
 
     if (is_board_errornous(grid, grid_height, grid_width)) {
         print_errornous_board_message();
-        free_board(new_solution);
+        free_board(new_solution, grid_height);
         return ERRORNOUS_BOARD;
     }
 
@@ -210,7 +207,7 @@ int validate(struct Cell **grid, int grid_height, int grid_width, int box_height
  * @param box_height The height of a sudoku box
  * @param box_width The width of a sudoku box
  */
-void num_solutions(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width){
+int num_solutions(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width){
     int solutions_count;
 
     if (is_board_errornous(grid, grid_height, grid_width)) {
@@ -220,19 +217,22 @@ void num_solutions(struct Cell **grid, int grid_height, int grid_width, int box_
 
     solutions_count = count_solutions_iterative(grid, grid_height, grid_width, box_height, box_width);
     print_num_of_solutions(solutions_count);
+    return SUCCESS;
 }
 
 int autofill(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width) {
     int i;
     int j;
-    int num;
+    int num, row, col;
 
     struct Cell **temp_board = create_empty_board(grid_height, grid_width);
     copy_board(grid, temp_board, grid_height, grid_width);
 
     for (i=0; i<grid_height; i++){
         for (j=0; j<grid_width; j++){
-            if (is_empty(grid, row, col) && count_valid_values(grid, grid_height, grid_width, box_height, box_width) == 1){
+            row = i;
+            col = j;
+            if (is_empty(grid, row, col) && count_valid_values(grid, grid_height, grid_width, box_height, box_width,row,col,grid_height) == 1){
                 /* Find the one possible valid value for the current cell */
                 for (num = 1; num < (box_height * box_width); num++){
                     if (is_valid(grid, grid_height, grid_width, box_height, box_width, row, col, num)) {
@@ -395,58 +395,62 @@ int generate(struct Cell **grid, int grid_height, int grid_width, int box_height
     return COMMAND_INCOMPLETE;
 }
 
-void solve(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
+int solve(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
     int return_code;
     FILE *fd;
-
+    struct Cell ***temp_grid_pointer;
     fd = fopen(path, "w");
     if (!fd) {
-        /*ERROR HANDLING*/
+        printf(FAILED_OPENING_FILE);
         return COMMAND_INCOMPLETE;
     }
 
-    return_code = read_board_from_file(fd, grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    return_code = read_board_from_file(fd, temp_grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
     if (return_code == FAILURE) {
         /*ERROR HANDLING- HOW TO TREAT?*/
         return COMMAND_INCOMPLETE;
     }
+
+    *grid_pointer = *temp_grid_pointer;
     return COMMAND_COMPLETED;
 }
 
 
-void edit(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
+int edit(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
     int return_code;
     FILE *fd;
-
-    if (path == NULL){
-        /* TODO: Check that path is indeed NULL when no param is passed */
+    struct Cell ***temp_grid_pointer;
+    if (path[0] == '\0'){
+        /*checking for \0 instead of NULL*/
         *(grid_pointer) = create_empty_board(DEFAULT_GRID_HEIGHT, DEFAULT_GRID_WIDTH);
         *(grid_height_pointer) = DEFAULT_GRID_HEIGHT;
         *(grid_width_pointer) = DEFAULT_GRID_WIDTH;
         *(box_height_pointer) = DEFAULT_BOX_HEIGHT;
         *(box_width_pointer) = DEFAULT_BOX_WIDTH;
-    }
+        return COMMAND_COMPLETED;
+    } 
+
+    
 
     fd = fopen(path, "w");
     if (!fd) {
-        /*ERROR HANDLING*/
+        printf(FAILED_OPENING_FILE);
         return COMMAND_INCOMPLETE;
     }
 
-    return_code = read_board_from_file(fd, grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    return_code = read_board_from_file(fd, temp_grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
-
     if (return_code == FAILURE) {
         /*ERROR HANDLING- HOW TO TREAT?*/
         return COMMAND_INCOMPLETE;
     }
-
+    *grid_pointer = *temp_grid_pointer;
     /* TODO - Validate if board is not errornous and maybe mark all cells as fixed? */
     update_board_errors(*(grid_pointer), *(grid_height_pointer), *(grid_width_pointer), *(box_height_pointer),
                         *(box_width_pointer));

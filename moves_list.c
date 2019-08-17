@@ -51,7 +51,7 @@ void Print_list(struct List_of_moves*  list) {
 	printf("Forward: ");
 	while(temp != NULL) {
 		/* TODO: Align to the real print_board */
-		print_board(temp->data,list->board_height, list->board_width,3,3);//TEMPORARY VALUES
+		print_board(temp->data,list->board_height, list->board_width,3,3,solve_mode,0);
 		temp = temp->next;
 	}
 	printf("\n");
@@ -151,7 +151,7 @@ struct Node* psuedo_redo(struct List_of_moves*  list){
 
 struct Node* psuedo_reset(struct List_of_moves*  list){
 	list->current_move = find_list_head(list);
-	return list->current_move->data;
+	return list->current_move;
 }
 
 

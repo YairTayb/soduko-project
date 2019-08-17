@@ -21,7 +21,7 @@ int count_empty_cells(struct Cell **board, int grid_height, int grid_width){
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
             /* Check if the call is valid and mark properly */
-            if (is_empty(board, i, j) {
+            if (is_empty(board, i, j)) {
                 counter++;
             }
         }
@@ -40,10 +40,12 @@ int count_empty_cells(struct Cell **board, int grid_height, int grid_width){
  * @param box_width The box width
  */
 void update_board_errors(struct Cell **board, int grid_height, int grid_width, int box_height, int box_width){
-    int i, j;
+    int i, j, row, col;
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
             /* Check if the call is valid and mark properly */
+            row = i;
+            col = j;
             if (is_valid(board, grid_height, grid_width, box_height, box_width, row, col, board[row][col].value))
                 board[row][col].is_valid = TRUE;
             else

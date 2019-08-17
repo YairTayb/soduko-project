@@ -33,15 +33,19 @@
 #define VALIDATION_FAILED "Validation failed: board is unsolvable\n"
 #define VALIDATION_PASSED "Validation passed: board is solvable\n"
 #define FUNCTION_FAILED "Error: %s has failed\n"
-
-
+#define FAILED_OPENING_FILE "Error opening the path given\n"
+#define INVALID_COMMAND_CHOSEN "Error invalid command chosen"
 
 struct Cell {
     int value;
     int is_const;
     int is_valid;
 } cell;
-#include "game.h"
+/*#include "game.h"*/
+
+typedef enum Mode{
+    init_mode, edit_mode, solve_mode
+} game_mode;
 
 void print_board(struct Cell** grid, int grid_height, int grid_width,int box_height, int box_width,
         game_mode mode, int mark_errors);
