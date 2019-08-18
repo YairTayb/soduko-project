@@ -1,0 +1,58 @@
+#ifndef NIM_CONSTS_H
+#define NIM_CONSTS_H
+
+
+#define EMPTY 0
+#define TRUE 1
+#define FALSE 0
+#define MAX_COMMAND_LENGTH 1024
+#define MAX_PATH_LENGTH 4096
+#define BUFFER_SIZE 1024
+
+#define FAILURE -1
+#define SUCCESS 1
+#define GAME_WON 1
+#define COMMAND_COMPLETED 0
+#define COMMAND_INCOMPLETE -1
+#define ERRORNOUS_BOARD -2
+
+#define UNASSIGNED 0
+#define DEFAULT_GRID_HEIGHT 9
+#define DEFAULT_GRID_WIDTH 9
+#define DEFAULT_BOX_HEIGHT 3
+#define DEFAULT_BOX_WIDTH 3
+#define CHARACTERS_IN_CELL 3
+
+
+/* Formatting & output prints */
+#define EMPTY_CELL "   "
+#define NORMAL_CELL " %d "
+#define ERROR_CELL " %d*"
+#define CONST_CELL " %d."
+#define INVALID_NUMBER_OF_CELLS_TO_FILL "Error: invalid number of cells to fill (should be between 0 and 80)\n"
+#define NUMBER_OF_CELLS_TO_FILL_MSG "Please enter the number of cells to fill [0-80]:\n"
+#define INVALID_COMMAND_ERROR "Error: invalid command %s\n"
+#define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
+#define CELL_IS_NOT_EMPTY_ERROR "Error: cell (%d,%d) is not empty\n"
+#define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d-%d]\n"
+#define WIN_MSG "Puzzle solved successfully\n"
+#define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
+#define ERROR_BOARD_MSG "Board contains errors!\n"
+#define HINT_MSG "Hint: set cell (%d,%d) to %d\n"
+#define EXIT_MSG "Exiting...\n"
+#define VALIDATION_FAILED "Validation failed: board is unsolvable\n"
+#define VALIDATION_PASSED "Validation passed: board is solvable\n"
+#define FUNCTION_FAILED "Error: %s has failed\n"
+#define FAILED_OPENING_FILE "Error: Unable to open the file at the given path [%s]\n"
+#define INVALID_COMMAND_CHOSEN "Error: Invalid command chosen - %s"
+#define REACHED_OEF "Reached EOF while reading user input. Exiting.\n"
+#define NO_ERRORS "No errors occurred.\n"
+#define TOO_MANY_PARAMETERS "Too many parameters were entered. Syntax: %s\n"
+#define NOT_ENOUGH_PARAMETERS "Not enough parameters were entered. Syntax: %s\n"
+#define WRITING_TO_FILE_ERROR "Unable to write to file"
+#define READIND_FROM_FILE_ERROR "Unable to read from file"
+#define INVALID_FILE_STRUCTURE_ERROR "Invalid file structure was given"
+#define ENTER_COMMAND_PROMPT "Enter command: "
+#define INVALID_COMMAND_MODE "Invalid mode for command. Command is available in the following modes: %s\n"
+
+#endif

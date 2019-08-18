@@ -1,41 +1,23 @@
 #ifndef SUDOKU_PARSER_H
 #define SUDOKU_PARSER_H
 
+#include "data_models.h"
+#include "consts.h"
 
-#define EMPTY 0
-#define TRUE 1
-#define FALSE 0
-#define MAX_COMMAND_LENGTH 1024
-#define MAX_PATH_LENGTH 4096
-#define BUFFER_SIZE 1024
-
-#include <stdio.h>
-
-#include "mainaux.h"
-#include "game.h"
-
-typedef enum Type {
-    invalid_type, solve_command, edit_command, mark_errors_command,
-    print_board_command, set_command, validate_command, guess_command, generate_command,  
-    undo_command, save_command, hint_command, guess_hint_command, num_solutions_command,
-    redo_command, autofill_command, reset_command, exit_command
-} command_type;
-
-
-typedef struct comm {
-    command_type command_chosen;
-    int params[3];
-    int param_amount;
-    char path[MAX_PATH_LENGTH];
-} command;
 
 /*void write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);*/
 
-int read_board_from_file(FILE *fd, struct Cell*** grid_pointer, int *grid_height_pointer, int *grid_width,
+int read_board_from_file(FILE *fd, board *grid_pointer, int *grid_height_pointer, int *grid_width,
                          int *box_height_pointer,
                          int *box_width_pointer);
 
-int write_board_to_file(struct Cell** grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd, game_mode mode_of_game);
+returnCodeDesc write_board_to_file(board grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd,
+                        game_mode mode_of_game);
 
-command parse_command();
+returnCodeDesc parse_command(command *user_command);
+
+returnCodeDesc validate_amount_of_parameters(command user_command);
+
+returnCodeDesc validate_command_mode(command user_command, game_mode current_mode);
+
 #endif

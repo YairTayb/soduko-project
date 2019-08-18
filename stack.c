@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include "stack.h"
 #include "mainaux.h"
 
@@ -14,6 +14,7 @@ void push(stack *stk, move data) {
     p = malloc(sizeof(elem));
     if (p == NULL) {
         /* Malloc failed */
+        /* TODO: Add new error validation */
         printf(FUNCTION_FAILED, "malloc");
     }
 
@@ -24,7 +25,7 @@ void push(stack *stk, move data) {
 }
 
 
-struct move pop(stack *stk){
+move pop(stack *stk){
     move data;
     elem *p = NULL;
 
@@ -36,7 +37,7 @@ struct move pop(stack *stk){
     return data;
 }
 
-struct move top(stack *stk){
+move top(stack *stk){
     return stk->top->data;
 }
 

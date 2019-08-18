@@ -1,70 +1,128 @@
 /*created by Yair on 3.6.19*/
-#include "parser.h"
-#include "game.h"
-#include "mainaux.h"
-#include "solver.h"
-
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "mainaux.h"
+#include "parser.h"
+#include "solver.h"
+#include "game.h"
 
 
-
-
-int main(int argc, char *argv[]) {
-    struct Cell **board;
-    int i, mark_errors;
+int main() {
+    board game_board = NULL;
+    int mark_errors = 1;
     int grid_height, grid_width, box_height, box_width;
-    command user_input;
-    mark_errors = 0;
-    
-    game_mode curr_mode = init_mode;
+    command user_command;
+    returnCodeDesc return_code_desc;
+    game_mode current_mode = init_mode;
+
+    mark_errors = 1;
 
     /* Game begins */
     while (TRUE) {
+        printf(ENTER_COMMAND_PROMPT);
         /* Parse the current command */
-        user_input = parse_command();
-        if(user_input.command_chosen == invalid_type){
-            printf(INVALID_COMMAND_CHOSEN);
+        return_code_desc = parse_command(&user_command);
 
-        } else if (user_input.command_chosen == solve_command){
+        if (is_error(return_code_desc) == TRUE){
+            handle_errors(return_code_desc);
+            /* TODO - Should we continue on error? Or print the board the then continue? */
+            continue;
+        }
+
+        return_code_desc = validate_command_mode(user_command, current_mode);
+
+        if (is_error(return_code_desc) == TRUE){
+            handle_errors(return_code_desc);
+            continue;
+        }
+
+        return_code_desc = validate_amount_of_parameters(user_command);
+
+        if (is_error(return_code_desc) == TRUE){
+            handle_errors(return_code_desc);
+            continue;
+        }
+
+        if (user_command.command_chosen == solve_command) {
             /* Perform solve command */
-            solve(&board, user_input.path, &grid_height, &grid_width, &box_height, &box_width);
+            solve(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width);
+            current_mode = solve_mode;
+
+        } else if (user_command.command_chosen == edit_command) {
+            if (user_command.param_amount == 0)
+                edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, FALSE);
+            else
+                edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
+            current_mode = edit_mode;
+
+        } else if (user_command.command_chosen == mark_errors_command) {
+            mark_errors = user_command.params[0];
+
+        } else if (user_command.command_chosen == print_board_command) {
+            /* Do nothing - the board will print anyway */
+
+        } else if (user_command.command_chosen == set_command) {
+            return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
+                                   user_command.params[1], user_command.params[2], current_mode);
+
+        } else if (user_command.command_chosen == validate_command) {
+            validate(game_board, grid_height, grid_width, box_height, box_width);
+
+        } else if (user_command.command_chosen == guess_command) {
+
+        } else if (user_command.command_chosen == generate_command) {
+            return_code_desc = generate(game_board, grid_height, grid_width, box_height, box_width,
+                                        user_command.params[0],
+                                        user_command.params[1]);
+
+        } else if (user_command.command_chosen == undo_command) {
+
+        } else if (user_command.command_chosen == redo_command) {
+
+        } else if (user_command.command_chosen == save_command) {
+            return_code_desc = save(game_board, grid_height, grid_width, box_height, box_width, current_mode,
+                                    user_command.path);
+
+        } else if (user_command.command_chosen == hint_command) {
+            return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
+                                    user_command.params[1]);
+
+        } else if (user_command.command_chosen == guess_hint_command) {
+
+        } else if (user_command.command_chosen == num_solutions_command) {
+
+        } else if (user_command.command_chosen == autofill_command) {
+            return_code_desc = autofill(game_board, grid_height, grid_width, box_height, box_width);
+
+        } else if (user_command.command_chosen == reset_command) {
+
+        } else if (user_command.command_chosen == exit_command) {
+            exit(SUCCESS);
+
         }
-        else if(user_input.command_chosen == edit_command) {
-            edit(&board, user_input.path, &grid_height, &grid_width, &box_height, &box_width);
-
-        } else if(user_input.command_chosen == mark_errors_command){
-
-        } else if(user_input.command_chosen == print_board_command){
-
-        } else if(user_input.command_chosen == set_command){
-
-        } else if(user_input.command_chosen == validate_command){
-
-        } else if(user_input.command_chosen == guess_command){
-
-        } else if(user_input.command_chosen == generate_command){
-
-        } else if(user_input.command_chosen == undo_command){
-
-        } else if(user_input.command_chosen == redo_command){
-
-        } else if(user_input.command_chosen == save_command){
-
-        } else if(user_input.command_chosen == hint_command){
-
-        } else if(user_input.command_chosen == guess_hint_command){
-
-        } else if(user_input.command_chosen == num_solutions_command){
-
-        } else if(user_input.command_chosen == autofill_command){
-
-        } else if(user_input.command_chosen == reset_command){
-
-        } else if(user_input.command_chosen == exit_command){
-
+        if (is_error(return_code_desc) == TRUE){
+            handle_errors(return_code_desc);
+            continue;
         }
 
+        update_board_errors(game_board, grid_height, grid_width, box_height, box_width);
+        print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
+
+        /* Check if the game was won */
+        if (is_board_complete(game_board, grid_height, grid_width)) {
+            /* board is fully filled */
+            if (is_board_errornous(game_board, grid_height, grid_width)) {
+                /* board contains errors - notify user */
+                print_errornous_board_message();
+
+            } else {
+                /* board is completed and valid - game was won */
+                print_winning_message();
+                current_mode = init_mode;
+            }
+        }
     }
+
+    return SUCCESS;
 
 }

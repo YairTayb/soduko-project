@@ -1,42 +1,33 @@
 #ifndef NIM_GAME_H
 #define NIM_GAME_H
 
+#include "data_models.h"
 
-#define FAILURE -1
-#define GAME_WON 1
-#define COMMAND_COMPLETED 0
-#define COMMAND_INCOMPLETE -1
-#define ERRORNOUS_BOARD -2
+returnCodeDesc set(board grid, int grid_height, int grid_width, int box_height, int box_width,
+        int row, int col, int value, game_mode mode);
 
-#include "mainaux.h"
+returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
+          int *box_height_pointer,
+          int *box_width_pointer);
 
+returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
+         int *box_height_pointer,
+         int *box_width_pointer,
+         int path_was_passed);
 
-struct Node  {
-	struct Cell** data;
-	struct Node* next;
-	struct Node* prev;
-};
+int redo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
 
-struct List_of_moves
-{
-	struct Node* current_move;
-    int board_width;
-    int board_height;
-};
+int undo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
 
-typedef enum CommandFrom{
-    undo,redo, reset
-}command_changed_from;
+returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_height, int box_width, game_mode mode, char* path);
 
-int set(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
-        int row, int col, int value, game_mode mode, int mark_errors);
-int solve(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
-                    int *box_height_pointer,
-                    int *box_width_pointer);
-int edit(struct Cell ***grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
-                    int *box_height_pointer,
-                    int *box_width_pointer);
-int redo_move(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list);
-int undo_move(struct Cell **grid, int grid_height, int grid_width, struct List_of_moves *list);
+returnCodeDesc validate(board game_board, int grid_height, int grid_width, int box_height, int box_width);
+
+returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col);
+
+returnCodeDesc generate(board game_board, int grid_height, int grid_width, int box_height, int box_width,
+                        int num_of_cells_to_fill, int num_of_cells_to_keep);
+
+returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int box_height, int box_width);
 
 #endif

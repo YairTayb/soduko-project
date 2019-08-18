@@ -2,7 +2,6 @@
 #include<stdlib.h>
 
 #include "moves_list.h"
-#include "game.h"
 #include "mainaux.h"
 
 /**
@@ -14,7 +13,7 @@
 
 
 
-void init_move_list(struct List_of_moves*  list){
+void init_move_list(struct MovesList*  list){
 
 	list->current_move=NULL;
 }
@@ -24,15 +23,18 @@ void init_move_list(struct List_of_moves*  list){
 *
 * needs more parameters
 */
-struct Node* create_new_move (struct Cell **grid, struct List_of_moves* list) {
+struct Node* create_new_move (board game_board, struct MovesList* list) {
 
 	struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
-	if(!new_node){
-		/*ERROR HANDLING - MALLOC FAILED*/
-		exit(-1);
-	}
-	struct Cell **temp_board = create_empty_board(list->board_height, list->board_width);
-	copy_board(grid, temp_board, list->board_height, list->board_width);
+    board temp_board = NULL;
+
+    if(!new_node){
+        /*ERROR HANDLING - MALLOC FAILED*/
+        /* TODO: Add the new errors handling here */
+        exit(-1);
+    }
+
+	copy_board(game_board, temp_board, list->board_height, list->board_width);
 	new_node->data = temp_board;
 	new_node->prev = NULL;
 	new_node->next = NULL;
@@ -45,8 +47,8 @@ struct Node* create_new_move (struct Cell **grid, struct List_of_moves* list) {
 
 
 
-//Prints all the elements in linked list in forward traversal order
-void Print_list(struct List_of_moves*  list) {
+/* Prints all the elements in linked list in forward traversal order */
+void Print_list(struct MovesList*  list) {
 	struct Node* temp = list->current_move;
 	printf("Forward: ");
 	while(temp != NULL) {
@@ -60,7 +62,7 @@ void Print_list(struct List_of_moves*  list) {
 /**
 *
 */
-struct Node* find_list_head(struct List_of_moves*  list){
+struct Node* find_list_head(struct MovesList*  list){
 	struct Node* temp = list->current_move;
 
 	while (temp->prev != NULL ){
@@ -82,7 +84,7 @@ void free_partial_list(struct Node* head, int board_height){
 		temp_node = head;
 		head = head->next;
 		temp_node->prev=NULL;
-		free_board(temp_node->data,board_height);//free the data
+		free_board(temp_node->data,board_height);
 		free(temp_node);
 	}
 }
@@ -91,7 +93,7 @@ void free_partial_list(struct Node* head, int board_height){
 * A method that frees the whole list.
 *
 */
-void free_whole_list(struct List_of_moves*  list){
+void free_whole_list(struct MovesList*  list){
 	struct Node* head_to_free = find_list_head(list);
 	free_partial_list(head_to_free, list->board_height);
 }
@@ -99,9 +101,9 @@ void free_whole_list(struct List_of_moves*  list){
 /**
 * Add a move to the list.
 */
-void add_move ( struct Cell** grid, int grid_height, int grid_width, struct List_of_moves*  list){
-	struct Node* new_move = create_new_move(grid, list);
-	struct Node* curr_move = list->current_move;
+void add_move (board game_board, struct MovesList*  list){
+	struct Node* new_move = create_new_move(game_board, list);
+
 	if(list->current_move == NULL){
 			list->current_move = new_move;
 	} else {
@@ -129,7 +131,7 @@ void add_move ( struct Cell** grid, int grid_height, int grid_width, struct List
 *	A method to cast undo on the list of moves.
 *	returns the previous move if succeed, NULL if cannot undo.
 **/
-struct Node* psuedo_undo(struct List_of_moves*  list){
+struct Node* psuedo_undo(struct MovesList*  list){
 	
 	if (list->current_move == NULL || list->current_move->prev == NULL){
 		return NULL;
@@ -139,7 +141,7 @@ struct Node* psuedo_undo(struct List_of_moves*  list){
 	}
 }
 
-struct Node* psuedo_redo(struct List_of_moves*  list){
+struct Node* psuedo_redo(struct MovesList*  list){
 
 	if (list->current_move == NULL || list->current_move->next == NULL){
 		return NULL;
@@ -149,13 +151,13 @@ struct Node* psuedo_redo(struct List_of_moves*  list){
 	}
 }
 
-struct Node* psuedo_reset(struct List_of_moves*  list){
+struct Node* psuedo_reset(struct MovesList*  list){
 	list->current_move = find_list_head(list);
 	return list->current_move;
 }
 
 
-void restart_list(struct List_of_moves*  list){
+void restart_list(struct MovesList*  list){
 	free_whole_list(list);
 	list->current_move = NULL;
 }

@@ -1,19 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
-#include <stdlib.h>
 #include "mainaux.h"
-#include "game.h"
 
 /**
  * Print the current board to the user
- * @param grid The game board
+ * @param game_board The game board
  * @param grid_height The height of game board
  * @param grid_width The width of the game board
  * @param box_height The height of a sudoku box
  * @param box_width The width of a sudoku box
  */
-void print_board(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
+void print_board(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         game_mode mode, int mark_errors) {
     int i, j, k, line_length, boxes_amount;
     boxes_amount = grid_width / box_width;
@@ -38,17 +35,17 @@ void print_board(struct Cell **grid, int grid_height, int grid_width, int box_he
                 printf("| ");
             }
 
-            if (grid[i][j].value == UNASSIGNED)
+            if (game_board[i][j].value == UNASSIGNED)
                 printf(EMPTY_CELL);
 
-            else if (grid[i][j].is_const == FALSE) {
-                if (grid[i][j].is_valid == FALSE && (mark_errors == TRUE || mode == edit_mode))
-                    printf(ERROR_CELL, grid[i][j].value);
+            else if (game_board[i][j].is_const == FALSE) {
+                if (game_board[i][j].is_valid == FALSE && (mark_errors == TRUE || mode == edit_mode))
+                    printf(ERROR_CELL, game_board[i][j].value);
                 else
-                    printf(NORMAL_CELL, grid[i][j].value);
+                    printf(NORMAL_CELL, game_board[i][j].value);
             } else {
                 /* Its is a constant value */
-                printf(CONST_CELL, grid[i][j].value);
+                printf(CONST_CELL, game_board[i][j].value);
             }
 
 
@@ -74,7 +71,7 @@ void print_board(struct Cell **grid, int grid_height, int grid_width, int box_he
  * @param grid_height The height of the board
  * @param grid_width The width of the board
  */
-void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int grid_height, int grid_width) {
+void copy_board(board source_grid, board destination_grid, int grid_height, int grid_width) {
     int i;
     int j;
     for (i = 0; i < grid_height; i++) {
@@ -86,7 +83,7 @@ void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int g
 }
 
 void print_cell_is_not_empty(int row, int col){
-    printf(CELL_IS_NOT_EMPTY_ERROR);
+    printf(CELL_IS_NOT_EMPTY_ERROR, row, col);
 }
 
 
@@ -97,21 +94,21 @@ void print_cell_is_not_empty(int row, int col){
  * @param grid_width The board width
  * @return
  */
-struct Cell **create_empty_board(int grid_height, int grid_width) {
-    struct Cell **grid = (struct Cell **) malloc(grid_height * sizeof(struct Cell));/**/
+board create_empty_board(int grid_height, int grid_width) {
+    board game_board = (board) malloc(grid_height * sizeof(struct Cell*));/**/
     int i;
     int j;
 
     /*check if malloc failed*/
-    if(!grid){
+    if(!game_board){
         printf(FUNCTION_FAILED, "malloc");
         exit(0);
     }
     for (i = 0; i < grid_height; i++){
-        grid[i] = (struct Cell *) malloc(grid_width * sizeof(struct Cell));
+        game_board[i] = (struct Cell *) malloc(grid_width * sizeof(struct Cell));
         printf("allocated %d cells in row %d \n",grid_width, (i+1));
         /*check if malloc failed*/
-        if(!grid[i]){
+        if(!game_board[i]){
             printf(FUNCTION_FAILED, "malloc");
             exit(0);
         }
@@ -121,14 +118,12 @@ struct Cell **create_empty_board(int grid_height, int grid_width) {
     /* Initiate the board */
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
-            struct Cell cell;
-            cell.value = UNASSIGNED;
-            cell.is_const = FALSE;
-            grid[i][j] = cell;
+            game_board[i][j].value = UNASSIGNED;
+            game_board[i][j].is_const = FALSE;
         }
     }
 
-    return grid;
+    return game_board;
 }
 
 /**
@@ -137,7 +132,7 @@ struct Cell **create_empty_board(int grid_height, int grid_width) {
  * @param grid_height The board height
  * @param grid_width The board width
  */
-void empty_board(struct Cell **board_to_empty, int grid_height, int grid_width) {
+void empty_board(board board_to_empty, int grid_height, int grid_width) {
     int i, j;
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
@@ -147,15 +142,15 @@ void empty_board(struct Cell **board_to_empty, int grid_height, int grid_width) 
     }
 }
 
-void free_board(struct Cell** grid, int grid_height){
+void free_board(board game_board, int grid_height){
     int i;
     for ( i=0 ; i < grid_height; i++ ){
-        free (grid[i]);
+        free (game_board[i]);
     }
-    free(grid);
+    free(game_board);
 }
 
-int is_board_errornous(struct Cell **board, int grid_height, int grid_width) {
+int is_board_errornous(board board, int grid_height, int grid_width) {
     int i, j;
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
@@ -264,3 +259,22 @@ int get_cells_number_input(int* num_of_hints){
     return 1;
 }
 
+
+void handle_errors(returnCodeDesc return_code_desc){
+    if (return_code_desc.error_code != E_SUCCESS) {
+        /* An error occurred while parsing command */
+        printf("%s", return_code_desc.error_message);
+
+        if (return_code_desc.error_code == E_FUNCTION_FAILED) {
+            /* One of the functions have failed - we may exit without cleaning */
+            printf(EXIT_MSG);
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+int is_error(returnCodeDesc return_code_desc){
+    if (return_code_desc.error_code != E_SUCCESS)
+        return TRUE;
+    return FALSE;
+}

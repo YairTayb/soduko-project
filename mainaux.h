@@ -1,68 +1,46 @@
 #ifndef SUDOKU_MAIN_AUX_H
 #define SUDOKU_MAIN_AUX_H
 
-#define UNASSIGNED 0
-#define DEFAULT_GRID_HEIGHT 9
-#define DEFAULT_GRID_WIDTH 9
-#define DEFAULT_BOX_HEIGHT 3
-#define DEFAULT_BOX_WIDTH 3
-#define CHARACTERS_IN_CELL 3
-
-#define TRUE 1
-#define FALSE 0
-
-#define DEFAULT_SEED 5
-#define WRONG_VALUE -1
+#include "data_models.h"
+#include "consts.h"
 
 
-#define EMPTY_CELL "   "
-#define NORMAL_CELL " %d "
-#define ERROR_CELL " %d*"
-#define CONST_CELL " %d."
-#define INVALID_NUMBER_OF_CELLS_TO_FILL "Error: invalid number of cells to fill (should be between 0 and 80)\n"
-#define NUMBER_OF_CELLS_TO_FILL_MSG "Please enter the number of cells to fill [0-80]:\n"
-#define INVALID_COMMAND_ERROR "Error: invalid command\n"
-#define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
-#define CELL_IS_NOT_EMPTY_ERROR "Error: cell (%d,%d) is not empty\n"
-#define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d-%d]\n"
-#define WIN_MSG "Puzzle solved successfully\n"
-#define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
-#define ERROR_BOARD_MSG "Board contains errors!\n"
-#define HINT_MSG "Hint: set cell (%d,%d) to %d\n"
-#define EXIT_MSG "Exiting...\n"
-#define VALIDATION_FAILED "Validation failed: board is unsolvable\n"
-#define VALIDATION_PASSED "Validation passed: board is solvable\n"
-#define FUNCTION_FAILED "Error: %s has failed\n"
-#define FAILED_OPENING_FILE "Error opening the path given\n"
-#define INVALID_COMMAND_CHOSEN "Error invalid command chosen"
+void print_board(board grid, int grid_height, int grid_width, int box_height, int box_width,
+                 game_mode mode, int mark_errors);
 
-struct Cell {
-    int value;
-    int is_const;
-    int is_valid;
-} cell;
-/*#include "game.h"*/
+board create_empty_board(int grid_height, int grid_width);
 
-typedef enum Mode{
-    init_mode, edit_mode, solve_mode
-} game_mode;
+void copy_board(board source_grid, board destination_grid, int grid_height, int grid_width);
 
-void print_board(struct Cell** grid, int grid_height, int grid_width,int box_height, int box_width,
-        game_mode mode, int mark_errors);
-struct Cell** create_empty_board(int grid_height, int grid_width);
-void copy_board(struct Cell **source_grid, struct Cell **destination_grid, int grid_height, int grid_width);
-void empty_board(struct Cell** board_to_empty,int grid_height, int grid_width);
-void free_board(struct Cell** grid, int grid_height);
-int is_board_errornous(struct Cell **board, int grid_height, int grid_width);
+void empty_board(board board_to_empty, int grid_height, int grid_width);
+
+void free_board(board grid, int grid_height);
+
+int is_board_errornous(board board, int grid_height, int grid_width);
+
 int is_valid_input(int num, int max_num_in_range);
+
 void print_invalid_value(int lower_limit, int upper_limit);
+
 void print_fixed_cell_error(int row, int col);
+
 void print_cell_is_not_empty(int row, int col);
+
 void print_winning_message();
+
 void print_errornous_board_message();
+
 void print_hint_message(int row, int col, int hint_value);
+
 void print_validation_failed();
+
 void print_validation_passed();
+
 void print_num_of_solutions(int solutions_count);
+
+void handle_errors(returnCodeDesc return_code_desc);
+
+int is_error(returnCodeDesc return_code_desc);
+
 #endif
 

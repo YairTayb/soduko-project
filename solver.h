@@ -1,35 +1,32 @@
-#include "mainaux.h"
-
 #ifndef SUDOKU_SOLVER_H
 #define SUDOKU_SOLVER_H
 
-#define RANDOMLY 1
-#define DETERMINISTIC 2
+#include "data_models.h"
+#include "consts.h"
 
-
-int is_valid(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width,
+int is_valid(board grid, int grid_height, int grid_width, int box_height, int box_width,
              int row, int col, int num);
 
-int generate_board(struct Cell **grid, struct Cell **solution, int grid_height, int grid_width, int box_height,
+int generate_board(board grid, board solution, int grid_height, int grid_width, int box_height,
                    int box_width, int num_of_hints);
 
-int is_board_complete(struct Cell **grid, int grid_height, int grid_width);
+int is_board_complete(board grid, int grid_height, int grid_width);
 
-void update_board_errors(struct Cell **board, int grid_height, int grid_width, int box_height, int box_width);
+void update_board_errors(board board, int grid_height, int grid_width, int box_height, int box_width);
 
-int count_solutions_iterative(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width);
+int count_solutions_iterative(board grid, int grid_height, int grid_width, int box_height, int box_width);
 
 int
-count_valid_values(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
+count_valid_values(board grid, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
                    int range);
 
-int is_cell_errornous(struct Cell **grid, int row, int col);
+int is_cell_errornous(board grid, int row, int col);
 
-int is_empty(struct Cell **grid, int row, int col);
+int is_empty(board grid, int row, int col);
 
-int solve_grid(struct Cell **grid, int grid_height, int grid_width, int box_height, int box_width, int row,
-           int col);
+int solve_grid(board grid, int grid_height, int grid_width, int box_height, int box_width, int row,
+               int col);
 
-int count_empty_cells(struct Cell **board, int grid_height, int grid_width);
+int count_empty_cells(board board, int grid_height, int grid_width);
 
 #endif
