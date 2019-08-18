@@ -423,8 +423,9 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     returnCodeDesc return_code_desc;
     int return_code;
     FILE *fd;
-    board *temp_grid_pointer = NULL;
+    board temp_grid = NULL;
 
+    /* Might need to change to rb */
     fd = fopen(path, "r");
 
     if (!fd) {
@@ -435,12 +436,12 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     }
 
     /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
-    return_code = read_board_from_file(fd, temp_grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    return_code = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
     fclose(fd);
 
-    if (return_code == FAILURE || temp_grid_pointer == NULL) {
+    if (return_code == FAILURE || temp_grid == NULL) {
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
         return return_code_desc;
@@ -449,7 +450,10 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
      * TODO: is not success - we need to return it */
 
-    *grid_pointer = *temp_grid_pointer;
+    if (*grid_pointer != NULL)
+        free_board((*grid_pointer), *grid_height_pointer);
+
+    *grid_pointer = temp_grid;
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;

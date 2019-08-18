@@ -547,6 +547,7 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
         /*parsing while we can*/
         while (tok) {
             printf("hatool3");
+            
             if (values_read_amount == 1) {
                 rows_amount = string_to_int(tok);
                 printf("POF");
