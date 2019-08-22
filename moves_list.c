@@ -23,17 +23,18 @@ void init_move_list(struct MovesList*  list){
 *
 * needs more parameters
 */
-struct Node* create_new_move (board game_board, struct MovesList* list) {
+struct Node* create_new_move (struct Cell** game_board, struct MovesList* list) {
 
-	struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+	
+	struct Node* new_node ;
     board temp_board = NULL;
-
+	new_node = (struct Node*)malloc(sizeof(struct Node));
     if(!new_node){
         /*ERROR HANDLING - MALLOC FAILED*/
         /* TODO: Add the new errors handling here */
         exit(-1);
     }
-
+	temp_board = create_empty_board(list->board_height, list->board_height);
 	copy_board(game_board, temp_board, list->board_height, list->board_width);
 	new_node->data = temp_board;
 	new_node->prev = NULL;
@@ -101,21 +102,25 @@ void free_whole_list(struct MovesList*  list){
 /**
 * Add a move to the list.
 */
-void add_move (board game_board, struct MovesList*  list){
-	struct Node* new_move = create_new_move(game_board, list);
+void add_move_to_list (board game_board, struct MovesList*  list){
 
+	struct Node* new_move = create_new_move(game_board, list);
+	printf("0");
+	
+	
 	if(list->current_move == NULL){
+			printf("1");
 			list->current_move = new_move;
 	} else {
 		if ( list->current_move->next == NULL ){
-
+			printf("2");
 			list->current_move->next = new_move;
 			new_move->prev = list->current_move;
 			list->current_move = list->current_move->next;
 
 		} else {
 
-			/*if there exists a list after this current move we need to free it.*/
+			printf("3");
 			free_partial_list(list->current_move->next,list->board_height);
 			list->current_move->next = new_move;
 			new_move->prev = list->current_move;

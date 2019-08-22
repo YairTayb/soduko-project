@@ -12,7 +12,7 @@ struct Node *psuedo_reset(struct MovesList *list);
 
 void free_whole_list(struct MovesList *list);
 
-void add_move(board grid, struct MovesList *list);
+void add_move_to_list(board grid, struct MovesList *list);
 
 void restart_list(struct MovesList *list);
 

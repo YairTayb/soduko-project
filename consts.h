@@ -54,5 +54,7 @@
 #define INVALID_FILE_STRUCTURE_ERROR "Invalid file structure was given"
 #define ENTER_COMMAND_PROMPT "Enter command: "
 #define INVALID_COMMAND_MODE "Invalid mode for command. Command is available in the following modes: %s\n"
-
+#define CANNOT_UNDO "No moves to undo\n"
+#define CANNOT_REDO "No moves to redo\n"
+#define COMMAND_TOO_LONG "command is longer then 265 characters \n"
 #endif

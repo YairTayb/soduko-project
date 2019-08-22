@@ -81,7 +81,10 @@ typedef enum _return_code {
     E_READ_FROM_FILE_FAILED = 13,
     E_INVALID_FILE_STRUCTURE = 14,
     E_INVALID_MODE = 15,
-    E_GENERAL_ERROR = 16
+    E_GENERAL_ERROR = 16,
+    E_CANNOT_UNDO = 17,
+    E_CANNOT_REDO = 18,
+    E_COMMAND_TOO_LONG = 19
 
 } return_code;
 

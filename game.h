@@ -15,9 +15,9 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
          int *box_width_pointer,
          int path_was_passed);
 
-int redo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
+returnCodeDesc redo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
 
-int undo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
+returnCodeDesc undo_move(board grid, int grid_height, int grid_width, struct MovesList *list);
 
 returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_height, int box_width, game_mode mode, char* path);
 

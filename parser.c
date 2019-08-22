@@ -22,6 +22,29 @@ int string_to_int(char *number ){
 
 }
 
+return_code new_string_to_int(char *number,int *result){
+
+    int i = 0;
+    *result = 0;
+    while (number[i]){
+        if(number[i] < '0' || number[i] >'9')
+        {
+            return E_INVALID_VALUE;/*maybe is not a number?*/
+        }
+            
+       
+        *result = *result * 10;
+        *result += number[i] -'0';
+        i++;
+    }
+
+    return E_SUCCESS;
+
+}
+
+
+
+
 int check_if_const(char *number){
     int i;
     i = strlen(number);
@@ -365,7 +388,8 @@ returnCodeDesc parse_command(command *user_command){
     char *result;
     char user_input[MAX_COMMAND_LENGTH];
     char *token;
-    char *pos;
+    char *pos, *new_pos;
+    int num_recieved;
 
     /* Reached EOF - Exit! */
     if (feof(stdin)) {
@@ -392,8 +416,18 @@ returnCodeDesc parse_command(command *user_command){
 
         }
     }
-    /* TODO: Verify that the command is upto 265 characters - by checking that if the last character is
-     * TODO: \n (or if there is EOF after the command without \n). If its too long - return proper error */
+    /*command length - not exceeding 265*/
+    if (strlen(user_input) > 265 || user_input[265] != ' ' ){
+
+            return_code_desc.error_code = E_COMMAND_TOO_LONG;
+            strcpy(return_code_desc.error_message, REACHED_OEF);
+
+            /*clean stdin*/
+            while ((c = getchar()) != '\n' && c != EOF);
+
+            return return_code_desc;
+    }
+
 
     /* Skip the empty lines */
     while (strcmp(user_input, "\n") == 0 || strcmp(user_input,"\r\n") == 0) {
@@ -446,18 +480,27 @@ returnCodeDesc parse_command(command *user_command){
         if ((*user_command).command_chosen == edit_command ||
             (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
                 /* TODO: Check that the command  strcpy succeeded */
-                /* TODO: Why having a special .path attribute? */
+                /*but how? - seems like we cannot check it*/
                  strcpy((*user_command).path, token);
         } else {
 
             /* TODO:// Need to make sure the tokens are in the correct range of a numbers (up to 2 digits) */
-            (*user_command).params[(*user_command).param_amount] = string_to_int(token);
+            if(new_string_to_int(token, &num_recieved) == E_SUCCESS){
+                (*user_command).params[(*user_command).param_amount] = num_recieved;
+            } else {
+                /*TODO: ERROR HANDLING*/
+            }
+            
         }
 
         (*user_command).param_amount++;
         token = strtok(NULL, " \t\r\n");
     }
-
+    /*treating \n in a file name*/
+    new_pos = strchr((*user_command).path,'\n');
+    if (new_pos != NULL){
+        *new_pos='\0';
+    }
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
@@ -505,8 +548,10 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
                 return return_code_desc;
             }
         }
-
-        token = fprintf(fd, "\n");
+        /*preventing adding another new line in the end of the file.*/
+        if(i != grid_height-1){
+            token = fprintf(fd, "\n");
+        }
 
         if (!token) {
             return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
@@ -520,8 +565,25 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
     return return_code_desc;
 
 }
+int is_valid_number(char *num){
+    int dot_flag;
+    int i = 0;
+    dot_flag = FALSE;
+    while(num[i]){
+        /*checking if we only have one '.' at the end of a number, all other characters are numbers*/
+        if(num[i] < '0' || num[i] > '9'){
+            if(num[i] == '.' && !dot_flag){
+                dot_flag == TRUE;
+            } else {
+                return FALSE;
+            }
+        }
+        i++;
+    }
+}
 
-int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+
+return_code read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
     /* TODO: Remove prints, extract the reading of the frist 2 parameters outside -
@@ -532,6 +594,22 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
     int cur_row, cur_col;
     char read_buffer[BUFFER_SIZE];
     char *tok;
+
+    /*first 2 parameters - reading rows and columns*/
+    if(fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0){
+        tok = strtok(read_buffer, " \t\r\n");
+        if (is_valid_number(tok)){
+            new_string_to_int(tok, &rows_amount)
+        } else {
+            return E_INVALID_FILE_STRUCTURE;
+        }
+        tok = strtok(NULL, " \t\r\n");
+        if (is_valid_number(tok)){
+            new_string_to_int(tok, &columns_amount)
+        }
+
+    }
+
 
 
     printf("hatool");
@@ -600,6 +678,16 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
     return 1;
 
 }
+
+/*
+int main(){
+    int num = 0;
+    char *check = "a11b";
+    new_string_to_int(check,&num);
+    printf("%d",num);
+
+
+}*/
 
 
 /*

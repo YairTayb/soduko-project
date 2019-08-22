@@ -5,6 +5,8 @@
 #include "parser.h"
 #include "solver.h"
 #include "game.h"
+#include "moves_list.h"
+
 
 
 int main() {
@@ -14,7 +16,10 @@ int main() {
     command user_command;
     returnCodeDesc return_code_desc;
     game_mode current_mode = init_mode;
+    struct MovesList *game_moves ;
 
+    game_moves = (struct MovesList *)(malloc(sizeof(struct MovesList*)));
+    
     mark_errors = 1;
 
     /* Game begins */
@@ -45,8 +50,18 @@ int main() {
 
         if (user_command.command_chosen == solve_command) {
             /* Perform solve command */
-            solve(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width);
-            current_mode = solve_mode;
+            
+            
+            return_code_desc = solve(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width);
+            if (return_code_desc.error_code == E_SUCCESS ){
+                current_mode = solve_mode;
+                /*maybe a function?*/
+                game_moves->board_height = grid_height;
+                game_moves->board_width = grid_width;
+                game_moves->current_move = NULL;
+                add_move_to_list(game_board, game_moves);
+            } 
+                
 
         } else if (user_command.command_chosen == edit_command) {
             if (user_command.param_amount == 0)
@@ -54,6 +69,11 @@ int main() {
             else
                 edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
             current_mode = edit_mode;
+            /*maybe a function?*/
+            game_moves->board_height = grid_height;
+            game_moves->board_width = grid_width;
+            game_moves->current_move = NULL;
+            add_move_to_list(game_board, game_moves);
 
         } else if (user_command.command_chosen == mark_errors_command) {
             mark_errors = user_command.params[0];
@@ -62,8 +82,11 @@ int main() {
             /* Do nothing - the board will print anyway */
 
         } else if (user_command.command_chosen == set_command) {
+
             return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
                                    user_command.params[1], user_command.params[2], current_mode);
+            /*adding the move*/
+            add_move_to_list(game_board, game_moves);
 
         } else if (user_command.command_chosen == validate_command) {
             validate(game_board, grid_height, grid_width, box_height, box_width);
@@ -77,7 +100,10 @@ int main() {
 
         } else if (user_command.command_chosen == undo_command) {
 
+            return_code_desc = undo_move(game_board, grid_height, grid_width, game_moves);
+
         } else if (user_command.command_chosen == redo_command) {
+            return_code_desc = redo_move(game_board, grid_height, grid_width, game_moves);
 
         } else if (user_command.command_chosen == save_command) {
             return_code_desc = save(game_board, grid_height, grid_width, box_height, box_width, current_mode,

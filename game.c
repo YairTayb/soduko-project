@@ -82,29 +82,37 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
 }
 
 
-int undo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
+returnCodeDesc undo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
 
     struct Node* temp = psuedo_undo(list);
+    returnCodeDesc return_value;
     if (temp == NULL) {
-        /*ERROR HANDLING - no undo available*/
-        return FAILURE;
+        strcpy(return_value.error_message, CANNOT_UNDO);
+        return_value.error_code = E_CANNOT_UNDO;
+        return return_value;
     } else {
         print_changes(game_board,temp->data,grid_height,grid_width,undo);
         copy_board(temp->data, game_board, grid_height, grid_width);
-        return SUCCESS;
+        return_value.error_code = E_SUCCESS;
+        return return_value;
     }
 }
 
-int redo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
+returnCodeDesc redo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
 
     struct Node*temp = psuedo_redo(list);
+    returnCodeDesc return_value;
+
     if (temp == NULL) {
-        /*ERROR HANDLING - no redo available*/
-        return FAILURE;
+        strcpy(return_value.error_message, CANNOT_REDO);
+        return_value.error_code = E_CANNOT_REDO;
+        return return_value;
     } else {
         print_changes(game_board,temp->data,grid_height,grid_width,redo);
         copy_board(temp->data, game_board, grid_height, grid_width);
-        return SUCCESS;
+        return_value.error_code = E_SUCCESS;
+        strcpy(return_value.error_message, NO_ERRORS);
+        return return_value;
     }
 }
 

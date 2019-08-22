@@ -106,7 +106,6 @@ board create_empty_board(int grid_height, int grid_width) {
     }
     for (i = 0; i < grid_height; i++){
         game_board[i] = (struct Cell *) malloc(grid_width * sizeof(struct Cell));
-        printf("allocated %d cells in row %d \n",grid_width, (i+1));
         /*check if malloc failed*/
         if(!game_board[i]){
             printf(FUNCTION_FAILED, "malloc");
