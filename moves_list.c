@@ -13,9 +13,10 @@
 
 
 
-void init_move_list(struct MovesList*  list){
-
+void init_move_list(struct MovesList*  list, int grid_height, int grid_width){
 	list->current_move=NULL;
+    list->board_height = grid_height;
+    list->board_width = grid_width;
 }
 
 /***
@@ -66,6 +67,7 @@ void Print_list(struct MovesList*  list) {
 struct Node* find_list_head(struct MovesList*  list){
 	struct Node* temp = list->current_move;
 
+	/* TODO - when temp is NULL - failing */
 	while (temp->prev != NULL ){
 		temp = temp->prev;
 	}
@@ -105,23 +107,17 @@ void free_whole_list(struct MovesList*  list){
 void add_move_to_list (board game_board, struct MovesList*  list){
 
 	struct Node* new_move = create_new_move(game_board, list);
-	printf("0");
-	
 	
 	if(list->current_move == NULL){
-			printf("1");
 			list->current_move = new_move;
 	} else {
 		if ( list->current_move->next == NULL ){
-			printf("2");
 			list->current_move->next = new_move;
 			new_move->prev = list->current_move;
 			list->current_move = list->current_move->next;
 
 		} else {
-
-			printf("3");
-			free_partial_list(list->current_move->next,list->board_height);
+		    free_partial_list(list->current_move->next,list->board_height);
 			list->current_move->next = new_move;
 			new_move->prev = list->current_move;
 			list->current_move = list->current_move->next;

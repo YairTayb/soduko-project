@@ -5,7 +5,7 @@
 #define EMPTY 0
 #define TRUE 1
 #define FALSE 0
-#define MAX_COMMAND_LENGTH 1024
+#define MAX_COMMAND_LENGTH 256
 #define MAX_PATH_LENGTH 4096
 #define BUFFER_SIZE 1024
 
@@ -35,6 +35,7 @@
 #define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
 #define CELL_IS_NOT_EMPTY_ERROR "Error: cell (%d,%d) is not empty\n"
 #define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d-%d]\n"
+#define INVALID_INPUT_TYPE "Error: input type is invalid. %s\n"
 #define WIN_MSG "Puzzle solved successfully\n"
 #define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
 #define ERROR_BOARD_MSG "Board contains errors!\n"
@@ -56,5 +57,6 @@
 #define INVALID_COMMAND_MODE "Invalid mode for command. Command is available in the following modes: %s\n"
 #define CANNOT_UNDO "No moves to undo\n"
 #define CANNOT_REDO "No moves to redo\n"
-#define COMMAND_TOO_LONG "command is longer then 265 characters \n"
+#define COMMAND_TOO_LONG "command is longer then 265 characters\n"
+#define INVALID_BOARD "Board is invalid. Some fixed cells are conflicting\n"
 #endif

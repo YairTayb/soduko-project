@@ -22,23 +22,26 @@ int string_to_int(char *number ){
 
 }
 
-return_code new_string_to_int(char *number,int *result){
-
+returnCodeDesc new_string_to_int(char *number,int *result){
     int i = 0;
+    returnCodeDesc return_code_desc;
     *result = 0;
     while (number[i]){
         if(number[i] < '0' || number[i] >'9')
         {
-            return E_INVALID_VALUE;/*maybe is not a number?*/
+            return_code_desc.error_code = E_INVALID_INPUT_TYPE;
+            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Input should be a number");
+            return return_code_desc;
         }
             
-       
-        *result = *result * 10;
+        *result = (*result) * 10;
         *result += number[i] -'0';
         i++;
     }
 
-    return E_SUCCESS;
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;;
 
 }
 
@@ -386,9 +389,9 @@ returnCodeDesc  validate_amount_of_parameters(command user_command) {
 returnCodeDesc parse_command(command *user_command){
     returnCodeDesc return_code_desc;
     char *result;
+    int c;
     char user_input[MAX_COMMAND_LENGTH];
     char *token;
-    char *pos, *new_pos;
     int num_recieved;
 
     /* Reached EOF - Exit! */
@@ -416,8 +419,8 @@ returnCodeDesc parse_command(command *user_command){
 
         }
     }
-    /*command length - not exceeding 265*/
-    if (strlen(user_input) > 265 || user_input[265] != ' ' ){
+    /* Verify command length - not exceeding MAX_COMMAND_LENGTH */
+    if (strchr(user_input, '\n') == NULL || strlen(user_input) == MAX_COMMAND_LENGTH){
 
             return_code_desc.error_code = E_COMMAND_TOO_LONG;
             strcpy(return_code_desc.error_message, REACHED_OEF);
@@ -450,12 +453,12 @@ returnCodeDesc parse_command(command *user_command){
         }
     }
 
+    /* Remove trailing \n in the command input */
+    if (*user_input && user_input[strlen(user_input) - 1] == '\n')
+        user_input[strlen(user_input) - 1] = '\0';
+
     /* Split the input */
     token = strtok(user_input, " ");
-
-    /* Remove trailing \n if it exists in the input */
-    if ((pos=strchr(token, '\n')) != NULL)
-        *pos = '\0';
 
     /* Finished screening for white spaces and EOF, start screening the command */
     /* Identifying the command entered. */
@@ -476,19 +479,21 @@ returnCodeDesc parse_command(command *user_command){
     token = strtok(NULL," ");
 
     while(token != NULL){
-        /*whether we need to save a path or a parameter*/
+        /* whether we need to save a path or a parameter */
         if ((*user_command).command_chosen == edit_command ||
             (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
-                /* TODO: Check that the command  strcpy succeeded */
-                /*but how? - seems like we cannot check it*/
                  strcpy((*user_command).path, token);
         } else {
 
             /* TODO:// Need to make sure the tokens are in the correct range of a numbers (up to 2 digits) */
-            if(new_string_to_int(token, &num_recieved) == E_SUCCESS){
+
+            return_code_desc = new_string_to_int(token, &num_recieved);
+
+            if (is_error(return_code_desc) == FALSE) {
                 (*user_command).params[(*user_command).param_amount] = num_recieved;
             } else {
                 /*TODO: ERROR HANDLING*/
+                return return_code_desc;
             }
             
         }
@@ -496,11 +501,7 @@ returnCodeDesc parse_command(command *user_command){
         (*user_command).param_amount++;
         token = strtok(NULL, " \t\r\n");
     }
-    /*treating \n in a file name*/
-    new_pos = strchr((*user_command).path,'\n');
-    if (new_pos != NULL){
-        *new_pos='\0';
-    }
+
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
@@ -570,20 +571,23 @@ int is_valid_number(char *num){
     int i = 0;
     dot_flag = FALSE;
     while(num[i]){
+        /* TODO - Need to verify the '.' is at the end and not in the middle of it */
         /*checking if we only have one '.' at the end of a number, all other characters are numbers*/
         if(num[i] < '0' || num[i] > '9'){
             if(num[i] == '.' && !dot_flag){
-                dot_flag == TRUE;
+                dot_flag = TRUE;
             } else {
                 return FALSE;
             }
         }
         i++;
     }
+
+    return TRUE;
 }
 
 
-return_code read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
     /* TODO: Remove prints, extract the reading of the frist 2 parameters outside -
@@ -595,17 +599,18 @@ return_code read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *gri
     char read_buffer[BUFFER_SIZE];
     char *tok;
 
+    /* TODO - We can't be sure the first 2 numbers will be in the first BUFFER_SIZE bytes of the file, so this might fail. */
     /*first 2 parameters - reading rows and columns*/
     if(fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0){
         tok = strtok(read_buffer, " \t\r\n");
         if (is_valid_number(tok)){
-            new_string_to_int(tok, &rows_amount)
+            new_string_to_int(tok, &rows_amount);
         } else {
             return E_INVALID_FILE_STRUCTURE;
         }
         tok = strtok(NULL, " \t\r\n");
         if (is_valid_number(tok)){
-            new_string_to_int(tok, &columns_amount)
+            new_string_to_int(tok, &columns_amount);
         }
 
     }
@@ -649,9 +654,11 @@ return_code read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *gri
                 } else {
                     cur_col = (values_read_amount - 2) % total_length - 1;
                 }
+                /* TODO - What about fixed values? */
                 curr_val = (int) strtol(tok, NULL, 10);/**/
 
                 /*checking for legal values*/
+                /* TODO - Use is_valid_input instead, and return a proper return_code_desc object */
                 if (curr_val < 0 || curr_val > total_length) {
                     /*could not read board-  wrong values inserted*/
                     printf("FAILED! incorrect range! val is:%d \n", curr_val);
@@ -668,10 +675,19 @@ return_code read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *gri
         }
     }
 
-    if (values_read_amount < total_length * total_length) {
+    if (values_read_amount < (total_length * total_length)) {
         /*not enough values were read!*/
+        /* TODO: return a proper return_code_desc object */
         free(*grid_pointer);
         printf("FAILED! not enough params read from file! \n");
+        return FAILURE;
+    }
+
+    else if (values_read_amount > (total_length * total_length)) {
+        /*not enough values were read!*/
+        /* TODO: return a proper return_code_desc object */
+        free(*grid_pointer);
+        printf("FAILED! too much params read from file! \n");
         return FAILURE;
     }
 

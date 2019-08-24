@@ -1,5 +1,6 @@
 #include "solver.h"
 #include "stack.h"
+#include "mainaux.h"
 
 /**
  * Count the number of empty cells in the board
@@ -35,18 +36,64 @@ int count_empty_cells(board game_board, int grid_height, int grid_width){
  * @param box_width The box width
  */
 void update_board_errors(board game_board, int grid_height, int grid_width, int box_height, int box_width){
-    int i, j, row, col;
-    for (i = 0; i < grid_height; i++) {
-        for (j = 0; j < grid_width; j++) {
-            /* Check if the call is valid and mark properly */
-            row = i;
-            col = j;
-            if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, game_board[row][col].value))
-                game_board[row][col].is_valid = TRUE;
-            else
-                game_board[row][col].is_valid = FALSE;
+    int row, col;
+    for (row = 0; row < grid_height; row++) {
+        for (col = 0; col < grid_width; col++) {
+            /* A fixed cell can never be errornous */
+            if (game_board[row][col].is_const == FALSE) {
+                if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col,
+                             game_board[row][col].value))
+                    game_board[row][col].is_valid = TRUE;
+                else
+                    game_board[row][col].is_valid = FALSE;
+            }
         }
     }
+}
+
+/**
+ * Validate that a given board is valid. A valid board is a board containing no conflicts between fixed cells.
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height The box height
+ * @param box_width The box width
+ * @return 1 = the board is valid, 0 = board is invalid
+ */
+int is_board_valid(board game_board, int grid_height, int grid_width, int box_height, int box_width){
+    int row, col;
+    int is_valid;
+    board temp_board = create_empty_board(grid_height, grid_width);
+    copy_board(game_board, temp_board, grid_height, grid_width);
+
+    /* Clear the temp board of all non-fixed cells and set all fixed cells to non-fixed and mark them as valid */
+    for (row = 0; row < grid_height; row++) {
+        for (col = 0; col < grid_width; col++) {
+            if (game_board[row][col].is_const == FALSE) {
+                /* Clear the non-fixed cell */
+                temp_board[row][col].value = UNASSIGNED;
+            }
+
+            temp_board[row][col].is_const = FALSE;
+            temp_board[row][col].is_valid = TRUE;
+        }
+    }
+
+    /* Check the temp board for errors (errors in the temp board means that there are conflicting fixed cells in the
+     * original board */
+    update_board_errors(temp_board, grid_height, grid_width, box_height, box_width);
+
+    if (is_board_errornous(temp_board, grid_height, grid_width) == TRUE) {
+        is_valid = FALSE;
+    }
+
+    else {
+        is_valid = TRUE;
+    }
+
+    free_board(temp_board, grid_height);
+    return is_valid;
+
 }
 
 

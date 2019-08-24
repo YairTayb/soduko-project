@@ -161,6 +161,14 @@ int is_board_errornous(board board, int grid_height, int grid_width) {
     return FALSE;
 }
 
+void unfix_board(board board, int grid_height, int grid_width) {
+    int i, j;
+    for (i = 0; i < grid_height; i++) {
+        for (j = 0; j < grid_width; j++) {
+            board[i][j].is_const = FALSE;
+        }
+    }
+}
 
 /**
  * Check if an input is in valid range

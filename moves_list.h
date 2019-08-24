@@ -16,4 +16,6 @@ void add_move_to_list(board grid, struct MovesList *list);
 
 void restart_list(struct MovesList *list);
 
+void init_move_list(struct MovesList*  list, int grid_height, int grid_width);
+
 #endif

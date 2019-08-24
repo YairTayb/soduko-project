@@ -160,10 +160,16 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
         sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, path);
 
     } else {
+        /* TODO - Maybe write_board_to_file shouldn't get mode, and all the narking of fixed/non fixed should happen here? */
         return_code_desc = write_board_to_file(game_board, grid_height, grid_width, box_width, box_height, fd, mode);
     }
 
-    fclose(fd);
+    if (fclose(fd) != 0) {
+        /* Error handling */
+        return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
+        sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
+        return return_code_desc;
+    }
 
     return return_code_desc;
 
@@ -447,8 +453,15 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     return_code = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
-    fclose(fd);
+    if (fclose(fd) != 0) {
+        /* Error handling */
+        return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
+        sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
+        return return_code_desc;
+    }
 
+    /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free()
+     * or no need to even free it at all */
     if (return_code == FAILURE || temp_grid == NULL) {
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
@@ -457,6 +470,13 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
 
     /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
      * TODO: is not success - we need to return it */
+
+    /* Check that the loaded board is valid - if not return a proper error */
+    if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer)) {
+        return_code_desc.error_code = E_INVALID_BOARD;
+        strcpy(return_code_desc.error_message, INVALID_BOARD);
+        return return_code_desc;
+    }
 
     if (*grid_pointer != NULL)
         free_board((*grid_pointer), *grid_height_pointer);
@@ -474,7 +494,7 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     int return_code;
     returnCodeDesc return_code_desc;
     FILE *fd;
-    board *temp_grid_pointer = NULL;
+    board temp_grid = NULL;
 
     if (path_was_passed == FALSE){
         *(grid_pointer) = create_empty_board(DEFAULT_GRID_HEIGHT, DEFAULT_GRID_WIDTH);
@@ -499,13 +519,19 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
 
     }
 
-    return_code = read_board_from_file(fd, temp_grid_pointer, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
+    return_code = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
-    fclose(fd);
+    if (fclose(fd) != 0) {
+        /* Error handling */
+        return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
+        sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
+        return return_code_desc;
+    }
 
-    /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
-    if (return_code == FAILURE || temp_grid_pointer == NULL) {
+    /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free() */
+    if (return_code == FAILURE || temp_grid == NULL) {
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
         return return_code_desc;
@@ -513,7 +539,14 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
 
     /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
      * TODO: is not success - we need to return it */
-    *grid_pointer = *temp_grid_pointer;
+
+    /* In edit mode all the values are non fixed */
+    unfix_board(temp_grid, *grid_height_pointer, *grid_width_pointer);
+
+    if (*grid_pointer != NULL)
+        free_board((*grid_pointer), *grid_height_pointer);
+
+    *grid_pointer = temp_grid;
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);

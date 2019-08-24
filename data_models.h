@@ -84,7 +84,9 @@ typedef enum _return_code {
     E_GENERAL_ERROR = 16,
     E_CANNOT_UNDO = 17,
     E_CANNOT_REDO = 18,
-    E_COMMAND_TOO_LONG = 19
+    E_COMMAND_TOO_LONG = 19,
+    E_INVALID_BOARD = 20,
+    E_INVALID_INPUT_TYPE = 21
 
 } return_code;
 
