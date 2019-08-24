@@ -477,16 +477,11 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     }
 
     if (is_error(return_code_desc) == TRUE) {
-        if (temp_grid != NULL)
-            free_board(temp_grid, *grid_height_pointer);
         return return_code_desc;
     }
 
     /* Check that the loaded board is valid - if not return a proper error */
     if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer) == FALSE) {
-        if (temp_grid != NULL)
-            free_board(temp_grid, *grid_height_pointer);
-
         return_code_desc.error_code = E_INVALID_BOARD;
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
@@ -543,8 +538,6 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     }
 
     if (is_error(return_code_desc) == TRUE) {
-        if (temp_grid != NULL)
-            free_board(temp_grid, *grid_height_pointer);
         return return_code_desc;
     }
 
