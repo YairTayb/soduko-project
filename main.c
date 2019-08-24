@@ -1,6 +1,7 @@
 /*created by Yair on 3.6.19*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "mainaux.h"
 #include "parser.h"
 #include "solver.h"
@@ -20,8 +21,8 @@ int main() {
     struct MovesList *game_moves ;
 
     game_moves = (struct MovesList *)(malloc(sizeof(struct MovesList*)));
-    
-    mark_errors = 1;
+
+    printf(WELCOME_MESSAGE);
 
     /* Game begins */
     while (TRUE) {
@@ -60,8 +61,7 @@ int main() {
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = solve_mode;
 
-                /* TODO - Add error handling to methods below - how? */
-                /* free_whole_list(game_moves); */
+                free_whole_list(game_moves);
                 init_move_list(game_moves, grid_height, grid_width);
                 add_move_to_list(game_board, game_moves);
 
@@ -72,22 +72,27 @@ int main() {
             should_print_board = TRUE;
 
             if (user_command.param_amount == 0)
-                edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, FALSE);
+                return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, FALSE);
             else
-                edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
+                return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
 
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = edit_mode;
-                 /* free_whole_list(game_moves); */
+                 free_whole_list(game_moves);
                 init_move_list(game_moves, grid_height, grid_width);
                 add_move_to_list(game_board, game_moves);
             }
 
         } else if (user_command.command_chosen == mark_errors_command) {
             mark_errors = user_command.params[0];
+            return_code_desc.error_code = E_SUCCESS;
+            strcpy(return_code_desc.error_message, NO_ERRORS);
 
         } else if (user_command.command_chosen == print_board_command) {
             /* Do nothing - the board will print anyway */
+            should_print_board = TRUE;
+            return_code_desc.error_code = E_SUCCESS;
+            strcpy(return_code_desc.error_message, NO_ERRORS);
 
         } else if (user_command.command_chosen == set_command) {
             should_print_board = TRUE;
@@ -98,7 +103,7 @@ int main() {
             add_move_to_list(game_board, game_moves);
 
         } else if (user_command.command_chosen == validate_command) {
-            validate(game_board, grid_height, grid_width, box_height, box_width);
+            return_code_desc = validate(game_board, grid_height, grid_width, box_height, box_width);
 
         } else if (user_command.command_chosen == guess_command) {
             should_print_board = TRUE;
@@ -141,12 +146,19 @@ int main() {
             return_code_desc = autofill(game_board, grid_height, grid_width, box_height, box_width);
 
         } else if (user_command.command_chosen == reset_command) {
+            return_code_desc = reset_game(game_board, game_moves);
             should_print_board = TRUE;
 
         } else if (user_command.command_chosen == exit_command) {
+            free_whole_list(game_moves);
+
+            if (game_board != NULL) {
+                free_board(game_board, grid_height);
+            }
             exit(SUCCESS);
 
         }
+
         if (is_error(return_code_desc) == TRUE){
             handle_errors(return_code_desc);
             continue;

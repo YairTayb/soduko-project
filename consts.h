@@ -26,6 +26,7 @@
 
 
 /* Formatting & output prints */
+#define WELCOME_MESSAGE "Sudoku Game"
 #define EMPTY_CELL "   "
 #define NORMAL_CELL " %d "
 #define ERROR_CELL " %d*"

@@ -117,9 +117,14 @@ returnCodeDesc redo_move(board game_board, int grid_height, int grid_width, stru
 }
 
 
-void reset_game(board game_board, struct MovesList *list) {
+returnCodeDesc reset_game(board game_board, struct MovesList *list) {
+    returnCodeDesc return_code_desc;
     struct Node* temp = psuedo_reset(list);
     copy_board(temp->data, game_board, list->board_height, list->board_width);
+
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
 }
 
 
@@ -195,26 +200,25 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
     if (is_board_errornous(game_board, grid_height, grid_width)) {
         return_code_desc.error_code = E_ERRORNOUS_BOARD;
         strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
-        return return_code_desc;
     }
 
-
     /* If board is solvable - update the solution */
-    if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
+    else if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
         print_validation_passed();
         /* Free memory allocation for previous solution */
         return_code_desc.error_code = E_SUCCESS;
         strcpy(return_code_desc.error_message, NO_ERRORS);
-        return return_code_desc;
 
     } else {
         /* No solution for the current board */
-        /* Free memory allocation for previous solution */
-        free_board(new_solution, grid_height);
         return_code_desc.error_code = E_NO_SOLUTION;
         strcpy(return_code_desc.error_message, VALIDATION_FAILED);
-        return return_code_desc;
     }
+
+    /* Free memory allocation for previous solution */
+    free_board(new_solution, grid_height);
+    return return_code_desc;
+
 }
 
 
@@ -426,7 +430,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 
     free(valid_values);
     free_board(temp_board, grid_height);
-    
+
     return_code_desc.error_code = E_GENERAL_ERROR;
     strcpy(return_code_desc.error_message, "Error in generate method (exceeded 1000 iterations)");
     return return_code_desc;
