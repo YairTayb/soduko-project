@@ -102,14 +102,14 @@ board create_empty_board(int grid_height, int grid_width) {
     /*check if malloc failed*/
     if(!game_board){
         printf(FUNCTION_FAILED, "malloc");
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     for (i = 0; i < grid_height; i++){
         game_board[i] = (struct Cell *) malloc(grid_width * sizeof(struct Cell));
         /*check if malloc failed*/
         if(!game_board[i]){
             printf(FUNCTION_FAILED, "malloc");
-            exit(0);
+            exit(EXIT_FAILURE);
         }
         
     }
@@ -143,9 +143,11 @@ void empty_board(board board_to_empty, int grid_height, int grid_width) {
 
 void free_board(board game_board, int grid_height){
     int i;
+
     for ( i=0 ; i < grid_height; i++ ){
-        free (game_board[i]);
+        free(game_board[i]);
     }
+
     free(game_board);
 }
 
@@ -250,7 +252,7 @@ int get_cells_number_input(int* num_of_hints){
     result = scanf("%d%*c", num_of_hints);
     if(result==EOF){
         printf(EXIT_MSG);
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     if (result == 0)
         return result;

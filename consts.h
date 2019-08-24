@@ -8,6 +8,7 @@
 #define MAX_COMMAND_LENGTH 256
 #define MAX_PATH_LENGTH 4096
 #define BUFFER_SIZE 1024
+#define MAX_ITERATIONS_COUNTER 1000
 
 #define FAILURE -1
 #define SUCCESS 1
@@ -25,6 +26,7 @@
 
 
 /* Formatting & output prints */
+#define WELCOME_MESSAGE "Sudoku Game"
 #define EMPTY_CELL "   "
 #define NORMAL_CELL " %d "
 #define ERROR_CELL " %d*"
@@ -45,14 +47,14 @@
 #define VALIDATION_PASSED "Validation passed: board is solvable\n"
 #define FUNCTION_FAILED "Error: %s has failed\n"
 #define FAILED_OPENING_FILE "Error: Unable to open the file at the given path [%s]\n"
-#define INVALID_COMMAND_CHOSEN "Error: Invalid command chosen - %s"
+#define INVALID_COMMAND_CHOSEN "Error: Invalid command chosen - %s\n"
 #define REACHED_OEF "Reached EOF while reading user input. Exiting.\n"
 #define NO_ERRORS "No errors occurred.\n"
 #define TOO_MANY_PARAMETERS "Too many parameters were entered. Syntax: %s\n"
 #define NOT_ENOUGH_PARAMETERS "Not enough parameters were entered. Syntax: %s\n"
-#define WRITING_TO_FILE_ERROR "Unable to write to file"
-#define READIND_FROM_FILE_ERROR "Unable to read from file"
-#define INVALID_FILE_STRUCTURE_ERROR "Invalid file structure was given"
+#define WRITING_TO_FILE_ERROR "Unable to write to file\n"
+#define READIND_FROM_FILE_ERROR "Unable to read from file\n"
+#define INVALID_FILE_STRUCTURE_ERROR "Invalid file structure was given\n"
 #define ENTER_COMMAND_PROMPT "Enter command: "
 #define INVALID_COMMAND_MODE "Invalid mode for command. Command is available in the following modes: %s\n"
 #define CANNOT_UNDO "No moves to undo\n"
@@ -60,4 +62,7 @@
 #define COMMAND_TOO_LONG "command is longer then 256 characters\n"
 #define INVALID_BOARD "Board is invalid. Some fixed cells are conflicting\n"
 #define INVALID_PARAMS_AMOUNT "Invalid amounts of params in file\n"
+#define GENERATE_X_ERROR "Number of cells to fill is larger then total number of empty cells in the board\n"
+#define GENERATE_Y_ERROR "Number of cells to keep is larger then total number of cells in the board\n"
+#define SAVED_SUCCESSFULL "Game was successfully to %s\n"
 #endif

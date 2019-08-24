@@ -13,9 +13,8 @@ void push(stack *stk, move data) {
 
     p = malloc(sizeof(elem));
     if (p == NULL) {
-        /* Malloc failed */
-        /* TODO: Add new error validation */
         printf(FUNCTION_FAILED, "malloc");
+        exit(EXIT_FAILURE);
     }
 
     p->data = data;
