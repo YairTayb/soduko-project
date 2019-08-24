@@ -649,6 +649,7 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 
             } else if (read_cols == FALSE) {
                 if(is_valid_number_param(tok)){
+
                     columns_amount = string_to_int(tok);/* */
                     printf("cols:%d\n", columns_amount);
                     total_length = rows_amount * columns_amount;
@@ -657,6 +658,7 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                     *box_width_pointer = columns_amount;
                     read_cols = TRUE;
                 } else {
+
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
                     strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
                     return ret_val;
@@ -666,16 +668,23 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
 
                 *grid_height_pointer = total_length;
                 *grid_width_pointer = total_length;
-                cur_row = (values_read_amount) / total_length;
+                cur_row = (values_read_amount -1) / total_length;
                 if ((values_read_amount ) % total_length == 0) {
                     cur_col = total_length - 1;
                 } else {
                     cur_col = (values_read_amount) % total_length - 1;
                 }
-                if(is_valid_number(tok) && (curr_val >= 0) && curr_val <= total_length){
+                if(is_valid_number(tok)){
                     curr_val = string_to_int(tok);
+                    if(!(curr_val >= 0 && curr_val <= total_length))
+                    {
+                        ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+                        strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                        free_board(*grid_pointer, total_length);
+                        return ret_val;
+                    }
                 } else {
-                    ret_val.error_code = E_WRITE_TO_FILE_FAILED;
+                    ret_val.error_code = E_INVALID_FILE_STRUCTURE;
                     strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
                     free_board(*grid_pointer, total_length);
                     return ret_val;
@@ -683,7 +692,8 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 
 
            
-                printf("%d\n", values_read_amount);
+                printf(" %d\n", values_read_amount);
+                printf("row:%d col:%d",cur_row, cur_col);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
@@ -693,15 +703,15 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
             
         }
     }
-
-    if(values_read_amount < total_length*total_length -1){
+    printf("hatool 4");
+    if(values_read_amount -1 < total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
         strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
         free_board(*grid_pointer, total_length);
         return ret_val;
     }
-    if(values_read_amount > total_length*total_length -1){
+    if(values_read_amount -1 > total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
         strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
