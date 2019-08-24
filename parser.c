@@ -7,7 +7,6 @@
 
 
 int string_to_int(char *number ){
-    /* TODO: Maybe use strtol + range validation */
     int i, num;
     i = 0;
     num = 0;
@@ -475,7 +474,6 @@ returnCodeDesc parse_command(command *user_command){
     (*user_command).param_amount = 0;
 
     /* Tokenizing and counting parameters */
-    /* TODO: Validate on TWO DIGITS, FILE PATH */
     token = strtok(NULL," ");
 
     while(token != NULL){
@@ -519,7 +517,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
 
     returnCodeDesc return_code_desc;
 
-    token = fprintf(fd, "%d %d\n", box_width, box_height);
+    token = fprintf(fd, "%d %d\n", box_height, box_width);
      /* TODO: From the document: You may excuse yourself from checking the return value
       * TODO: of any of the following I/O functions: 𝑝𝑟𝑖𝑛𝑡𝑓, 𝑓𝑝𝑟𝑖𝑛𝑡𝑠, 𝑠𝑝𝑟𝑖𝑛𝑡, and 𝑝𝑒𝑟𝑟𝑜𝑟. */
     if (token < 0) {
@@ -644,25 +642,21 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
 
 
 
-    printf("hatool");
 
     /*parsing the file into the board*/
     values_read_amount = 0;
 
     /*reading as much as we can*/
     while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0) {
-        printf("hatool2");
         tok = strtok(read_buffer, " \t\r\n");
         values_read_amount++;
         /*parsing while we can*/
         while (tok) {
-            printf("hatool3 %d %d\n", tok[0], tok[1]);
             
             if (read_rows == FALSE) {
                 if(is_valid_number_param(tok)){
                     rows_amount = string_to_int(tok);/* */
                     *box_height_pointer = rows_amount;
-                    printf("rows:%d\n", rows_amount);
                     read_rows = TRUE;
                 } else {
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
@@ -674,7 +668,6 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 if(is_valid_number_param(tok)){
 
                     columns_amount = string_to_int(tok);/* */
-                    printf("cols:%d\n", columns_amount);
                     total_length = rows_amount * columns_amount;
                     *grid_pointer = create_empty_board(total_length, total_length);
 
@@ -715,8 +708,6 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 
 
            
-                printf(" %d\n", values_read_amount);
-                printf("row:%d col:%d",cur_row, cur_col);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
@@ -726,7 +717,6 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
             
         }
     }
-    printf("hatool 4");
     if(values_read_amount -1 < total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
