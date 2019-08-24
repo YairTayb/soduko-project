@@ -483,16 +483,15 @@ returnCodeDesc parse_command(command *user_command){
                  strcpy((*user_command).path, token);
         } else {
 
-            /* TODO:// Need to make sure the tokens are in the correct range of a numbers (up to 2 digits) */
 
             return_code_desc = new_string_to_int(token, &num_recieved);
-
+            
             if (is_error(return_code_desc) == FALSE) {
+
                 if ((*user_command).param_amount < 3)
                     /* PREVENT BUFFER OVERFLOW */
                     (*user_command).params[(*user_command).param_amount] = num_recieved;
             } else {
-                /*TODO: ERROR HANDLING*/
                 return return_code_desc;
             }
             
@@ -513,13 +512,9 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
                     game_mode mode_of_game) {
 
     int i, j, token;
-    
-
     returnCodeDesc return_code_desc;
 
     token = fprintf(fd, "%d %d\n", box_height, box_width);
-     /* TODO: From the document: You may excuse yourself from checking the return value
-      * TODO: of any of the following I/O functions: 𝑝𝑟𝑖𝑛𝑡𝑓, 𝑓𝑝𝑟𝑖𝑛𝑡𝑠, 𝑠𝑝𝑟𝑖𝑛𝑡, and 𝑝𝑒𝑟𝑟𝑜𝑟. */
     if (token < 0) {
         return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
         strcpy(return_code_desc.error_message, WRITING_TO_FILE_ERROR);
@@ -538,29 +533,29 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
                     } else {
                         token = fprintf(fd, "%d.", grid[i][j].value);
                     }
-            } else {
-                if (grid[i][j].is_const == TRUE) {
-                    token = fprintf(fd, "%d.", grid[i][j].value);
-
                 } else {
-                    token = fprintf(fd, "%d", grid[i][j].value);
+                    if (grid[i][j].is_const == TRUE) {
+                        token = fprintf(fd, "%d.", grid[i][j].value);
+
+                    } else {
+                        token = fprintf(fd, "%d", grid[i][j].value);
+                    }
                 }
-            }
             } else {
                 if (mode_of_game == edit_mode) {
-                if (grid[i][j].value == EMPTY) {
-                    token = fprintf(fd, "%d ", grid[i][j].value);
+                    if (grid[i][j].value == EMPTY) {
+                        token = fprintf(fd, "%d ", grid[i][j].value);
+                    } else {
+                        token = fprintf(fd, "%d. ", grid[i][j].value);
+                    }
                 } else {
-                    token = fprintf(fd, "%d. ", grid[i][j].value);
-                }
-            } else {
-                if (grid[i][j].is_const == TRUE) {
-                    token = fprintf(fd, "%d. ", grid[i][j].value);
+                    if (grid[i][j].is_const == TRUE) {
+                        token = fprintf(fd, "%d. ", grid[i][j].value);
 
-                } else {
-                    token = fprintf(fd, "%d ", grid[i][j].value);
+                    } else {
+                        token = fprintf(fd, "%d ", grid[i][j].value);
+                    }
                 }
-            }
             }
 
             
@@ -570,6 +565,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
                 return return_code_desc;
             }
         }
+
         /*preventing adding another new line in the end of the file.*/
         if(i != grid_height-1){
             token = fprintf(fd, "\n");
@@ -585,18 +581,27 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
-
 }
+
 int is_valid_number(char *num){
     int dot_flag;
     int i = 0;
     dot_flag = FALSE;
+
     while(num[i]){
-        /* TODO - Need to verify the '.' is at the end and not in the middle of it */
-        /*checking if we only have one '.' at the end of a number, all other characters are numbers*/
+
         if(num[i] < '0' || num[i] > '9'){
+
             if(num[i] == '.' && !dot_flag){
+
                 dot_flag = TRUE;
+
+                if(i == ((int)strlen(num) - 1)){
+                    return TRUE;
+                } else {
+                    return FALSE;
+                }
+
             } else {
                 return FALSE;
             }
@@ -606,11 +611,10 @@ int is_valid_number(char *num){
 
     return TRUE;
 }
-int is_valid_number_param(char *num){
+int is_numeric(char *num){
     int i = 0;
     while(num[i]){
-        /* TODO - Need to verify the '.' is at the end and not in the middle of it */
-        /*checking if we only have one '.' at the end of a number, all other characters are numbers*/
+
         if(num[i] < '0' || num[i] > '9'){
             return FALSE;
         }
@@ -621,12 +625,9 @@ int is_valid_number_param(char *num){
 }
 
 
-returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
-    /* TODO: Remove prints, extract the reading of the frist 2 parameters outside -
-     * if there are errors there there is no point to continue reading. Need to add verification of the dimensions of the grid*/
-
     int rows_amount, columns_amount, total_length;
     int values_read_amount, curr_val;
     int cur_row, cur_col;
@@ -636,12 +637,6 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
     returnCodeDesc ret_val;
     read_rows = FALSE;
     read_cols = FALSE;
-
-    
- 
-
-
-
 
     /*parsing the file into the board*/
     values_read_amount = 0;
@@ -654,10 +649,11 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
         while (tok) {
             
             if (read_rows == FALSE) {
-                if(is_valid_number_param(tok)){
+                if(is_numeric(tok)){
                     rows_amount = string_to_int(tok);/* */
                     *box_height_pointer = rows_amount;
                     read_rows = TRUE;
+
                 } else {
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
                     strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
@@ -665,7 +661,8 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 }
                 
             } else if (read_cols == FALSE) {
-                if(is_valid_number_param(tok)){
+
+                if(is_numeric(tok)){
 
                     columns_amount = string_to_int(tok);/* */
                     total_length = rows_amount * columns_amount;
@@ -673,6 +670,7 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
 
                     *box_width_pointer = columns_amount;
                     read_cols = TRUE;
+
                 } else {
 
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
@@ -681,17 +679,19 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                 }
                 
             } else {
-
                 *grid_height_pointer = total_length;
                 *grid_width_pointer = total_length;
                 cur_row = (values_read_amount -1) / total_length;
+                
                 if ((values_read_amount ) % total_length == 0) {
                     cur_col = total_length - 1;
                 } else {
                     cur_col = (values_read_amount) % total_length - 1;
                 }
+
                 if(is_valid_number(tok)){
                     curr_val = string_to_int(tok);
+                    
                     if(!(curr_val >= 0 && curr_val <= total_length))
                     {
                         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
@@ -706,17 +706,17 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
                     return ret_val;
                 }
                 
-
-           
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
                 values_read_amount++;
             }
+
             tok = strtok(NULL, " \t\r\n");
             
         }
     }
+
     if(values_read_amount -1 < total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
@@ -724,6 +724,7 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
         free_board(*grid_pointer, total_length);
         return ret_val;
     }
+
     if(values_read_amount -1 > total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
@@ -735,9 +736,6 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
     ret_val.error_code = E_SUCCESS;
     strcpy(ret_val.error_message,NO_ERRORS);
     return ret_val;
-
-
-
 
 }
 
