@@ -477,12 +477,12 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
      * TODO: is not success - we need to return it */
 
-    /* Check that the loaded board is valid - if not return a proper error */
+    /* Check that the loaded board is valid - if not return a proper error 
     if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer)) {
         return_code_desc.error_code = E_INVALID_BOARD;
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
-    }
+    }*/
 
     if (*grid_pointer != NULL)
         free_board((*grid_pointer), *grid_height_pointer);
