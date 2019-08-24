@@ -545,14 +545,11 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     }
 
     /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free() */
-    if (return_code_desc.error_code != E_SUCCESS || temp_grid == NULL) {
-        return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
-        strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
+    if (is_error(return_code_desc) == TRUE) {
+        if (temp_grid != NULL)
+            free_board(temp_grid, *grid_height_pointer);
         return return_code_desc;
     }
-
-    /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
-     * TODO: is not success - we need to return it */
 
     /* In edit mode all the values are non fixed */
     unfix_board(temp_grid, *grid_height_pointer, *grid_width_pointer);
