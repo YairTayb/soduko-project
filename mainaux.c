@@ -283,9 +283,7 @@ void handle_errors(returnCodeDesc return_code_desc){
 }
 
 int is_error(returnCodeDesc return_code_desc){
-    printf("limon 1");
     if (return_code_desc.error_code != E_SUCCESS)
         return TRUE;
-        printf("limon2\n");
     return FALSE;
 }

@@ -477,19 +477,17 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
         return return_code_desc;
     }
 
-    /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free()
-     * or no need to even free it at all */
-    if (return_code_desc.error_code != E_SUCCESS || temp_grid == NULL) {
-        return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
-        strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
+    if (is_error(return_code_desc) == TRUE) {
+        if (temp_grid != NULL)
+            free_board(temp_grid, *grid_height_pointer);
         return return_code_desc;
     }
 
-    /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
-     * TODO: is not success - we need to return it */
-
     /* Check that the loaded board is valid - if not return a proper error */
     if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer) == FALSE) {
+        if (temp_grid != NULL)
+            free_board(temp_grid, *grid_height_pointer);
+
         return_code_desc.error_code = E_INVALID_BOARD;
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
