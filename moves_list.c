@@ -67,6 +67,9 @@ void Print_list(struct MovesList*  list) {
 struct Node* find_list_head(struct MovesList*  list){
 	struct Node* temp = list->current_move;
 
+	if(list->current_move == NULL){
+		return NULL;
+	}
 	/* TODO - when temp is NULL - failing */
 	while (temp->prev != NULL ){
 		temp = temp->prev;
@@ -98,7 +101,8 @@ void free_partial_list(struct Node* head, int board_height){
 */
 void free_whole_list(struct MovesList*  list){
 	struct Node* head_to_free = find_list_head(list);
-	free_partial_list(head_to_free, list->board_height);
+	if(list->current_move != NULL)
+		free_partial_list(head_to_free, list->board_height);
 }
 
 /**

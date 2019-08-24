@@ -601,6 +601,7 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
 
     /* TODO - We can't be sure the first 2 numbers will be in the first BUFFER_SIZE bytes of the file, so this might fail. */
     /*first 2 parameters - reading rows and columns*/
+    /* 
     if(fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0){
         tok = strtok(read_buffer, " \t\r\n");
         if (is_valid_number(tok)){
@@ -613,7 +614,7 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
             new_string_to_int(tok, &columns_amount);
         }
 
-    }
+    }*/
 
 
 
@@ -662,7 +663,7 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
                 if (curr_val < 0 || curr_val > total_length) {
                     /*could not read board-  wrong values inserted*/
                     printf("FAILED! incorrect range! val is:%d \n", curr_val);
-                    free(*grid_pointer);
+                    free(*grid_pointer);/*????????????? */
                     return FAILURE;
                 }
                 printf("%d\n", values_read_amount);
@@ -683,11 +684,11 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
         return FAILURE;
     }
 
-    else if (values_read_amount > (total_length * total_length)) {
+    else if (values_read_amount -2 > (total_length * total_length)) {
         /*not enough values were read!*/
         /* TODO: return a proper return_code_desc object */
         free(*grid_pointer);
-        printf("FAILED! too much params read from file! \n");
+        printf("FAILED! too much params read from file! %d \n", values_read_amount);
         return FAILURE;
     }
 
