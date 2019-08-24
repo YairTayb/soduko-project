@@ -435,7 +435,6 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
                     int *box_height_pointer,
                     int *box_width_pointer) {
     returnCodeDesc return_code_desc;
-    int return_code;
     FILE *fd;
     board temp_grid = NULL;
 
@@ -450,7 +449,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     }
 
     /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
-    return_code = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    return_code_desc = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
     if (fclose(fd) != 0) {
@@ -462,7 +461,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
 
     /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free()
      * or no need to even free it at all */
-    if (return_code == FAILURE || temp_grid == NULL) {
+    if (return_code_desc.error_code != E_SUCCESS || temp_grid == NULL) {
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
         return return_code_desc;
@@ -491,7 +490,6 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
 returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer, int path_was_passed) {
-    int return_code;
     returnCodeDesc return_code_desc;
     FILE *fd;
     board temp_grid = NULL;
@@ -520,7 +518,7 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     }
 
     /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
-    return_code = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
+    return_code_desc = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
     if (fclose(fd) != 0) {
@@ -531,7 +529,7 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     }
 
     /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free() */
-    if (return_code == FAILURE || temp_grid == NULL) {
+    if (return_code_desc.error_code != E_SUCCESS || temp_grid == NULL) {
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         strcpy(return_code_desc.error_message, READIND_FROM_FILE_ERROR);
         return return_code_desc;

@@ -585,9 +585,22 @@ int is_valid_number(char *num){
 
     return TRUE;
 }
+int is_valid_number_param(char *num){
+    int i = 0;
+    while(num[i]){
+        /* TODO - Need to verify the '.' is at the end and not in the middle of it */
+        /*checking if we only have one '.' at the end of a number, all other characters are numbers*/
+        if(num[i] < '0' || num[i] > '9'){
+            return FALSE;
+        }
+        i++;
+    }
+
+    return TRUE;
+}
 
 
-int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
+returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
     /* TODO: Remove prints, extract the reading of the frist 2 parameters outside -
@@ -598,23 +611,13 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
     int cur_row, cur_col;
     char read_buffer[BUFFER_SIZE];
     char *tok;
+    int read_rows, read_cols;
+    returnCodeDesc ret_val;
+    read_rows = FALSE;
+    read_cols = FALSE;
 
-    /* TODO - We can't be sure the first 2 numbers will be in the first BUFFER_SIZE bytes of the file, so this might fail. */
-    /*first 2 parameters - reading rows and columns*/
-    /* 
-    if(fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0){
-        tok = strtok(read_buffer, " \t\r\n");
-        if (is_valid_number(tok)){
-            new_string_to_int(tok, &rows_amount);
-        } else {
-            return E_INVALID_FILE_STRUCTURE;
-        }
-        tok = strtok(NULL, " \t\r\n");
-        if (is_valid_number(tok)){
-            new_string_to_int(tok, &columns_amount);
-        }
-
-    }*/
+    
+ 
 
 
 
@@ -632,67 +635,86 @@ int read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *grid_height
         while (tok) {
             printf("hatool3");
             
-            if (values_read_amount == 1) {
-                rows_amount = string_to_int(tok);
-                printf("POF");
-                *box_height_pointer = rows_amount;
-                printf("BOF");
-                printf("rows:%d\n", rows_amount);
-            } else if (values_read_amount == 2) {
-                columns_amount = string_to_int(tok);
-                printf("cols:%d\n", columns_amount);
-                total_length = rows_amount * columns_amount;
-                *grid_pointer = create_empty_board(total_length, total_length);
+            if (read_rows == FALSE) {
+                if(is_valid_number_param(tok)){
+                    rows_amount = string_to_int(tok);/* */
+                    *box_height_pointer = rows_amount;
+                    printf("rows:%d\n", rows_amount);
+                    read_rows = TRUE;
+                } else {
+                    ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+                    strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    return ret_val;
+                }
+                
+            } else if (read_cols == FALSE) {
+                if(is_valid_number_param(tok)){
+                    columns_amount = string_to_int(tok);/* */
+                    printf("cols:%d\n", columns_amount);
+                    total_length = rows_amount * columns_amount;
+                    *grid_pointer = create_empty_board(total_length, total_length);
 
-                *box_width_pointer = columns_amount;
+                    *box_width_pointer = columns_amount;
+                    read_cols = TRUE;
+                } else {
+                    ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+                    strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    return ret_val;
+                }
+                
             } else {
 
                 *grid_height_pointer = total_length;
                 *grid_width_pointer = total_length;
-                cur_row = (values_read_amount - 3) / total_length;
-                if ((values_read_amount - 2) % total_length == 0) {
+                cur_row = (values_read_amount) / total_length;
+                if ((values_read_amount ) % total_length == 0) {
                     cur_col = total_length - 1;
                 } else {
-                    cur_col = (values_read_amount - 2) % total_length - 1;
+                    cur_col = (values_read_amount) % total_length - 1;
                 }
-                /* TODO - What about fixed values? */
-                curr_val = (int) strtol(tok, NULL, 10);/**/
+                if(is_valid_number(tok) && (curr_val >= 0) && curr_val <= total_length){
+                    curr_val = string_to_int(tok);
+                } else {
+                    ret_val.error_code = E_WRITE_TO_FILE_FAILED;
+                    strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    free_board(*grid_pointer, total_length);
+                    return ret_val;
+                }
+                
 
-                /*checking for legal values*/
-                /* TODO - Use is_valid_input instead, and return a proper return_code_desc object */
-                if (curr_val < 0 || curr_val > total_length) {
-                    /*could not read board-  wrong values inserted*/
-                    printf("FAILED! incorrect range! val is:%d \n", curr_val);
-                    free(*grid_pointer);/*????????????? */
-                    return FAILURE;
-                }
+           
                 printf("%d\n", values_read_amount);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
+                values_read_amount++;
             }
             tok = strtok(NULL, " \t\r\n");
-            values_read_amount++;
+            
         }
     }
 
-    if (values_read_amount < (total_length * total_length)) {
-        /*not enough values were read!*/
-        /* TODO: return a proper return_code_desc object */
-        free(*grid_pointer);
-        printf("FAILED! not enough params read from file! \n");
-        return FAILURE;
+    if(values_read_amount < total_length*total_length -1){
+
+        ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+        strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
+        free_board(*grid_pointer, total_length);
+        return ret_val;
+    }
+    if(values_read_amount > total_length*total_length -1){
+
+        ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+        strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
+        free_board(*grid_pointer, total_length);
+        return ret_val;
     }
 
-    else if (values_read_amount -2 > (total_length * total_length)) {
-        /*not enough values were read!*/
-        /* TODO: return a proper return_code_desc object */
-        free(*grid_pointer);
-        printf("FAILED! too much params read from file! %d \n", values_read_amount);
-        return FAILURE;
-    }
+    ret_val.error_code = E_SUCCESS;
+    strcpy(ret_val.error_message,NO_ERRORS);
+    return ret_val;
 
-    return 1;
+
+
 
 }
 

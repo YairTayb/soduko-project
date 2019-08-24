@@ -57,6 +57,7 @@
 #define INVALID_COMMAND_MODE "Invalid mode for command. Command is available in the following modes: %s\n"
 #define CANNOT_UNDO "No moves to undo\n"
 #define CANNOT_REDO "No moves to redo\n"
-#define COMMAND_TOO_LONG "command is longer then 265 characters\n"
+#define COMMAND_TOO_LONG "command is longer then 256 characters\n"
 #define INVALID_BOARD "Board is invalid. Some fixed cells are conflicting\n"
+#define INVALID_PARAMS_AMOUNT "Invalid amounts of params in file\n"
 #endif
