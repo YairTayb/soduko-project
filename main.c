@@ -70,24 +70,17 @@ int main() {
 
         } else if (user_command.command_chosen == edit_command) {
             should_print_board = TRUE;
-            printf("kipod 1\n");
             if (user_command.param_amount == 0)
                 return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, FALSE);
             else
                 return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
 
-            printf("kipod 2\n");
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = edit_mode;
-                printf("kipod 3\n");
                 free_whole_list(game_moves);
-                printf("kipod 4\n");
                 init_move_list(game_moves, grid_height, grid_width);
-                printf("kipod 5\n");
                 add_move_to_list(game_board, game_moves);
-                printf("kipod 6\n");
             }
-            printf("kipod 7\n");
 
         } else if (user_command.command_chosen == mark_errors_command) {
             return_code_desc = set_mark_errors(&mark_errors, user_command.params[0]);
@@ -161,7 +154,7 @@ int main() {
             if (game_board != NULL) {
                 free_board(game_board, grid_height);
             }
-            exit(SUCCESS);
+            exit(EXIT_SUCCESS);
 
         }
 

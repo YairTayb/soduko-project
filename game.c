@@ -466,7 +466,6 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
 
     }
 
-    /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
     return_code_desc = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
@@ -533,7 +532,6 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
 
     }
 
-    /* TODO: Change the return value of read_board_from_file to returnCodeDesc */
     return_code_desc = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
                                        box_width_pointer);
 
@@ -544,7 +542,6 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
         return return_code_desc;
     }
 
-    /* TODO: According to the error we need to know whether to free the temp board with free_board, or just free() */
     if (is_error(return_code_desc) == TRUE) {
         if (temp_grid != NULL)
             free_board(temp_grid, *grid_height_pointer);
