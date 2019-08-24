@@ -341,17 +341,17 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 
     if (count_empty_cells(game_board, grid_height, grid_width) < num_of_cells_to_fill) {
         return_code_desc.error_code = E_INVALID_VALUE;
-        strcpy(return_code_desc.error_message, "Not enough empty cells");
+        strcpy(return_code_desc.error_message, GENERATE_X_ERROR);
         return return_code_desc;
     }
 
     if (num_of_cells_to_keep > (grid_height * grid_width)){
         return_code_desc.error_code = E_INVALID_VALUE;
-        strcpy(return_code_desc.error_message, "Number of cells to keep is larger then total number of cells in the board");
+        strcpy(return_code_desc.error_message, GENERATE_Y_ERROR);
         return return_code_desc;
     }
 
-    while (number_of_iterations < 1000) {
+    while (number_of_iterations < MAX_ITERATIONS_COUNTER) {
         number_of_iterations++;
 
         /* Reset the temp board to the original board */
