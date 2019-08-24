@@ -82,7 +82,6 @@ int is_board_valid(board game_board, int grid_height, int grid_width, int box_he
     /* Check the temp board for errors (errors in the temp board means that there are conflicting fixed cells in the
      * original board */
     update_board_errors(temp_board, grid_height, grid_width, box_height, box_width);
-    print_board(temp_board, grid_height, grid_width, box_height, box_width, edit_mode, 1);
     if (is_board_errornous(temp_board, grid_height, grid_width) == TRUE) {
         is_valid = FALSE;
     }

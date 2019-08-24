@@ -27,13 +27,13 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
     returnCodeDesc return_code_desc;
 
     /* Validate the input */
-    if (!is_valid_input(row, grid_height - 1)) {
+    if (!is_valid_input(row, grid_height)) {
         return_code_desc.error_code = E_INVALID_VALUE;
         sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
         return return_code_desc;
     }
 
-    if (!is_valid_input(col, grid_width - 1)) {
+    if (!is_valid_input(col, grid_width)) {
         return_code_desc.error_code = E_INVALID_VALUE;
         sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
         return return_code_desc;
@@ -289,7 +289,18 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
     board new_solution = create_empty_board(grid_height, grid_width);
     copy_board(game_board, new_solution, grid_height, grid_width);
 
-    if (is_board_errornous(game_board, grid_height, grid_width)) {
+    /* Validate the input */
+    if (!is_valid_input(row, grid_height)) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
+    }
+
+    else if (!is_valid_input(col, grid_width)) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
+    }
+
+    else if (is_board_errornous(game_board, grid_height, grid_width)) {
         return_code_desc.error_code = E_ERRORNOUS_BOARD;
         strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
     }
@@ -477,17 +488,12 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     /* TODO: temp_grid_pointer might not have been initialized - if the return_code_desc from read_board_from_file
      * TODO: is not success - we need to return it */
 
-<<<<<<< HEAD
-    /* Check that the loaded board is valid - if not return a proper error 
-    if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer)) {
-=======
     /* Check that the loaded board is valid - if not return a proper error */
     if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer) == FALSE) {
->>>>>>> fcbcfc9cdf0028016e89eb3e07ba6f7d89c8bc20
         return_code_desc.error_code = E_INVALID_BOARD;
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
-    }*/
+    }
 
     if (*grid_pointer != NULL)
         free_board((*grid_pointer), *grid_height_pointer);

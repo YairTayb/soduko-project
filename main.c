@@ -70,18 +70,24 @@ int main() {
 
         } else if (user_command.command_chosen == edit_command) {
             should_print_board = TRUE;
-
+            printf("kipod 1\n");
             if (user_command.param_amount == 0)
                 return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, FALSE);
             else
                 return_code_desc = edit(&game_board, user_command.path, &grid_height, &grid_width, &box_height, &box_width, TRUE);
 
+            printf("kipod 2\n");
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = edit_mode;
+                printf("kipod 3\n");
                 free_whole_list(game_moves);
+                printf("kipod 4\n");
                 init_move_list(game_moves, grid_height, grid_width);
+                printf("kipod 5\n");
                 add_move_to_list(game_board, game_moves);
+                printf("kipod 6\n");
             }
+            printf("kipod 7\n");
 
         } else if (user_command.command_chosen == mark_errors_command) {
             return_code_desc = set_mark_errors(&mark_errors, user_command.params[0]);
@@ -95,8 +101,8 @@ int main() {
         } else if (user_command.command_chosen == set_command) {
             should_print_board = TRUE;
 
-            return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
-                                   user_command.params[1], user_command.params[2], current_mode);
+            return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
+                                   user_command.params[1] - 1, user_command.params[2], current_mode);
             if (is_error(return_code_desc) == FALSE) {
                 /*adding the move*/
                 add_move_to_list(game_board, game_moves);
@@ -133,8 +139,8 @@ int main() {
             }
 
         } else if (user_command.command_chosen == hint_command) {
-            return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
-                                    user_command.params[1]);
+            return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
+                                    user_command.params[1] - 1);
 
         } else if (user_command.command_chosen == guess_hint_command) {
 

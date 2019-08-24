@@ -515,6 +515,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
                     game_mode mode_of_game) {
 
     int i, j, token;
+    
 
     returnCodeDesc return_code_desc;
 
@@ -529,8 +530,26 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
 
     for (i = 0; i < grid_height; i++) {
         for (j = 0; j < grid_width; j++) {
+            
+            if(j == grid_height-1){
 
-            if (mode_of_game == edit_mode) {
+                if (mode_of_game == edit_mode) {
+
+                    if (grid[i][j].value == EMPTY) {
+                        token = fprintf(fd, "%d", grid[i][j].value);
+                    } else {
+                        token = fprintf(fd, "%d.", grid[i][j].value);
+                    }
+            } else {
+                if (grid[i][j].is_const == TRUE) {
+                    token = fprintf(fd, "%d.", grid[i][j].value);
+
+                } else {
+                    token = fprintf(fd, "%d", grid[i][j].value);
+                }
+            }
+            } else {
+                if (mode_of_game == edit_mode) {
                 if (grid[i][j].value == EMPTY) {
                     token = fprintf(fd, "%d ", grid[i][j].value);
                 } else {
@@ -542,9 +561,11 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
 
                 } else {
                     token = fprintf(fd, "%d ", grid[i][j].value);
-
                 }
             }
+            }
+
+            
             if (!token) {
                 return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
                 strcpy(return_code_desc.error_message, WRITING_TO_FILE_ERROR);
@@ -635,7 +656,7 @@ returnCodeDesc read_board_from_file(FILE *fd, struct Cell ***grid_pointer, int *
         values_read_amount++;
         /*parsing while we can*/
         while (tok) {
-            printf("hatool3");
+            printf("hatool3 %d %d\n", tok[0], tok[1]);
             
             if (read_rows == FALSE) {
                 if(is_valid_number_param(tok)){
