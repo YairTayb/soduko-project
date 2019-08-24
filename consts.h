@@ -62,4 +62,5 @@
 #define INVALID_BOARD "Board is invalid. Some fixed cells are conflicting\n"
 #define GENERATE_X_ERROR "Number of cells to fill is larger then total number of empty cells in the board\n"
 #define GENERATE_Y_ERROR "Number of cells to keep is larger then total number of cells in the board\n"
+#define SAVED_SUCCESSFULL "Game was successfully to %s\n"
 #endif

@@ -30,4 +30,6 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 
 returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int box_height, int box_width);
 
+returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, int box_height, int box_width);
+
 #endif

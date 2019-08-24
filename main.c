@@ -123,6 +123,10 @@ int main() {
             return_code_desc = save(game_board, grid_height, grid_width, box_height, box_width, current_mode,
                                     user_command.path);
 
+            if (is_error(return_code_desc) == FALSE){
+                printf(SAVED_SUCCESSFULL, user_command.path);
+            }
+
         } else if (user_command.command_chosen == hint_command) {
             return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
                                     user_command.params[1]);
@@ -130,6 +134,7 @@ int main() {
         } else if (user_command.command_chosen == guess_hint_command) {
 
         } else if (user_command.command_chosen == num_solutions_command) {
+            return_code_desc = num_solutions(game_board, grid_height, grid_width, box_height, box_width);
 
         } else if (user_command.command_chosen == autofill_command) {
             should_print_board = TRUE;

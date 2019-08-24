@@ -226,17 +226,22 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
  * @param box_height The height of a sudoku box
  * @param box_width The width of a sudoku box
  */
-int num_solutions(board game_board, int grid_height, int grid_width, int box_height, int box_width){
+returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, int box_height, int box_width){
     int solutions_count;
+    returnCodeDesc return_code_desc;
 
     if (is_board_errornous(game_board, grid_height, grid_width)) {
-        print_errornous_board_message();
-        return ERRORNOUS_BOARD;
+        return_code_desc.error_code = E_ERRORNOUS_BOARD;
+        strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
+        return return_code_desc;
     }
 
     solutions_count = count_solutions_iterative(game_board, grid_height, grid_width, box_height, box_width);
     print_num_of_solutions(solutions_count);
-    return SUCCESS;
+
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
 }
 
 returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
@@ -283,42 +288,36 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
     if (is_board_errornous(game_board, grid_height, grid_width)) {
         return_code_desc.error_code = E_ERRORNOUS_BOARD;
         strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
-        return return_code_desc;
     }
 
     /* Validate the cell is not fixed - if it is print an error and don't perform command */
-    if (game_board[row][col].is_const == TRUE) {
+    else if (game_board[row][col].is_const == TRUE) {
         return_code_desc.error_code = E_CELL_IS_FIXED;
         sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row, col);
-        return return_code_desc;
     }
 
     /* Validate the cell is empty - if it isn't print an error and don't perform command */
-    if (!is_empty(game_board, row, col)){
+    else if (!is_empty(game_board, row, col)){
         return_code_desc.error_code = E_CELL_IS_NOT_EMPTY;
         sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row, col);
-        return return_code_desc;
     }
 
-    if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
+    else if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
         print_hint_message(row, col, new_solution[row][col].value);
-        /* Free memory allocation for previous solution */
-        free_board(new_solution, grid_height);
         return_code_desc.error_code = E_SUCCESS;
         strcpy(return_code_desc.error_message, NO_ERRORS);
-        return return_code_desc;
 
     } else {
         /* No solution for the current board */
-        /* Free memory allocation for previous solution */
-        free_board(new_solution, grid_height);
         return_code_desc.error_code = E_NO_SOLUTION;
         strcpy(return_code_desc.error_message, VALIDATION_FAILED);
-        return return_code_desc;
     }
 
-}
+    /* Free memory allocation for previous solution */
+    free_board(new_solution, grid_height);
+    return return_code_desc;
 
+}
 
 returnCodeDesc generate(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         int num_of_cells_to_fill, int num_of_cells_to_keep) {
@@ -334,9 +333,8 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
     if (!valid_values) {
-        return_code_desc.error_code = E_FUNCTION_FAILED;
-        sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
-        return return_code_desc;
+        printf(FUNCTION_FAILED, "malloc");
+        exit(EXIT_FAILURE);
     }
 
     if (count_empty_cells(game_board, grid_height, grid_width) < num_of_cells_to_fill) {
@@ -416,14 +414,19 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
         }
 
         /* Copy temp board to the original board and free memory */
-        free(valid_values);
         copy_board(temp_board, game_board, grid_height, grid_width);
+
+        free(valid_values);
+        free_board(temp_board, grid_height);
 
         return_code_desc.error_code = E_SUCCESS;
         strcpy(return_code_desc.error_message, NO_ERRORS);
         return return_code_desc;
     }
 
+    free(valid_values);
+    free_board(temp_board, grid_height);
+    
     return_code_desc.error_code = E_GENERAL_ERROR;
     strcpy(return_code_desc.error_message, "Error in generate method (exceeded 1000 iterations)");
     return return_code_desc;
