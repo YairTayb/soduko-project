@@ -61,7 +61,7 @@ int check_if_const(char *number){
 
 command parse_command_name(char* command_name) {
     command received_command;
-
+    /* TODO: Remove the param_amount settings- no needed! */
     if (strcmp(command_name, "solve") == 0) {
         received_command.command_chosen = solve_command;
         received_command.param_amount = 1;
@@ -200,9 +200,9 @@ returnCodeDesc validate_command_mode(command user_command, game_mode current_mod
             }
             break;
         case hint_command:
-            if (current_mode != solve_mode && current_mode != edit_mode) {
+            if (current_mode != solve_mode) {
                 return_code_desc.error_code = E_INVALID_MODE;
-                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve, Edit");
+                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve");
             }
             break;
         case guess_hint_command:
@@ -218,9 +218,9 @@ returnCodeDesc validate_command_mode(command user_command, game_mode current_mod
             }
             break;
         case autofill_command:
-            if (current_mode != solve_mode && current_mode != edit_mode) {
+            if (current_mode != solve_mode) {
                 return_code_desc.error_code = E_INVALID_MODE;
-                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve, Edit");
+                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve");
             }
             break;
         case reset_command:
@@ -389,6 +389,7 @@ returnCodeDesc parse_command(command *user_command){
     returnCodeDesc return_code_desc;
     char *result;
     int c;
+    int invalid_input_type_error_occurred=FALSE;
     char user_input[MAX_COMMAND_LENGTH];
     char *token;
     int num_recieved;
@@ -477,29 +478,50 @@ returnCodeDesc parse_command(command *user_command){
     token = strtok(NULL," ");
 
     while(token != NULL){
-        /* whether we need to save a path or a parameter */
-        if ((*user_command).command_chosen == edit_command ||
-            (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
-                 strcpy((*user_command).path, token);
-        } else {
-
-
-            return_code_desc = new_string_to_int(token, &num_recieved);
-            
-            if (is_error(return_code_desc) == FALSE) {
-
-                if ((*user_command).param_amount < 3)
-                    /* PREVENT BUFFER OVERFLOW */
-                    (*user_command).params[(*user_command).param_amount] = num_recieved;
-            } else {
-                return return_code_desc;
+        if (invalid_input_type_error_occurred == FALSE) {
+            /* whether we need to save a path or a parameter */
+            if ((*user_command).command_chosen == edit_command ||
+                (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
+                     strcpy((*user_command).path, token);
             }
-            
+
+            else if ((*user_command).command_chosen == guess_hint_command) {
+                /* Parse float */
+            }
+
+            else {
+
+                return_code_desc = new_string_to_int(token, &num_recieved);
+
+                if (is_error(return_code_desc) == FALSE) {
+                    if ((*user_command).param_amount < 3)
+                        /* PREVENT BUFFER OVERFLOW */
+                        (*user_command).params[(*user_command).param_amount] = num_recieved;
+                } else {
+                    switch ((*user_command).param_amount) {
+                        case 0:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param X should be a positive integer");
+                            break;
+                        case 1:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Y should be a positive integer");
+                            break;
+                        case 2:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Z should be a positive integer");
+                            break;
+                        default:
+                            break;
+                    }
+                    invalid_input_type_error_occurred = TRUE;
+                }
+            }
         }
 
         (*user_command).param_amount++;
         token = strtok(NULL, " \t\r\n");
     }
+
+    if (invalid_input_type_error_occurred == TRUE)
+        return return_code_desc;
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
@@ -647,7 +669,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
         values_read_amount++;
         /*parsing while we can*/
         while (tok) {
-            
+            printf("hatool3\n");
             if (read_rows == FALSE) {
                 if(is_numeric(tok)){
                     rows_amount = string_to_int(tok);/* */
@@ -705,7 +727,16 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                     free_board(*grid_pointer, total_length);
                     return ret_val;
                 }
-                
+
+                if(values_read_amount > total_length*total_length){
+
+                    ret_val.error_code = E_INVALID_FILE_STRUCTURE;
+                    strcpy(ret_val.error_message,TOO_MANY_PARAMS_AMOUNT_IN_FILE);
+                    free_board(*grid_pointer, total_length);
+                    return ret_val;
+                }
+
+                printf("%d %d\n", cur_row, cur_col);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
@@ -716,22 +747,16 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
             
         }
     }
-
+    printf("hatool 4\n");
     if(values_read_amount -1 < total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-        strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
+        strcpy(ret_val.error_message,NOT_ENOUGH_PARAMS_AMOUNT_IN_FILE);
         free_board(*grid_pointer, total_length);
         return ret_val;
     }
 
-    if(values_read_amount -1 > total_length*total_length){
 
-        ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-        strcpy(ret_val.error_message,INVALID_PARAMS_AMOUNT);
-        free_board(*grid_pointer, total_length);
-        return ret_val;
-    }
 
     ret_val.error_code = E_SUCCESS;
     strcpy(ret_val.error_message,NO_ERRORS);

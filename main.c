@@ -13,29 +13,37 @@
 int main() {
     board game_board = NULL;
     int mark_errors = 1;
+    int invalid_type_error_occurred = FALSE;
     int should_print_board;
     int grid_height, grid_width, box_height, box_width;
     command user_command;
     returnCodeDesc return_code_desc;
+    returnCodeDesc temp_return_code_desc;
     game_mode current_mode = init_mode;
-    struct MovesList *game_moves ;
-
-    game_moves = (struct MovesList *)(malloc(sizeof(struct MovesList*)));
+    struct MovesList game_moves;
 
     printf(WELCOME_MESSAGE);
 
     /* Game begins */
     while (TRUE) {
         should_print_board = FALSE;
+        invalid_type_error_occurred = FALSE;
 
         printf(ENTER_COMMAND_PROMPT);
         /* Parse the current command */
         return_code_desc = parse_command(&user_command);
 
-        if (is_error(return_code_desc) == TRUE){
-            handle_errors(return_code_desc);
-            /* TODO - Should we continue on error? Or print the board the then continue? */
-            continue;
+        if (return_code_desc.error_code == E_INVALID_INPUT_TYPE) {
+            /* An invalid param was parsed -inform later */
+            temp_return_code_desc = return_code_desc;
+            invalid_type_error_occurred = TRUE;
+        }
+
+        else {
+            if (is_error(return_code_desc) == TRUE) {
+                handle_errors(return_code_desc);
+                continue;
+            }
         }
 
         return_code_desc = validate_command_mode(user_command, current_mode);
@@ -52,6 +60,11 @@ int main() {
             continue;
         }
 
+        if (invalid_type_error_occurred == TRUE) {
+            handle_errors(temp_return_code_desc);
+            continue;
+        }
+
         if (user_command.command_chosen == solve_command) {
             should_print_board = TRUE;
 
@@ -61,9 +74,9 @@ int main() {
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = solve_mode;
 
-                free_whole_list(game_moves);
-                init_move_list(game_moves, grid_height, grid_width);
-                add_move_to_list(game_board, game_moves);
+                free_whole_list(&game_moves);
+                init_move_list(&game_moves, grid_height, grid_width);
+                add_move_to_list(game_board, &game_moves);
 
             } 
                 
@@ -77,9 +90,9 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = edit_mode;
-                free_whole_list(game_moves);
-                init_move_list(game_moves, grid_height, grid_width);
-                add_move_to_list(game_board, game_moves);
+                free_whole_list(&game_moves);
+                init_move_list(&game_moves, grid_height, grid_width);
+                add_move_to_list(game_board, &game_moves);
             }
 
         } else if (user_command.command_chosen == mark_errors_command) {
@@ -96,9 +109,10 @@ int main() {
 
             return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
                                    user_command.params[1] - 1, user_command.params[2], current_mode);
+
             if (is_error(return_code_desc) == FALSE) {
                 /*adding the move*/
-                add_move_to_list(game_board, game_moves);
+                add_move_to_list(game_board, &game_moves);
             }
 
         } else if (user_command.command_chosen == validate_command) {
@@ -113,15 +127,20 @@ int main() {
                                         user_command.params[0],
                                         user_command.params[1]);
 
+            if (is_error(return_code_desc) == FALSE) {
+                /*adding the move*/
+                add_move_to_list(game_board, &game_moves);
+            }
+
         } else if (user_command.command_chosen == undo_command) {
             should_print_board = TRUE;
 
-            return_code_desc = undo_move(game_board, grid_height, grid_width, game_moves);
+            return_code_desc = undo_move(game_board, grid_height, grid_width, &game_moves);
 
         } else if (user_command.command_chosen == redo_command) {
             should_print_board = TRUE;
 
-            return_code_desc = redo_move(game_board, grid_height, grid_width, game_moves);
+            return_code_desc = redo_move(game_board, grid_height, grid_width, &game_moves);
 
         } else if (user_command.command_chosen == save_command) {
             return_code_desc = save(game_board, grid_height, grid_width, box_height, box_width, current_mode,
@@ -144,12 +163,17 @@ int main() {
             should_print_board = TRUE;
             return_code_desc = autofill(game_board, grid_height, grid_width, box_height, box_width);
 
+            if (is_error(return_code_desc) == FALSE) {
+                /*adding the move*/
+                add_move_to_list(game_board, &game_moves);
+            }
+
         } else if (user_command.command_chosen == reset_command) {
-            return_code_desc = reset_game(game_board, game_moves);
+            return_code_desc = reset_game(game_board, &game_moves);
             should_print_board = TRUE;
 
         } else if (user_command.command_chosen == exit_command) {
-            free_whole_list(game_moves);
+            free_whole_list(&game_moves);
 
             if (game_board != NULL) {
                 free_board(game_board, grid_height);
@@ -170,7 +194,8 @@ int main() {
         }
 
         /* Check if the game was won */
-        if (is_board_complete(game_board, grid_height, grid_width)) {
+        /* TODO: Verify what to do if mode is edit mode and board is full */
+        if (current_mode == solve_mode && is_board_complete(game_board, grid_height, grid_width)) {
             /* board is fully filled */
             if (is_board_errornous(game_board, grid_height, grid_width)) {
                 /* board contains errors - notify user */

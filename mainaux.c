@@ -16,7 +16,7 @@ void print_board(board game_board, int grid_height, int grid_width, int box_heig
     boxes_amount = grid_width / box_width;
 
     /* The formula for lines given by Moshe. */
-    line_length = boxes_amount * (CHARACTERS_IN_CELL * box_width + 2) + 1;
+    line_length = 4*grid_width + boxes_amount + 1;
 
     for (i = 0; i < grid_height; i++) {
         /* Printing the horizontal lines */
@@ -30,9 +30,9 @@ void print_board(board game_board, int grid_height, int grid_width, int box_heig
         for (j = 0; j < grid_width; j++) {
             if (j == 0) {
                 /* the box frame */
-                printf("| ");
+                printf("|");
             } else if (j % box_width == 0) {
-                printf("| ");
+                printf("|");
             }
 
             if (game_board[i][j].value == UNASSIGNED)
@@ -78,6 +78,7 @@ void copy_board(board source_grid, board destination_grid, int grid_height, int 
         for (j = 0; j < grid_width; j++) {
             destination_grid[i][j].value = source_grid[i][j].value;
             destination_grid[i][j].is_const = source_grid[i][j].is_const;
+            destination_grid[i][j].is_valid = source_grid[i][j].is_valid;
         }
     }
 }
