@@ -65,4 +65,5 @@
 #define GENERATE_X_ERROR "Number of cells to fill is larger then total number of empty cells in the board\n"
 #define GENERATE_Y_ERROR "Number of cells to keep is larger then total number of cells in the board\n"
 #define SAVED_SUCCESSFULL "Game was successfully to %s\n"
+#define INVALID_MARK_ERRORS_VALUE "Invalid value for mark_errors. Valid values are 0, 1.\n"
 #endif

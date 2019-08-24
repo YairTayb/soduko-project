@@ -490,7 +490,9 @@ returnCodeDesc parse_command(command *user_command){
             return_code_desc = new_string_to_int(token, &num_recieved);
 
             if (is_error(return_code_desc) == FALSE) {
-                (*user_command).params[(*user_command).param_amount] = num_recieved;
+                if ((*user_command).param_amount < 3)
+                    /* PREVENT BUFFER OVERFLOW */
+                    (*user_command).params[(*user_command).param_amount] = num_recieved;
             } else {
                 /*TODO: ERROR HANDLING*/
                 return return_code_desc;

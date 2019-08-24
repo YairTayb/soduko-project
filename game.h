@@ -34,4 +34,6 @@ returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, 
 
 returnCodeDesc reset_game(board game_board, struct MovesList *list);
 
+returnCodeDesc set_mark_errors(int* mark_errors, int input);
+
 #endif
