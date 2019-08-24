@@ -478,7 +478,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
      * TODO: is not success - we need to return it */
 
     /* Check that the loaded board is valid - if not return a proper error */
-    if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer)) {
+    if (is_board_valid(temp_grid, *grid_height_pointer, *grid_width_pointer, *box_height_pointer, *box_height_pointer) == FALSE) {
         return_code_desc.error_code = E_INVALID_BOARD;
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
@@ -558,3 +558,17 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     return return_code_desc;
 }
 
+returnCodeDesc set_mark_errors(int* mark_errors, int input){
+    returnCodeDesc return_code_desc;
+
+    if (input != 0 && input != 1) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        strcpy(return_code_desc.error_message, INVALID_MARK_ERRORS_VALUE);
+        return return_code_desc;
+    }
+
+    *mark_errors = input;
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
+}

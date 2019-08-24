@@ -78,15 +78,13 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = edit_mode;
-                 free_whole_list(game_moves);
+                free_whole_list(game_moves);
                 init_move_list(game_moves, grid_height, grid_width);
                 add_move_to_list(game_board, game_moves);
             }
 
         } else if (user_command.command_chosen == mark_errors_command) {
-            mark_errors = user_command.params[0];
-            return_code_desc.error_code = E_SUCCESS;
-            strcpy(return_code_desc.error_message, NO_ERRORS);
+            return_code_desc = set_mark_errors(&mark_errors, user_command.params[0]);
 
         } else if (user_command.command_chosen == print_board_command) {
             /* Do nothing - the board will print anyway */
@@ -99,8 +97,10 @@ int main() {
 
             return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0],
                                    user_command.params[1], user_command.params[2], current_mode);
-            /*adding the move*/
-            add_move_to_list(game_board, game_moves);
+            if (is_error(return_code_desc) == FALSE) {
+                /*adding the move*/
+                add_move_to_list(game_board, game_moves);
+            }
 
         } else if (user_command.command_chosen == validate_command) {
             return_code_desc = validate(game_board, grid_height, grid_width, box_height, box_width);
