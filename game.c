@@ -158,7 +158,7 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
         }
     }
 
-    fd = fopen(path, "w");
+    fd = fopen(path, "wb");
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
@@ -348,6 +348,8 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     int *valid_values;
     board temp_board = create_empty_board(grid_height, grid_width);
 
+    /* TODO: What if board is errornous? DO we even run this?*/
+
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
     if (!valid_values) {
@@ -461,7 +463,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     board temp_grid = NULL;
 
     /* Might need to change to rb */
-    fd = fopen(path, "r");
+    fd = fopen(path, "rb");
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
@@ -522,7 +524,7 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     } 
 
 
-    fd = fopen(path, "r");
+    fd = fopen(path, "rb");
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;

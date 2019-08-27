@@ -663,13 +663,15 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     /*parsing the file into the board*/
     values_read_amount = 0;
 
+    /* Initialize the buffer to zeros */
+    memset(read_buffer, 0, BUFFER_SIZE);
+
     /*reading as much as we can*/
     while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0) {
         tok = strtok(read_buffer, " \t\r\n");
         values_read_amount++;
         /*parsing while we can*/
         while (tok) {
-            printf("hatool3\n");
             if (read_rows == FALSE) {
                 if(is_numeric(tok)){
                     rows_amount = string_to_int(tok);/* */
@@ -724,6 +726,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                 } else {
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
                     strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    tok[strlen(tok) - 1] = '\0';
                     free_board(*grid_pointer, total_length);
                     return ret_val;
                 }
@@ -736,7 +739,6 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                     return ret_val;
                 }
 
-                printf("%d %d\n", cur_row, cur_col);
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
@@ -746,8 +748,10 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
             tok = strtok(NULL, " \t\r\n");
             
         }
+
+        memset(read_buffer, 0, BUFFER_SIZE);
     }
-    printf("hatool 4\n");
+
     if(values_read_amount -1 < total_length*total_length){
 
         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
