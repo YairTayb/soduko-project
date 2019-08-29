@@ -61,74 +61,57 @@ int check_if_const(char *number){
 
 command parse_command_name(char* command_name) {
     command received_command;
-    /* TODO: Remove the param_amount settings- no needed! */
+
     if (strcmp(command_name, "solve") == 0) {
         received_command.command_chosen = solve_command;
-        received_command.param_amount = 1;
 
     } else if (strcmp(command_name, "edit") == 0) {
         received_command.command_chosen = edit_command;
-        received_command.param_amount = 1;
 
     } else if (strcmp(command_name, "mark_errors") == 0) {
         received_command.command_chosen = mark_errors_command;
-        received_command.param_amount = 1;
 
     } else if (strcmp(command_name, "print_board") == 0) {
         received_command.command_chosen = print_board_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "set") == 0) {
         received_command.command_chosen = set_command;
-        received_command.param_amount = 3;
 
     } else if (strcmp(command_name, "validate") == 0) {
         received_command.command_chosen = validate_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "guess") == 0) {
         received_command.command_chosen = guess_command;
-        received_command.param_amount = 1;
 
     } else if (strcmp(command_name, "generate") == 0) {
         received_command.command_chosen = generate_command;
-        received_command.param_amount = 2;
 
     } else if (strcmp(command_name, "undo") == 0) {
         received_command.command_chosen = undo_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "redo") == 0) {
         received_command.command_chosen = redo_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "save") == 0) {
         received_command.command_chosen = save_command;
-        received_command.param_amount = 1;
 
     } else if (strcmp(command_name, "hint") == 0) {
         received_command.command_chosen = hint_command;
-        received_command.param_amount = 2;
 
     } else if (strcmp(command_name, "guess_hint") == 0) {
         received_command.command_chosen = guess_hint_command;
-        received_command.param_amount = 2;
 
     } else if (strcmp(command_name, "num_solutions") == 0) {
         received_command.command_chosen = num_solutions_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "autofill") == 0) {
         received_command.command_chosen = autofill_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "reset") == 0) {
         received_command.command_chosen = reset_command;
-        received_command.param_amount = 0;
 
     } else if (strcmp(command_name, "exit") == 0) {
         received_command.command_chosen = exit_command;
-        received_command.param_amount = 0;
 
     } else {
         /*invalid command entered*/
