@@ -66,6 +66,16 @@ int is_board_valid(board game_board, int grid_height, int grid_width, int box_he
     board temp_board = create_empty_board(grid_height, grid_width);
     copy_board(game_board, temp_board, grid_height, grid_width);
 
+    /* Check that the game doesn't contain any empty fixed cells */
+    for (row = 0; row < grid_height; row++) {
+        for (col = 0; col < grid_width; col++) {
+            if (game_board[row][col].is_const == TRUE && game_board[row][col].value == UNASSIGNED) {
+                free_board(temp_board, grid_height);
+                return FALSE;
+            }
+        }
+    }
+
     /* Clear the temp board of all non-fixed cells and set all fixed cells to non-fixed and mark them as valid */
     for (row = 0; row < grid_height; row++) {
         for (col = 0; col < grid_width; col++) {
@@ -357,11 +367,18 @@ int count_solutions_iterative(board game_board, int grid_height, int grid_width,
 
     initialize(&s);
 
-    while (!is_empty(game_board, row, col)){
+    while (TRUE){
+
+        /* Reached on of the board */
         if (row >= grid_height){
-            /* No empty cells */
+            /* No empty cells - only one solutions exists */
             return 1;
         }
+
+        if (is_empty(game_board, row, col)) {
+            break;
+        }
+
         else if (col + 1>= grid_width) {
             row++;
             col = 0;

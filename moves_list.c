@@ -90,7 +90,9 @@ void free_partial_list(struct Node* head, int board_height){
 		temp_node = head;
 		head = head->next;
 		temp_node->prev=NULL;
-		free_board(temp_node->data,board_height);
+        /* TODO: This is failing when doing edit with no params on the first move in debug mode. Seems we are freeing the data (board) which was not allocated yet) */
+        /* TODO: This happens only in debug mode... */
+        free_board(temp_node->data,board_height);
 		free(temp_node);
 	}
 }

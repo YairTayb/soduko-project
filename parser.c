@@ -581,7 +581,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
             }
 
             
-            if (!token) {
+            if (token < 0) {
                 return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
                 strcpy(return_code_desc.error_message, WRITING_TO_FILE_ERROR);
                 return return_code_desc;
@@ -593,7 +593,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
             token = fprintf(fd, "\n");
         }
 
-        if (!token) {
+        if (token < 0) {
             return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
             strcpy(return_code_desc.error_message, WRITING_TO_FILE_ERROR);
             return return_code_desc;

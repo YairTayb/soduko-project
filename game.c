@@ -348,7 +348,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     int *valid_values;
     board temp_board = create_empty_board(grid_height, grid_width);
 
-    /* TODO: What if board is errornous? DO we even run this?*/
+    /* TODO: What if board is errornous? DO we even run this? See discussion in forum */
 
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
