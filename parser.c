@@ -419,38 +419,31 @@ returnCodeDesc parse_command(command *user_command){
 
         }
     }
-    /* Verify command length - not exceeding MAX_COMMAND_LENGTH */
-    if (strchr(user_input, '\n') == NULL || strlen(user_input) == MAX_COMMAND_LENGTH){
+    /* Verify command length - not exceeding MAX_COMMAND_LENGTH of 258. According to Moshe, command shouldn't exceed
+     * 256 chars (not including \n and \0)*/
+    if (strchr(user_input, '\n') == NULL){
 
             return_code_desc.error_code = E_COMMAND_TOO_LONG;
-            strcpy(return_code_desc.error_message, REACHED_OEF);
+            sprintf(return_code_desc.error_message, COMMAND_TOO_LONG, MAX_COMMAND_LENGTH - 2);
 
             /*clean stdin*/
             while ((c = getchar()) != '\n' && c != EOF);
+
+            if (c == EOF) {
+                return_code_desc.error_code = E_EOF_REACHED;
+                strcpy(return_code_desc.error_message, REACHED_OEF);
+                return return_code_desc;
+            }
 
             return return_code_desc;
     }
 
 
     /* Skip the empty lines */
-    while (strcmp(user_input, "\n") == 0 || strcmp(user_input,"\r\n") == 0) {
-        result = fgets(user_input, MAX_COMMAND_LENGTH, stdin);
-
-        /* Check what caused the fgets to fail */
-        if (result == NULL) {
-            if (feof(stdin)) {
-                /* Reached EOF */
-                return_code_desc.error_code = E_EOF_REACHED;
-                strcpy(return_code_desc.error_message, REACHED_OEF);
-                return return_code_desc;
-
-            } else if (ferror(stdin)) {
-                return_code_desc.error_code = E_FUNCTION_FAILED;
-                sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fgets");
-                return return_code_desc;
-
-            }
-        }
+    /* TODO: Verify in the instructions if we need to wait for input, or skip the empty line and prompt for command again */
+    if (is_empty_string(user_input) == TRUE) {
+        return_code_desc.error_code = E_BLANK_LINE;
+        return return_code_desc;
     }
 
     /* Remove trailing \n in the command input */
@@ -550,7 +543,7 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
 
                 if (mode_of_game == edit_mode) {
 
-                    if (grid[i][j].value == EMPTY) {
+                    if (grid[i][j].value == UNASSIGNED) {
                         token = fprintf(fd, "%d", grid[i][j].value);
                     } else {
                         token = fprintf(fd, "%d.", grid[i][j].value);
@@ -667,6 +660,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     memset(read_buffer, 0, BUFFER_SIZE);
 
     /*reading as much as we can*/
+    /* TODO: Add error handling for the fread(). Seems that if the ret val of fread != to BUGGER_SIZE - 1 then an error or EOF happend */
     while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0) {
         tok = strtok(read_buffer, " \t\r\n");
         values_read_amount++;
@@ -718,6 +712,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                     
                     if(!(curr_val >= 0 && curr_val <= total_length))
                     {
+                        /* TODO: Maybe change to more informative error? regarding the valid range */
                         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
                         strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
                         free_board(*grid_pointer, total_length);

@@ -44,5 +44,7 @@ int is_error(returnCodeDesc return_code_desc);
 
 void unfix_board(board board, int grid_height, int grid_width);
 
+int is_empty_string(char *s);
+
 #endif
 

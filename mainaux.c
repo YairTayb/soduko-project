@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "mainaux.h"
 
 /**
@@ -240,40 +241,11 @@ void print_hint_message(int row, int col, int hint_value) {
     printf(HINT_MSG, row, col, hint_value);
 }
 
-
-/**
- * Get the number of hints to remain on the board
- * @param num_of_hints The pointer to the variable that holds the number of hints
- * @return 1 = Success, 0 = Error.
- */
-int get_cells_number_input(int* num_of_hints){
-    /* Scanning user input */
-    int result;
-    printf(NUMBER_OF_CELLS_TO_FILL_MSG);
-    result = scanf("%d%*c", num_of_hints);
-    if(result==EOF){
-        printf(EXIT_MSG);
-        exit(EXIT_FAILURE);
-    }
-    if (result == 0)
-        return result;
-
-    while (*num_of_hints < 0 || *num_of_hints > 80) {
-        printf(INVALID_NUMBER_OF_CELLS_TO_FILL);
-        printf(NUMBER_OF_CELLS_TO_FILL_MSG);
-        result = scanf("%d%*c", num_of_hints);
-        if (result == 0)
-            return result;
-    }
-
-    return 1;
-}
-
-
 void handle_errors(returnCodeDesc return_code_desc){
     if (return_code_desc.error_code != E_SUCCESS) {
         /* An error occurred while parsing command */
-        printf("%s", return_code_desc.error_message);
+        if (return_code_desc.error_code != E_BLANK_LINE)
+            printf("%s", return_code_desc.error_message);
 
         if (return_code_desc.error_code == E_FUNCTION_FAILED) {
             /* One of the functions have failed - we may exit without cleaning */
@@ -287,4 +259,13 @@ int is_error(returnCodeDesc return_code_desc){
     if (return_code_desc.error_code != E_SUCCESS)
         return TRUE;
     return FALSE;
+}
+
+int is_empty_string(char *s) {
+    while (*s != '\0') {
+        if (!isspace((unsigned char)*s))
+            return FALSE;
+        s++;
+    }
+    return TRUE;
 }

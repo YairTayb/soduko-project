@@ -344,7 +344,7 @@ int _count_solutions_iterative(board game_board, int grid_height, int grid_width
                 break;
             }
         }
-        if (!found){
+        if (found == FALSE){
             game_board[row][col].value = UNASSIGNED;
             m = pop(s);
             row =m.row;

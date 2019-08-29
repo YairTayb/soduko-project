@@ -30,23 +30,19 @@ struct Node* create_new_move (struct Cell** game_board, struct MovesList* list) 
 	struct Node* new_node ;
     board temp_board = NULL;
 	new_node = (struct Node*)malloc(sizeof(struct Node));
-    if(!new_node){
-        /*ERROR HANDLING - MALLOC FAILED*/
-        /* TODO: Add the new errors handling here */
-        exit(-1);
+
+	if(new_node == NULL){
+        printf(FUNCTION_FAILED, "malloc");
+        exit(EXIT_FAILURE);
     }
+
 	temp_board = create_empty_board(list->board_height, list->board_height);
 	copy_board(game_board, temp_board, list->board_height, list->board_width);
 	new_node->data = temp_board;
 	new_node->prev = NULL;
 	new_node->next = NULL;
-	printf("created a new move \n");
 	return new_node;
 }
-
-
-
-
 
 
 /* Prints all the elements in linked list in forward traversal order */

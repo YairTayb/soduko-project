@@ -42,6 +42,16 @@ int main() {
         else {
             if (is_error(return_code_desc) == TRUE) {
                 handle_errors(return_code_desc);
+
+                if (return_code_desc.error_code == E_EOF_REACHED) {
+                    free_whole_list(&game_moves);
+
+                    if (game_board != NULL) {
+                        free_board(game_board, grid_height);
+                    }
+                    exit(EXIT_FAILURE);
+                }
+
                 continue;
             }
         }
@@ -50,6 +60,16 @@ int main() {
 
         if (is_error(return_code_desc) == TRUE){
             handle_errors(return_code_desc);
+
+            if (return_code_desc.error_code == E_EOF_REACHED) {
+                free_whole_list(&game_moves);
+
+                if (game_board != NULL) {
+                    free_board(game_board, grid_height);
+                }
+                exit(EXIT_FAILURE);
+            }
+
             continue;
         }
 
@@ -57,11 +77,31 @@ int main() {
 
         if (is_error(return_code_desc) == TRUE){
             handle_errors(return_code_desc);
+
+            if (return_code_desc.error_code == E_EOF_REACHED) {
+                free_whole_list(&game_moves);
+
+                if (game_board != NULL) {
+                    free_board(game_board, grid_height);
+                }
+                exit(EXIT_FAILURE);
+            }
+
             continue;
         }
 
         if (invalid_type_error_occurred == TRUE) {
             handle_errors(temp_return_code_desc);
+
+            if (return_code_desc.error_code == E_EOF_REACHED) {
+                free_whole_list(&game_moves);
+
+                if (game_board != NULL) {
+                    free_board(game_board, grid_height);
+                }
+                exit(EXIT_FAILURE);
+            }
+
             continue;
         }
 
@@ -184,17 +224,22 @@ int main() {
 
         if (is_error(return_code_desc) == TRUE){
             handle_errors(return_code_desc);
+
+            if (return_code_desc.error_code == E_EOF_REACHED) {
+                free_whole_list(&game_moves);
+
+                if (game_board != NULL) {
+                    free_board(game_board, grid_height);
+                }
+                exit(EXIT_FAILURE);
+            }
+
             continue;
         }
 
         update_board_errors(game_board, grid_height, grid_width, box_height, box_width);
 
-        if (should_print_board == TRUE) {
-            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
-        }
-
         /* Check if the game was won */
-        /* TODO: Verify what to do if mode is edit mode and board is full */
         if (current_mode == solve_mode && is_board_complete(game_board, grid_height, grid_width)) {
             /* board is fully filled */
             if (is_board_errornous(game_board, grid_height, grid_width)) {
@@ -206,6 +251,12 @@ int main() {
                 print_winning_message();
                 current_mode = init_mode;
             }
+        }
+
+        if (should_print_board == TRUE) {
+            /* TODO: Validate if printing of the board should come after the winning message (from instructions -
+             * TODO: seems like printing is the last output). We shoudl validate against the previous semester inputs */
+            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
         }
     }
 

@@ -171,6 +171,7 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (fclose(fd) != 0) {
         /* Error handling */
+        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
@@ -352,9 +353,10 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
-    if (!valid_values) {
-        printf(FUNCTION_FAILED, "malloc");
-        exit(EXIT_FAILURE);
+    if (valid_values == NULL) {
+        return_code_desc.error_code = E_FUNCTION_FAILED;
+        sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
+        return return_code_desc;
     }
 
     if (count_empty_cells(game_board, grid_height, grid_width) < num_of_cells_to_fill) {
@@ -477,6 +479,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
 
     if (fclose(fd) != 0) {
         /* Error handling */
+        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
