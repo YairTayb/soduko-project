@@ -22,6 +22,9 @@ int main() {
     game_mode current_mode = init_mode;
     struct MovesList game_moves;
 
+    /*init the move list*/
+    game_moves.current_move = NULL;
+
     printf(WELCOME_MESSAGE);
 
     /* Game begins */
@@ -88,7 +91,7 @@ int main() {
             }
 
             continue;
-        }
+        } 
 
         if (invalid_type_error_occurred == TRUE) {
             handle_errors(temp_return_code_desc);
@@ -113,7 +116,6 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = solve_mode;
-
                 free_whole_list(&game_moves);
                 init_move_list(&game_moves, grid_height, grid_width);
                 add_move_to_list(game_board, &game_moves);
@@ -235,9 +237,17 @@ int main() {
             }
 
             continue;
+        } else {
+            printf("%s",return_code_desc.error_message);
         }
 
         update_board_errors(game_board, grid_height, grid_width, box_height, box_width);
+
+        
+
+        if (should_print_board == TRUE) {
+            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
+        }
 
         /* Check if the game was won */
         if (current_mode == solve_mode && is_board_complete(game_board, grid_height, grid_width)) {
@@ -251,12 +261,6 @@ int main() {
                 print_winning_message();
                 current_mode = init_mode;
             }
-        }
-
-        if (should_print_board == TRUE) {
-            /* TODO: Validate if printing of the board should come after the winning message (from instructions -
-             * TODO: seems like printing is the last output). We shoudl validate against the previous semester inputs */
-            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
         }
     }
 

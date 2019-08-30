@@ -45,17 +45,7 @@ struct Node* create_new_move (struct Cell** game_board, struct MovesList* list) 
 }
 
 
-/* Prints all the elements in linked list in forward traversal order */
-void Print_list(struct MovesList*  list) {
-	struct Node* temp = list->current_move;
-	printf("Forward: ");
-	while(temp != NULL) {
-		/* TODO: Align to the real print_board */
-		print_board(temp->data,list->board_height, list->board_width,3,3,solve_mode,0);
-		temp = temp->next;
-	}
-	printf("\n");
-}
+
 
 /**
 *
@@ -66,10 +56,11 @@ struct Node* find_list_head(struct MovesList*  list){
 	if(list->current_move == NULL){
 		return NULL;
 	}
-	/* TODO - when temp is NULL - failing */
+
 	while (temp->prev != NULL ){
 		temp = temp->prev;
 	}
+	
 	return temp;
 }
 
@@ -80,14 +71,12 @@ struct Node* find_list_head(struct MovesList*  list){
 */
 void free_partial_list(struct Node* head, int board_height){
 	struct Node* temp_node;
-
+	printf("b");
 	while(head != NULL){
 
 		temp_node = head;
 		head = head->next;
 		temp_node->prev=NULL;
-        /* TODO: This is failing when doing edit with no params on the first move in debug mode. Seems we are freeing the data (board) which was not allocated yet) */
-        /* TODO: This happens only in debug mode... */
         free_board(temp_node->data,board_height);
 		free(temp_node);
 	}
@@ -99,6 +88,8 @@ void free_partial_list(struct Node* head, int board_height){
 */
 void free_whole_list(struct MovesList*  list){
 	struct Node* head_to_free = find_list_head(list);
+	printf("\n");
+	printf("A");
 	if(list->current_move != NULL)
 		free_partial_list(head_to_free, list->board_height);
 }
