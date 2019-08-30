@@ -71,7 +71,6 @@ struct Node* find_list_head(struct MovesList*  list){
 */
 void free_partial_list(struct Node* head, int board_height){
 	struct Node* temp_node;
-	printf("b");
 	while(head != NULL){
 
 		temp_node = head;
@@ -88,8 +87,6 @@ void free_partial_list(struct Node* head, int board_height){
 */
 void free_whole_list(struct MovesList*  list){
 	struct Node* head_to_free = find_list_head(list);
-	printf("\n");
-	printf("A");
 	if(list->current_move != NULL)
 		free_partial_list(head_to_free, list->board_height);
 }

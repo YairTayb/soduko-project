@@ -57,7 +57,7 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
     game_board[row][col].value = value;
 
     return_code_desc.error_code = E_SUCCESS;
-    sprintf(return_code_desc.error_message,SUCCESFULL_SET,row,col,value);
+    sprintf(return_code_desc.error_message,SUCCESFULL_SET,(row + 1),(col + 1),value);
     return return_code_desc;
 
 }
@@ -464,6 +464,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
+
     returnCodeDesc return_code_desc;
     FILE *fd;
     board temp_grid = NULL;
