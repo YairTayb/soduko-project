@@ -67,4 +67,5 @@
 #define SAVED_SUCCESSFULL "Game was successfully to %s\n"
 #define INVALID_MARK_ERRORS_VALUE "Error: Invalid value for mark_errors. Valid values are 0, 1.\n"
 #define GENERATE_EXCEEDED_ITERATIONS "Error: generate method exceeded %d iterations\n"
+#define GUROBI_NO_SOLUTION_ERROR "Error: No solution found using Gurobi\n"
 #endif

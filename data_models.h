@@ -88,7 +88,8 @@ typedef enum _return_code {
     E_INVALID_BOARD = 20,
     E_INVALID_INPUT_TYPE = 21,
     E_BLANK_LINE = 22,
-    E_GUROBI_FAILURE = 23
+    E_GUROBI_FAILURE = 23,
+    E_GUROBI_NO_SOLUTION = 24
 
 } return_code;
 

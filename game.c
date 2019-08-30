@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "game.h"
+#include "gurobi_solver.h"
 #include "mainaux.h"
 #include "solver.h"
 #include "moves_list.h"
@@ -203,17 +203,19 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
         strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
     }
 
-    /* If board is solvable - update the solution */
-    else if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
-        print_validation_passed();
-        /* Free memory allocation for previous solution */
-        return_code_desc.error_code = E_SUCCESS;
-        strcpy(return_code_desc.error_message, NO_ERRORS);
+    else {
+        return_code_desc = solve_ILP(new_solution, grid_height, grid_width, box_height, box_width);
 
-    } else {
-        /* No solution for the current board */
-        return_code_desc.error_code = E_NO_SOLUTION;
-        strcpy(return_code_desc.error_message, VALIDATION_FAILED);
+        /* Check if there were errors while running the ILP solver.
+         * If An error has occurred while running the Gurobi ILP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error.
+         * Otherwise the validation has passed. */
+        if (is_error(return_code_desc) == FALSE) {
+            print_validation_passed();
+            return_code_desc.error_code = E_SUCCESS;
+            strcpy(return_code_desc.error_message, NO_ERRORS);
+        }
+
     }
 
     /* Free memory allocation for previous solution */

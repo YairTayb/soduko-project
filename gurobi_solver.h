@@ -1,8 +1,8 @@
-//
-// Created by Avital Livshits on 2019-08-29.
-//
-
 #ifndef NIM_GUROBI_SOLVER_H
 #define NIM_GUROBI_SOLVER_H
 
-#endif //NIM_GUROBI_SOLVER_H
+#include "data_models.h"
+
+returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int box_height, int box_width);
+
+#endif
