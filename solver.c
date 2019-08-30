@@ -189,7 +189,7 @@ int is_valid(board game_board, int grid_height, int grid_width, int box_height, 
 }
 
 /**
- * Find valid values for a given cell
+ * Count valid values for a given cell
  * @param game_board The game board
  * @param grid_height The board height
  * @param grid_width The board width
@@ -208,6 +208,36 @@ int count_valid_values(board game_board, int grid_height, int grid_width, int bo
     for (num = 1; num <= range; num++) {
         /* For each number up to the range bound - check if its valid */
         if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, num)) {
+            counter++;
+        }
+    }
+
+    return counter;
+}
+
+/**
+ * Find valid values for a given cell
+ * @param game_board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height the box height
+ * @param box_width The box width
+ * @param row The row of the cell
+ * @param col The column of the cell
+ * @param values The values array to fill with valid values
+ * @param range Upper bound of the numbers range that is valid for the cell.
+ * @return Number of valid values found
+ */
+int find_valid_values(int* values, board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
+                       int range) {
+    int num;
+    int counter = 0;
+    int i = 0;
+    for (num = 1; num <= range; num++) {
+        /* For each number up to the range bound - check if its valid */
+        if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, num)) {
+            values[i] = num;
+            i++;
             counter++;
         }
     }

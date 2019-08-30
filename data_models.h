@@ -87,7 +87,8 @@ typedef enum _return_code {
     E_COMMAND_TOO_LONG = 19,
     E_INVALID_BOARD = 20,
     E_INVALID_INPUT_TYPE = 21,
-    E_BLANK_LINE = 22
+    E_BLANK_LINE = 22,
+    E_GUROBI_FAILURE = 23
 
 } return_code;
 
@@ -95,5 +96,11 @@ typedef struct _return_code_desc {
     return_code error_code;
     char error_message[1000];
 } returnCodeDesc;
+
+
+typedef enum _linear_solving_mode {
+    ILP = 0,
+    LP = 1
+} linear_solving_mode;
 
 #endif

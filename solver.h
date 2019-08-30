@@ -31,4 +31,7 @@ int count_empty_cells(board board, int grid_height, int grid_width);
 
 int is_board_valid(board game_board, int grid_height, int grid_width, int box_height, int box_width);
 
+int find_valid_values(int *values, board game_board, int grid_height, int grid_width, int box_height, int box_width,
+                      int row, int col, int range);
+
 #endif
