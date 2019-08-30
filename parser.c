@@ -421,9 +421,8 @@ returnCodeDesc parse_command(command *user_command){
             return return_code_desc;
     }
 
-
+    /*TODO make sure what do we need to do in this case*/
     /* Skip the empty lines */
-    /* TODO: Verify in the instructions if we need to wait for input, or skip the empty line and prompt for command again */
     if (is_empty_string(user_input) == TRUE) {
         return_code_desc.error_code = E_BLANK_LINE;
         return return_code_desc;
@@ -565,9 +564,10 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
         }
 
         /*preventing adding another new line in the end of the file.*/
-        if(i != grid_height-1){
+        /*if(i != grid_height-1){
             token = fprintf(fd, "\n");
-        }
+        }*/
+        token = fprintf(fd, "\n");
 
         if (token < 0) {
             return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
@@ -642,9 +642,17 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     /* Initialize the buffer to zeros */
     memset(read_buffer, 0, BUFFER_SIZE);
 
+
     /*reading as much as we can*/
     /* TODO: Add error handling for the fread(). Seems that if the ret val of fread != to BUGGER_SIZE - 1 then an error or EOF happend */
-    while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0) {
+    while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0 ) {
+
+        if(ferror(fd)){
+            ret_val.error_code = E_FAILED_READING_FILE;
+            strcpy(ret_val.error_message,READING_FROM_FILE);
+            return ret_val;
+        }
+
         tok = strtok(read_buffer, " \t\r\n");
         values_read_amount++;
         /*parsing while we can*/
@@ -695,15 +703,14 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                     
                     if(!(curr_val >= 0 && curr_val <= total_length))
                     {
-                        /* TODO: Maybe change to more informative error? regarding the valid range */
                         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-                        strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                        sprintf(ret_val.error_message,FILE_PARAMS_NOT_IN_RANGE,0,total_length);
                         free_board(*grid_pointer, total_length);
                         return ret_val;
                     }
                 } else {
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-                    strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    strcpy(ret_val.error_message,FILE_PARAMS_NOT_LEGAL);
                     tok[strlen(tok) - 1] = '\0';
                     free_board(*grid_pointer, total_length);
                     return ret_val;
@@ -745,6 +752,75 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     return ret_val;
 
 }
+
+int is_a_number(char num){
+    if(num < '0' || num > '9' ){
+        return FALSE;
+    }
+    return TRUE;
+}
+
+int is_legal_float(char *num){
+    int i, period_counter, before_count, after_count, period_flag;
+
+    i = 0;
+    period_counter = 0;
+    period_flag = 0;
+    before_count = 0;
+    after_count = 0;
+
+    /*if is a simple decimal integer.*/
+    if(is_numeric(num)){
+        return TRUE;
+    }
+
+    /*counting how many periods are in the float*/
+    while(num[i]){
+        if(num[i] == '.'){
+            period_counter++;
+        }
+        if(period_counter > 1){
+            return FALSE;
+        }
+        i++;
+    }
+
+    i = 0;
+
+    while(num[i]){
+
+        if(num[i] == '.'){
+            period_flag = 1;
+        } else {
+            /*making sure the number is composed of either numbers or a dot.*/
+            if(is_a_number(num[i]) != TRUE){
+                return FALSE;
+            } 
+
+            /*making sure the number is of the correct format*/
+            if(period_flag == 1){
+                after_count++;
+            } else {
+                before_count++;
+            }
+
+        } 
+        
+        i++;
+    }
+    /*making sure the number is of the form: X.Y */
+    if (before_count == 0 || after_count == 0){
+        return FALSE;
+    }
+
+    return TRUE;
+
+}
+
+float parse_float(char *num){
+
+}
+
 
 /*
 int main(){

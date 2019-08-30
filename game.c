@@ -57,7 +57,7 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
     game_board[row][col].value = value;
 
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    sprintf(return_code_desc.error_message,SUCCESFULL_SET,(row + 1),(col + 1),value);
     return return_code_desc;
 
 }
@@ -74,7 +74,7 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
                 } else if(comm == redo){
                     printf("Redo ");
                 } 
-                printf("%d,%d from %d to %d .\n",i,j, before[i][j].value , after[i][j].value);
+                printf("(%d,%d) from %d to %d.\n",(i + 1),(j + 1), before[i][j].value , after[i][j].value);
 
             }
         }
@@ -171,7 +171,6 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (fclose(fd) != 0) {
         /* Error handling */
-        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
@@ -284,7 +283,7 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
     free_board(temp_board, grid_height);
 
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    strcpy(return_code_desc.error_message, SUCCESFULL_AUTOFILL);
     return return_code_desc;
 
 }
@@ -351,7 +350,12 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     int *valid_values;
     board temp_board = create_empty_board(grid_height, grid_width);
 
-    /* TODO: What if board is errornous? DO we even run this? See discussion in forum */
+    /*Should not run if the board is erronous - wasting cpu time*/
+    if(is_board_errornous(game_board, grid_height, grid_width)){
+        return_code_desc.error_code = E_GENERAL_ERROR;
+        strcpy(return_code_desc.error_message,BOARD_IS_ERRONOUS);
+        return return_code_desc;
+    }
 
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
@@ -462,12 +466,15 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
+
     returnCodeDesc return_code_desc;
     FILE *fd;
     board temp_grid = NULL;
 
     /* Might need to change to rb */
     fd = fopen(path, "rb");
+
+    
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
@@ -480,8 +487,6 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
                                        box_width_pointer);
 
     if (fclose(fd) != 0) {
-        /* Error handling */
-        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
@@ -497,7 +502,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
     }
-
+    
     if (*grid_pointer != NULL)
         free_board((*grid_pointer), *grid_height_pointer);
 
@@ -576,6 +581,6 @@ returnCodeDesc set_mark_errors(int* mark_errors, int input){
 
     *mark_errors = input;
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    sprintf(return_code_desc.error_message,SUCCESFULL_MARK_ERRORS,input);
     return return_code_desc;
 }
