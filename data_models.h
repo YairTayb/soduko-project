@@ -89,9 +89,8 @@ typedef enum _return_code {
     E_INVALID_INPUT_TYPE = 21,
     E_BLANK_LINE = 22,
     E_GUROBI_FAILURE = 23,
-    E_FAILED_READING_FILE = 24
+    E_FAILED_READING_FILE = 24,
     E_GUROBI_NO_SOLUTION = 25
-
 } return_code;
 
 typedef struct _return_code_desc {

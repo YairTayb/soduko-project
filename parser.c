@@ -817,9 +817,11 @@ int is_legal_float(char *num){
 
 }
 
+/*
 float parse_float(char *num){
 
 }
+*/
 
 
 /*

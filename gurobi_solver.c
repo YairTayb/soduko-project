@@ -13,8 +13,8 @@ returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_n
 
     int error = 0;
     int i = 0;
-    int *obj;
-    int *vtype;
+    double *obj;
+    char *vtype;
 
     obj = malloc(sizeof(double) * total_num_of_variables);
 
@@ -204,8 +204,7 @@ add_cell_single_value_constraints(GRBenv *env, GRBmodel *model, linear_solving_m
 }
 
 returnCodeDesc
-add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                linear_solving_mode solving_mode,
+add_value_single_row_constraint(GRBenv *env, GRBmodel *model,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
                                 int row, int k_value) {
     returnCodeDesc return_code_desc;
@@ -283,8 +282,7 @@ add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int total_num_of_v
 
 }
 
-returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                         linear_solving_mode solving_mode,
+returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
     returnCodeDesc return_code_desc;
@@ -292,7 +290,7 @@ returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model, int total
 
     for (row = 0; row < grid_height; row++) {
         /* Add the value constraint for the current row */
-        return_code_desc = add_value_single_row_constraint(env, model, total_num_of_variables, solving_mode,
+        return_code_desc = add_value_single_row_constraint(env, model,
                 grid_height, grid_width, box_height, box_width, game_board, row, k_value);
 
         if (is_error(return_code_desc) == TRUE) {
@@ -306,8 +304,7 @@ returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model, int total
 }
 
 returnCodeDesc
-add_value_col_single_constraint(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                linear_solving_mode solving_mode,
+add_value_col_single_constraint(GRBenv *env, GRBmodel *model,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
                                 int col, int k_value) {
     returnCodeDesc return_code_desc;
@@ -385,8 +382,7 @@ add_value_col_single_constraint(GRBenv *env, GRBmodel *model, int total_num_of_v
 
 }
 
-returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                         linear_solving_mode solving_mode,
+returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
     returnCodeDesc return_code_desc;
@@ -394,7 +390,7 @@ returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model, int total
 
     for (col = 0; col < grid_width; col++) {
         /* Add the value constraint for the current col */
-        return_code_desc = add_value_col_single_constraint(env, model, total_num_of_variables, solving_mode,
+        return_code_desc = add_value_col_single_constraint(env, model,
                                                            grid_height, grid_width, box_height, box_width, game_board, col, k_value);
 
         if (is_error(return_code_desc) == TRUE) {
@@ -408,8 +404,7 @@ returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model, int total
 }
 
 returnCodeDesc
-add_value_single_box_constraint(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                linear_solving_mode solving_mode,
+add_value_single_box_constraint(GRBenv *env, GRBmodel *model,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
                                 int box_start_row, int box_start_col, int k_value) {
     returnCodeDesc return_code_desc;
@@ -489,8 +484,7 @@ add_value_single_box_constraint(GRBenv *env, GRBmodel *model, int total_num_of_v
 
 }
 
-returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model, int total_num_of_variables,
-                                         linear_solving_mode solving_mode,
+returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
     returnCodeDesc return_code_desc;
@@ -500,7 +494,7 @@ returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model, int total
     for (box_start_row = 0; box_start_row < grid_height; box_start_row += box_height) {
         for (box_start_col = 0; box_start_col < grid_width; box_start_col += box_width) {
             /* Add the value constraint for the current box */
-            return_code_desc = add_value_single_box_constraint(env, model, total_num_of_variables, solving_mode,
+            return_code_desc = add_value_single_box_constraint(env, model,
                                                                grid_height, grid_width, box_height, box_width,
                                                                game_board, box_start_row, box_start_col, k_value);
 
@@ -515,7 +509,7 @@ returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model, int total
     return return_code_desc;
 }
 
-returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int total_num_of_variables,
+returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model,
                                linear_solving_mode solving_mode,
                                int grid_height, int grid_width, int box_height, int box_width,
                                board game_board) {
@@ -544,7 +538,7 @@ returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int total_num_of_va
      * */
     for (k_value = 1; k_value <= (box_height * box_width); k_value++){
         /* Add row constrains */
-        return_code_desc = add_value_row_constraints(env, model, total_num_of_variables, solving_mode, grid_height,
+        return_code_desc = add_value_row_constraints(env, model, grid_height,
                 grid_width, box_height, box_width, game_board, k_value);
 
         if (is_error(return_code_desc) == TRUE) {
@@ -552,7 +546,7 @@ returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int total_num_of_va
         }
 
         /* Add col constrains */
-        return_code_desc = add_value_col_constraints(env, model, total_num_of_variables, solving_mode, grid_height,
+        return_code_desc = add_value_col_constraints(env, model, grid_height,
                                                      grid_width, box_height, box_width, game_board, k_value);
 
         if (is_error(return_code_desc) == TRUE) {
@@ -560,7 +554,7 @@ returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int total_num_of_va
         }
 
         /* Add box constrains */
-        return_code_desc = add_value_box_constraints(env, model, total_num_of_variables, solving_mode, grid_height,
+        return_code_desc = add_value_box_constraints(env, model, grid_height,
                                                      grid_width, box_height, box_width, game_board, k_value);
 
         if (is_error(return_code_desc) == TRUE) {
@@ -616,7 +610,7 @@ returnCodeDesc solve_model(GRBenv *env, GRBmodel *model) {
 }
 
 
-void apply_ILP_solution(double *sol, int total_num_of_variables, board game_board, int grid_height, int grid_width,
+void apply_ILP_solution(double *sol, board game_board, int grid_height, int grid_width,
                         int box_height, int box_width) {
     int row, col, value, index;
 
@@ -665,7 +659,7 @@ returnCodeDesc get_ILP_solution_and_apply(GRBenv *env, GRBmodel *model, int tota
     }
 
     /* Apply the solution on to the board */
-    apply_ILP_solution(sol, total_num_of_variables, game_board, grid_height, grid_width, box_height, box_width);
+    apply_ILP_solution(sol, game_board, grid_height, grid_width, box_height, box_width);
 
     free(sol);
     return_code_desc.error_code = E_SUCCESS;
@@ -728,6 +722,7 @@ returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *total_variabl
     if ((error = GRBsetintparam(*env, GRB_INT_PAR_LOGTOCONSOLE, 0)) != 0) {
         return_code_desc.error_code = E_GUROBI_FAILURE;
         sprintf(return_code_desc.error_message, "ERROR %d GRBsetintparam(): %s\n", error, GRBgeterrormsg(*env));
+        GRBfreeenv(*env);
         return return_code_desc;
     }
 
@@ -735,6 +730,7 @@ returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *total_variabl
     if ((error = GRBnewmodel(*env, model, NULL, 0, NULL, NULL, NULL, NULL, NULL)) != 0) {
         return_code_desc.error_code = E_GUROBI_FAILURE;
         sprintf(return_code_desc.error_message, "ERROR %d GRBnewmodel(): %s\n", error, GRBgeterrormsg(*env));
+        GRBfreeenv(*env);
         return return_code_desc;
     }
 
@@ -746,8 +742,8 @@ returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *total_variabl
 returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
     returnCodeDesc return_code_desc;
 
-    GRBenv *env;
-    GRBmodel *model;
+    GRBenv *env = NULL;
+    GRBmodel *model = NULL;
     int total_variables_num = 0;
     int dim = (box_height * box_width);
 
@@ -762,14 +758,18 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
 
     /* Validate objective construction */
     if (is_error(return_code_desc) == TRUE) {
+        GRBfreemodel(model);
+        GRBfreeenv(env);
         return return_code_desc;
     }
 
-    return_code_desc = add_constraints(env, model, total_variables_num, ILP, grid_height, grid_width, box_height,
+    return_code_desc = add_constraints(env, model, ILP, grid_height, grid_width, box_height,
                                        box_width, game_board);
 
     /* Validate constraints adding */
     if (is_error(return_code_desc) == TRUE) {
+        GRBfreemodel(model);
+        GRBfreeenv(env);
         return return_code_desc;
     }
 
@@ -777,17 +777,23 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
 
     /* Validate solving of the model */
     if (is_error(return_code_desc) == TRUE) {
+        GRBfreemodel(model);
+        GRBfreeenv(env);
         return return_code_desc;
     }
 
     return_code_desc = get_ILP_solution_and_apply(env, model, total_variables_num, grid_height, grid_width, box_height,
-                                                  box_width);
+                                                  box_width, game_board);
 
     /* Validate applying of the solution */
     if (is_error(return_code_desc) == TRUE) {
+        GRBfreemodel(model);
+        GRBfreeenv(env);
         return return_code_desc;
     }
 
+    GRBfreemodel(model);
+    GRBfreeenv(env);
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
