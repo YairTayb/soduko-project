@@ -71,6 +71,7 @@
 #define FILE_PARAMS_NOT_LEGAL "Error: some file parameters are not legal\n"
 #define BOARD_IS_ERRONOUS "Error: board is erronous, generate could not generate any value. \n"
 #define READING_FROM_FILE "Error: could not read from the file. \n"
+#define PARAMS_INVALID "Error: invalid float number was inserted. \n"
 
 #define SUCCESFULL_SET "Set cell (%d,%d) to %d.\n"
 #define SUCCESFULL_AUTOFILL "Autofilled the board.\n"

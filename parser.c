@@ -809,13 +809,68 @@ int is_legal_float(char *num){
         i++;
     }
     /*making sure the number is of the form: X.Y */
-    if (before_count == 0 || after_count == 0){
+    if (period_counter == 1&(before_count == 0 || after_count == 0)){
         return FALSE;
     }
 
     return TRUE;
 
 }
+
+returnCodeDesc parse_float(char *num, float *res){
+
+    int i;
+    returnCodeDesc return_code_desc;
+    float floating_point , power_of_ten;
+    
+    power_of_ten = 1;
+
+    if(is_numeric(num)){
+        *res = (float)string_to_int(num);
+    }
+    if(!is_legal_float(num)){
+        return_code_desc.error_code = E_ILLEGAL_FLOAT;
+        /*TODO: maybe align it with other prints?*/
+        strcpy(return_code_desc.error_message,PARAMS_INVALID);
+        return return_code_desc;
+    }
+    /*the number is of the format: x.y*/
+    while(num[i] != '.'){
+        *res = *res * 10;
+        *res += num[i] - '0';
+        i++;
+    }
+    i++;
+    while(num[i]){
+        power_of_ten *= 10;
+        *res += ((float)(num[i] - '0') / power_of_ten );
+        i++;
+    }
+
+    return_code_desc.error_code = E_SUCCESS;
+    /*TODO: maybe align it with other prints?*/
+    strcpy(return_code_desc.error_message,NO_ERRORS);
+    return return_code_desc;
+
+}
+
+
+int main(){
+
+    printf("%d",is_legal_float("5"));
+    printf("%d",is_legal_float("a"));
+    printf("%d",is_legal_float(".5"));
+    printf("%d",is_legal_float("0."));
+    printf("%d",is_legal_float("0.5"));
+    printf("%d",is_legal_float("0.5.5"));
+
+
+
+
+    return 0;
+}
+
+
 
 /*
 float parse_float(char *num){
