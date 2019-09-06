@@ -67,7 +67,7 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
     for(i = 0;i < grid_height; i++){
         for(j = 0; j < grid_width; j++){
             /*check if the value has changed*/
-            if(before[i][j].value != after[i][j].value){
+            if(after[i][j].has_changed == TRUE || before[i][j].value != after[i][j].value){
 
                 if(comm == undo){
                     printf("Undo ");

@@ -51,6 +51,17 @@ void update_board_errors(board game_board, int grid_height, int grid_width, int 
     }
 }
 
+void reset_board_changed_status(board game_board, int grid_height, int grid_width){
+    int i,j;
+
+    for(i = 0; i < grid_height; i++){
+        for(j = 0; j < grid_width; j++){
+            game_board[i][j].has_changed = FALSE;
+        }
+    }
+
+}
+
 /**
  * Validate that a given board is valid. A valid board is a board containing no conflicts between fixed cells.
  * @param board The game board

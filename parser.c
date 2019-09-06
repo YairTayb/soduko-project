@@ -854,21 +854,22 @@ returnCodeDesc parse_float(char *num, float *res){
 
 }
 
-
+/*
 int main(){
 
+    float testFloat;
     printf("%d",is_legal_float("5"));
     printf("%d",is_legal_float("a"));
     printf("%d",is_legal_float(".5"));
     printf("%d",is_legal_float("0."));
     printf("%d",is_legal_float("0.5"));
     printf("%d",is_legal_float("0.5.5"));
-
-
+    parse_float("1.5",&testFloat);
+    printf("%f", testFloat);
 
 
     return 0;
-}
+}*/
 
 
 

@@ -154,6 +154,7 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 /*adding the move*/
+                game_board[user_command.params[0] - 1][user_command.params[1] - 1].has_changed = TRUE;/*ROW - COL*/
                 add_move_to_list(game_board, &game_moves);
             }
 
@@ -242,7 +243,7 @@ int main() {
         }
 
         update_board_errors(game_board, grid_height, grid_width, box_height, box_width);
-
+        reset_board_changed_status(game_board, grid_height, grid_width);
         
 
         if (should_print_board == TRUE) {
