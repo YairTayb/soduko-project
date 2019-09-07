@@ -644,10 +644,6 @@ void apply_ILP_solution(double *sol, int* indices_array, board game_board, int g
                             break;
                         }
                     }
-
-                    else {
-                        /* TODO: ???? what to do here? */
-                    }
                 }
             }
         }
@@ -712,6 +708,7 @@ returnCodeDesc get_solution_and_apply(GRBenv *env, GRBmodel *model, int* indices
         apply_LP_solution(sol, indices_array, game_board, grid_height, grid_width, box_height, box_width, guess_scores);
     }
 
+    free(sol);
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;

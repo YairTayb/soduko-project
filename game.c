@@ -184,8 +184,10 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
     fd = fopen(path, "wb");
 
     if (!fd) {
+        free_board(board_copy, grid_height);
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
         sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, strerror(errno), path);
+        return return_code_desc;
 
     } else {
         return_code_desc = write_board_to_file(game_board, grid_height, grid_width, box_width, box_height, fd, mode);

@@ -492,7 +492,6 @@ returnCodeDesc parse_command(command *user_command){
             return return_code_desc;
     }
 
-    /*TODO make sure what do we need to do in this case*/
     /* Skip the empty lines */
     if (is_empty_string(user_input) == TRUE) {
         return_code_desc.error_code = E_BLANK_LINE;
@@ -591,10 +590,6 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
             }
         }
 
-        /*preventing adding another new line in the end of the file.*/
-        /*if(i != grid_height-1){
-            token = fprintf(fd, "\n");
-        }*/
         token = fprintf(fd, "\n");
 
         if (token < 0) {
@@ -672,7 +667,6 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
 
 
     /*reading as much as we can*/
-    /* TODO: Add error handling for the fread(). Seems that if the ret val of fread != to BUGGER_SIZE - 1 then an error or EOF happend */
     while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0 ) {
 
         if(ferror(fd)){
