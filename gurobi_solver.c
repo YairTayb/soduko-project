@@ -19,7 +19,6 @@ returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_n
     obj = malloc(sizeof(double) * total_num_of_variables);
 
     if (obj == NULL) {
-        /* TODO: Maybe we should just exit? */
         return_code_desc.error_code = E_FUNCTION_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
         return return_code_desc;
@@ -28,7 +27,6 @@ returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_n
     vtype = malloc(sizeof(char) * total_num_of_variables);
 
     if (vtype == NULL) {
-        /* TODO: Maybe we should just exit? */
         free(obj);
         return_code_desc.error_code = E_FUNCTION_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
@@ -52,7 +50,6 @@ returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_n
      * the solution to variable Xijk.
      * If an error occurrs, error will be set to non-zero value.*/
     if ((error = GRBaddvars(model, total_num_of_variables, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL)) != 0) {
-        /* TODO: Handle errors */
         return_code_desc.error_code = E_GUROBI_FAILURE;
         sprintf(return_code_desc.error_message, "Error: %d GRBaddvars(): %s\n", error, GRBgeterrormsg(env));
     }
