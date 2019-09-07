@@ -607,16 +607,16 @@ returnCodeDesc solve_model(GRBenv *env, GRBmodel *model) {
     }
 
     /* No solution was found */
-    else if (optimstatus == GRB_INF_OR_UNBD) {
-        return_code_desc.error_code = E_GUROBI_NO_SOLUTION;
-        strcpy(return_code_desc.error_message, GUROBI_NO_SOLUTION_ERROR);
+    else if (optimstatus == GRB_INF_OR_UNBD || optimstatus == GRB_INFEASIBLE || optimstatus == GRB_UNBOUNDED) {
+        return_code_desc.error_code = E_NO_SOLUTION;
+        strcpy(return_code_desc.error_message, VALIDATION_FAILED);
         return return_code_desc;
     }
 
     /* Some error has occurred or calculation stopped for some reason*/
     else {
         return_code_desc.error_code = E_GUROBI_FAILURE;
-        sprintf(return_code_desc.error_message, "Error: %d error has occurred while running Gurobi: %s\n", error, GRBgeterrormsg(env));
+        sprintf(return_code_desc.error_message, "Error: %d error has occurred while running Gurobi. Optimstatus: %d. Error: %s\n", error, optimstatus, GRBgeterrormsg(env));
         return return_code_desc;
     }
 

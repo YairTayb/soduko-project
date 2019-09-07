@@ -190,9 +190,9 @@ returnCodeDesc validate_command_mode(command user_command, game_mode current_mod
             }
             break;
         case guess_hint_command:
-            if (current_mode != solve_mode && current_mode != edit_mode) {
+            if (current_mode != solve_mode) {
                 return_code_desc.error_code = E_INVALID_MODE;
-                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve, Edit");
+                sprintf(return_code_desc.error_message, INVALID_COMMAND_MODE, "Solve");
             }
             break;
         case num_solutions_command:

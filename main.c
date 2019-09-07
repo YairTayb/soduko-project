@@ -35,6 +35,8 @@ int main() {
         printf(ENTER_COMMAND_PROMPT);
         /* Parse the current command */
         return_code_desc = parse_command(&user_command);
+        /* Add new line after parsing command */
+        printf("\n");
 
         if (return_code_desc.error_code == E_INVALID_INPUT_TYPE) {
             /* An invalid param was parsed -inform later */
@@ -52,6 +54,7 @@ int main() {
                     if (game_board != NULL) {
                         free_board(game_board, grid_height);
                     }
+                    printf(EXIT_MSG);
                     exit(EXIT_FAILURE);
                 }
 
@@ -70,6 +73,7 @@ int main() {
                 if (game_board != NULL) {
                     free_board(game_board, grid_height);
                 }
+                printf(EXIT_MSG);
                 exit(EXIT_FAILURE);
             }
 
@@ -87,6 +91,7 @@ int main() {
                 if (game_board != NULL) {
                     free_board(game_board, grid_height);
                 }
+                printf(EXIT_MSG);
                 exit(EXIT_FAILURE);
             }
 
@@ -102,6 +107,7 @@ int main() {
                 if (game_board != NULL) {
                     free_board(game_board, grid_height);
                 }
+                printf(EXIT_MSG);
                 exit(EXIT_FAILURE);
             }
 
@@ -149,12 +155,12 @@ int main() {
         } else if (user_command.command_chosen == set_command) {
             should_print_board = TRUE;
 
-            return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
-                                   user_command.params[1] - 1, user_command.params[2], current_mode);
+            return_code_desc = set(game_board, grid_height, grid_width, box_height, box_width, user_command.params[1] - 1,
+                                   user_command.params[0] - 1, user_command.params[2], current_mode);
 
             if (is_error(return_code_desc) == FALSE) {
                 /*adding the move*/
-                game_board[user_command.params[0] - 1][user_command.params[1] - 1].has_changed = TRUE;/*ROW - COL*/
+                game_board[user_command.params[1] - 1][user_command.params[0] - 1].has_changed = TRUE;
                 add_move_to_list(game_board, &game_moves);
             }
 
@@ -196,12 +202,12 @@ int main() {
             }
 
         } else if (user_command.command_chosen == hint_command) {
-            return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
-                                    user_command.params[1] - 1);
+            return_code_desc = hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[1] - 1,
+                                    user_command.params[0] - 1);
 
         } else if (user_command.command_chosen == guess_hint_command) {
-            return_code_desc = guess_hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
-                                    user_command.params[1] - 1);
+            return_code_desc = guess_hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[1] - 1,
+                                    user_command.params[0] - 1);
         } else if (user_command.command_chosen == num_solutions_command) {
             return_code_desc = num_solutions(game_board, grid_height, grid_width, box_height, box_width);
 
@@ -224,6 +230,7 @@ int main() {
             if (game_board != NULL) {
                 free_board(game_board, grid_height);
             }
+            printf(EXIT_MSG);
             exit(EXIT_SUCCESS);
 
         }
@@ -237,6 +244,7 @@ int main() {
                 if (game_board != NULL) {
                     free_board(game_board, grid_height);
                 }
+                printf(EXIT_MSG);
                 exit(EXIT_FAILURE);
             }
 
@@ -258,11 +266,11 @@ int main() {
             /* board is fully filled */
             if (is_board_errornous(game_board, grid_height, grid_width)) {
                 /* board contains errors - notify user */
-                print_errornous_board_message();
+                printf(SOLUTION_WRONG);
 
             } else {
                 /* board is completed and valid - game was won */
-                print_winning_message();
+                printf(WIN_MSG);
                 current_mode = init_mode;
             }
         }

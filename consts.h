@@ -39,7 +39,7 @@
 #define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d,%d]\n"
 #define INVALID_DOUBLE_VALUE_ERROR "Error: value is invalid. Value should be in range (%f,%f)\n"
 #define INVALID_INPUT_TYPE "Error: Invalid input type. %s\n"
-#define WIN_MSG "Puzzle solved successfully\n"
+#define WIN_MSG "Puzzle solved successfully. Mode changed to Init.\n"
 #define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
 #define ERROR_BOARD_MSG "Error: Board contains errors!\n"
 #define HINT_MSG "Set cell (%d,%d) to %d\n"
@@ -65,7 +65,7 @@
 #define TOO_MANY_PARAMS_AMOUNT_IN_FILE "Error: Too many values in file. Please verify you file contents\n"
 #define GENERATE_X_ERROR "Error: Number of cells to fill is larger then total number of empty cells in the board\n"
 #define GENERATE_Y_ERROR "Error: Number of cells to keep is larger then total number of cells in the board\n"
-#define SAVED_SUCCESSFULL "Game was successfully to %s\n"
+#define SAVED_SUCCESSFULL "Game was successfully saved to %s\n"
 #define INVALID_MARK_ERRORS_VALUE "Error: Invalid value for mark_errors. Valid values are 0, 1\n"
 #define GENERATE_EXCEEDED_ITERATIONS "Error: generate method exceeded %d iterations\n"
 #define FILE_PARAMS_NOT_IN_RANGE "Error: some file parameters are not in the legal range. Value should be in range [%d-%d]\n"
@@ -73,14 +73,7 @@
 #define BOARD_IS_ERRONOUS "Error: board is erronous, generate could not generate any value\n"
 #define READING_FROM_FILE "Error: could not read from the file. \n"
 #define INVALID_FLOAT_PARAM "Error: Param X should be a valid float number\n"
-
-#define SUCCESFULL_SET "Succesfully set cell (%d,%d) to %d\n"
-#define SUCCESFULL_AUTOFILL "Succesfully autofilled the board\n"
-#define SUCCESFULL_GENERATE "Succesfully generate was done successfully\n"
-#define SUCCESFULL_MARK_ERRORS "Succesfully set mark error to:%d\n"
-#define SUCCESFULL_GUESS "Succesfully guessed the board\n"
-
-
+#define SOLUTION_WRONG "Error: The solution of the board is wrong\n"
 #define GUESS_HINT_MSG "Cell (%d,%d) - VALUE: %d, SCORE: %f\n"
 
 #define GUROBI_NO_SOLUTION_ERROR "Error: No solution found using Gurobi\n"

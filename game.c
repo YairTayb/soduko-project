@@ -58,25 +58,30 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
     game_board[row][col].has_changed = TRUE;
 
     return_code_desc.error_code = E_SUCCESS;
-    sprintf(return_code_desc.error_message,SUCCESFULL_SET,(row + 1),(col + 1),value);
+    strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
 
 }
+
 void print_changes(board before, board after, int grid_height, int grid_width, command_changed_from comm){
 
     int i, j;
     for(i = 0;i < grid_height; i++){
         for(j = 0; j < grid_width; j++){
             /*check if the value has changed*/
-            if(after[i][j].has_changed == TRUE || before[i][j].value != after[i][j].value){
-
-                if(comm == undo){
-                    printf("Undo ");
-                } else if(comm == redo){
-                    printf("Redo ");
-                } 
-                printf("(%d,%d) from %d to %d.\n",(i + 1),(j + 1), before[i][j].value , after[i][j].value);
-
+            if (after[i][j].has_changed == TRUE) {
+                switch (comm) {
+                    case redo:
+                        printf("Redo ");
+                        printf("(%d,%d) from %d to %d.\n", (i + 1), (j + 1), before[i][j].value, after[i][j].value);
+                        break;
+                    case undo:
+                        printf("Undo ");
+                        printf("(%d,%d) from %d to %d.\n", (i + 1), (j + 1), after[i][j].value, before[i][j].value);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
@@ -85,15 +90,26 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
 
 returnCodeDesc undo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
 
-    struct Node* temp = psuedo_undo(list);
+    struct Node* current_board = list -> current_move ;
+    struct Node* before_board = psuedo_undo(list);
     returnCodeDesc return_value;
-    if (temp == NULL) {
+
+    if (before_board == NULL) {
         strcpy(return_value.error_message, CANNOT_UNDO);
         return_value.error_code = E_CANNOT_UNDO;
         return return_value;
-    } else {
-        print_changes(game_board,temp->data,grid_height,grid_width,undo);
-        copy_board(temp->data, game_board, grid_height, grid_width);
+    }
+
+    else if (current_board == NULL) {
+            strcpy(return_value.error_message, CANNOT_UNDO);
+            return_value.error_code = E_CANNOT_UNDO;
+            return return_value;
+
+    }
+
+    else {
+        print_changes(before_board->data, current_board->data, grid_height,grid_width,undo);
+        copy_board(before_board->data, game_board, grid_height, grid_width);
         return_value.error_code = E_SUCCESS;
         return return_value;
     }
@@ -109,7 +125,7 @@ returnCodeDesc redo_move(board game_board, int grid_height, int grid_width, stru
         return_value.error_code = E_CANNOT_REDO;
         return return_value;
     } else {
-        print_changes(game_board,temp->data,grid_height,grid_width,redo);
+        print_changes(game_board, temp->data,grid_height,grid_width,redo);
         copy_board(temp->data, game_board, grid_height, grid_width);
         return_value.error_code = E_SUCCESS;
         strcpy(return_value.error_message, NO_ERRORS);
@@ -292,7 +308,7 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
     free_board(temp_board, grid_height);
 
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, SUCCESFULL_AUTOFILL);
+    strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
 
 }
@@ -436,7 +452,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
             }
         }
 
-        if (is_error == TRUE) {
+        if (error_occurred == TRUE) {
             /* An error occurred when filling random cells - reset and try again */
             continue;
         }
@@ -608,7 +624,7 @@ returnCodeDesc set_mark_errors(int* mark_errors, int input){
 
     *mark_errors = input;
     return_code_desc.error_code = E_SUCCESS;
-    sprintf(return_code_desc.error_message,SUCCESFULL_MARK_ERRORS,input);
+    strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
 }
 
