@@ -45,7 +45,7 @@ typedef struct comm {
     int params[3];
     int param_amount;
     char path[MAX_PATH_LENGTH];
-    float guess_param;
+    double threshold;
 } command;
 
 typedef struct Move {

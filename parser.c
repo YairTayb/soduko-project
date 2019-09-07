@@ -6,6 +6,8 @@
 #include "parser.h"
 
 
+returnCodeDesc parse_double(char *num, double *res);
+
 int string_to_int(char *number ){
     int i, num;
     i = 0;
@@ -362,6 +364,78 @@ returnCodeDesc  validate_amount_of_parameters(command user_command) {
     return return_code_desc;
 
 }
+returnCodeDesc parse_parameters(command *user_command, char *token) {
+    returnCodeDesc return_code_desc;
+    int invalid_input_type_error_occurred = FALSE;
+    int parsed_int;
+    double parsed_double;
+
+    (*user_command).param_amount = 0;
+
+    while(token != NULL){
+        if (invalid_input_type_error_occurred == FALSE) {
+            /* whether we need to save a path or a parameter */
+            if ((*user_command).command_chosen == edit_command ||
+                (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
+                strcpy((*user_command).path, token);
+            }
+
+            else if ((*user_command).command_chosen == guess_command) {
+                /* Parse double */
+                return_code_desc = parse_double(token, &parsed_double);
+
+                if (is_error(return_code_desc) == FALSE) {
+                    if ((*user_command).param_amount < 1) {
+                        (*user_command).threshold = parsed_double;
+                    }
+                }
+
+                else {
+                    invalid_input_type_error_occurred = TRUE;
+                }
+            }
+
+            else {
+                return_code_desc = new_string_to_int(token, &parsed_int);
+
+                if (is_error(return_code_desc) == FALSE) {
+                    if ((*user_command).param_amount < 3)
+                        /* Prevent buffer overflow of the params array*/
+                        (*user_command).params[(*user_command).param_amount] = parsed_int;
+                }
+
+                else {
+                    /* Adjust the error message - so it will be clear which param is invalid */
+                    switch ((*user_command).param_amount) {
+                        case 0:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param X should be a positive integer");
+                            break;
+                        case 1:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Y should be a positive integer");
+                            break;
+                        case 2:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Z should be a positive integer");
+                            break;
+                        default:
+                            break;
+                    }
+                    invalid_input_type_error_occurred = TRUE;
+                }
+            }
+        }
+
+        (*user_command).param_amount++;
+        token = strtok(NULL, " \t\r\n");
+    }
+
+    if (invalid_input_type_error_occurred == TRUE)
+        return return_code_desc;
+
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
+
+}
 
 /**
  * Parse a game command from input stream. A command that receives an input and returns a command struct
@@ -372,13 +446,11 @@ returnCodeDesc parse_command(command *user_command){
     returnCodeDesc return_code_desc;
     char *result;
     int c;
-    int invalid_input_type_error_occurred=FALSE;
     char user_input[MAX_COMMAND_LENGTH];
     char *token;
-    int num_recieved;
 
-    /* Reached EOF - Exit! */
     if (feof(stdin)) {
+        /* Reached EOF */
         return_code_desc.error_code = E_EOF_REACHED;
         strcpy(return_code_desc.error_message, REACHED_OEF);
         return return_code_desc;
@@ -439,64 +511,21 @@ returnCodeDesc parse_command(command *user_command){
     /* Identifying the command entered. */
     *user_command = parse_command_name(token);
 
-
     /* Verify the command is valid */
     if ((*user_command).command_chosen == invalid_type) {
         return_code_desc.error_code = E_INVALID_COMMAND;
         sprintf(return_code_desc.error_message, INVALID_COMMAND_ERROR, token);
         return return_code_desc;
     }
-
-    (*user_command).param_amount = 0;
-
-    /* Tokenizing and counting parameters */
+    /* Split the input to get the parameters part*/
     token = strtok(NULL," ");
 
-    while(token != NULL){
-        if (invalid_input_type_error_occurred == FALSE) {
-            /* whether we need to save a path or a parameter */
-            if ((*user_command).command_chosen == edit_command ||
-                (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
-                     strcpy((*user_command).path, token);
-            }
+    /* Parse the command's parameters */
+    return_code_desc = parse_parameters(user_command, token);
 
-            else if ((*user_command).command_chosen == guess_hint_command) {
-                /* Parse float */
-            }
-
-            else {
-
-                return_code_desc = new_string_to_int(token, &num_recieved);
-
-                if (is_error(return_code_desc) == FALSE) {
-                    if ((*user_command).param_amount < 3)
-                        /* PREVENT BUFFER OVERFLOW */
-                        (*user_command).params[(*user_command).param_amount] = num_recieved;
-                } else {
-                    switch ((*user_command).param_amount) {
-                        case 0:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param X should be a positive integer");
-                            break;
-                        case 1:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Y should be a positive integer");
-                            break;
-                        case 2:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Z should be a positive integer");
-                            break;
-                        default:
-                            break;
-                    }
-                    invalid_input_type_error_occurred = TRUE;
-                }
-            }
-        }
-
-        (*user_command).param_amount++;
-        token = strtok(NULL, " \t\r\n");
-    }
-
-    if (invalid_input_type_error_occurred == TRUE)
+    if (is_error(return_code_desc) == TRUE) {
         return return_code_desc;
+    }
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
@@ -760,7 +789,7 @@ int is_a_number(char num){
     return TRUE;
 }
 
-int is_legal_float(char *num){
+int is_legal_double(char *num){
     int i, period_counter, before_count, after_count, period_flag;
 
     i = 0;
@@ -774,7 +803,7 @@ int is_legal_float(char *num){
         return TRUE;
     }
 
-    /*counting how many periods are in the float*/
+    /*counting how many periods are in the double*/
     while(num[i]){
         if(num[i] == '.'){
             period_counter++;
@@ -809,7 +838,7 @@ int is_legal_float(char *num){
         i++;
     }
     /*making sure the number is of the form: X.Y */
-    if (period_counter == 1&(before_count == 0 || after_count == 0)){
+    if ((period_counter == 1) && (before_count == 0 || after_count == 0)) {
         return FALSE;
     }
 
@@ -817,23 +846,23 @@ int is_legal_float(char *num){
 
 }
 
-returnCodeDesc parse_float(char *num, float *res){
+returnCodeDesc parse_double(char *num, double *res){
 
-    int i;
+    int i = 0;
     returnCodeDesc return_code_desc;
-    float floating_point , power_of_ten;
+    double power_of_ten;
     
     power_of_ten = 1;
 
     if(is_numeric(num)){
-        *res = (float)string_to_int(num);
+        *res = (double)string_to_int(num);
     }
-    if(!is_legal_float(num)){
+    if(!is_legal_double(num)){
         return_code_desc.error_code = E_ILLEGAL_FLOAT;
-        /*TODO: maybe align it with other prints?*/
-        strcpy(return_code_desc.error_message,PARAMS_INVALID);
+        strcpy(return_code_desc.error_message, INVALID_FLOAT_PARAM);
         return return_code_desc;
     }
+
     /*the number is of the format: x.y*/
     while(num[i] != '.'){
         *res = *res * 10;
@@ -843,13 +872,12 @@ returnCodeDesc parse_float(char *num, float *res){
     i++;
     while(num[i]){
         power_of_ten *= 10;
-        *res += ((float)(num[i] - '0') / power_of_ten );
+        *res += ((double)(num[i] - '0') / power_of_ten );
         i++;
     }
 
     return_code_desc.error_code = E_SUCCESS;
-    /*TODO: maybe align it with other prints?*/
-    strcpy(return_code_desc.error_message,NO_ERRORS);
+    strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
 
 }
@@ -857,14 +885,14 @@ returnCodeDesc parse_float(char *num, float *res){
 /*
 int main(){
 
-    float testFloat;
-    printf("%d",is_legal_float("5"));
-    printf("%d",is_legal_float("a"));
-    printf("%d",is_legal_float(".5"));
-    printf("%d",is_legal_float("0."));
-    printf("%d",is_legal_float("0.5"));
-    printf("%d",is_legal_float("0.5.5"));
-    parse_float("1.5",&testFloat);
+    double testFloat;
+    printf("%d",is_legal_double("5"));
+    printf("%d",is_legal_double("a"));
+    printf("%d",is_legal_double(".5"));
+    printf("%d",is_legal_double("0."));
+    printf("%d",is_legal_double("0.5"));
+    printf("%d",is_legal_double("0.5.5"));
+    parse_double("1.5",&testFloat);
     printf("%f", testFloat);
 
 
@@ -874,7 +902,7 @@ int main(){
 
 
 /*
-float parse_float(char *num){
+double parse_double(char *num){
 
 }
 */

@@ -4,6 +4,8 @@
 #include "data_models.h"
 #include "consts.h"
 
+#define MULTIDIM_ARR_LOC(i, j, k, dim1, dim2, dim3) dim2*dim3*i + dim3*j + k
+
 
 void print_board(board grid, int grid_height, int grid_width, int box_height, int box_width,
                  game_mode mode, int mark_errors);
@@ -45,6 +47,9 @@ int is_error(returnCodeDesc return_code_desc);
 void unfix_board(board board, int grid_height, int grid_width);
 
 int is_empty_string(char *s);
+
+double get_random_in_range(double min, double max);
+
 
 #endif
 

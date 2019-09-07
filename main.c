@@ -163,6 +163,8 @@ int main() {
 
         } else if (user_command.command_chosen == guess_command) {
             should_print_board = TRUE;
+            return_code_desc = guess(game_board, grid_height, grid_width, box_height, box_width, user_command.threshold);
+            add_move_to_list(game_board, &game_moves);
 
         } else if (user_command.command_chosen == generate_command) {
             should_print_board = TRUE;
@@ -198,7 +200,8 @@ int main() {
                                     user_command.params[1] - 1);
 
         } else if (user_command.command_chosen == guess_hint_command) {
-
+            return_code_desc = guess_hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
+                                    user_command.params[1] - 1);
         } else if (user_command.command_chosen == num_solutions_command) {
             return_code_desc = num_solutions(game_board, grid_height, grid_width, box_height, box_width);
 

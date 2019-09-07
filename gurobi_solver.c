@@ -98,7 +98,7 @@ add_cell_single_value_constraints(GRBenv *env, GRBmodel *model, int* indices_arr
 
     /* Calculate the number of valid values for the current cell */
     for (value = 0; value < (box_height * box_width); value++) {
-        if (indices_array[INDICES_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))] > -1) {
+        if (indices_array[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))] > -1) {
             num_of_valid_values++;
         }
     }
@@ -130,7 +130,7 @@ add_cell_single_value_constraints(GRBenv *env, GRBmodel *model, int* indices_arr
         for (value = 0; value < (box_height * box_width); value++) {
             /* For variable Xijk (cell <i,j> with value of k) set constraints so the sum of all variables for cell <i,j>
             * will be 1 (meaning if the cell <i,j> has 3 valid values equals to 1, 2, 3 then Xij1+Xij2+Xij3 = 1) */
-            index = indices_array[INDICES_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))];
+            index = indices_array[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))];
             if (index >= 0) {
                 if (solving_mode == LP) {
                     /* If the solving mode is LP - then for each Xijk (cell <i,j> with value of k) variable, add a constraint
@@ -239,7 +239,7 @@ add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int* indices_array
         if (game_board[row][col].is_const == FALSE && game_board[row][col].value == UNASSIGNED) {
             if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, k_value)) {
                 index = indices_array[
-                        INDICES_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
+                        MULTIDIM_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
                 if (index >= 0) {
                     ind[num_of_valid_cells] = index;
                     val[num_of_valid_cells] = 1;
@@ -346,7 +346,7 @@ add_value_col_single_constraint(GRBenv *env, GRBmodel *model, int* indices_array
         if (game_board[row][col].is_const == FALSE && game_board[row][col].value == UNASSIGNED) {
             if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, k_value)) {
                 index = indices_array[
-                        INDICES_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
+                        MULTIDIM_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
                 if (index >= 0) {
                     ind[num_of_valid_cells] = index;
                     val[num_of_valid_cells] = 1;
@@ -455,7 +455,7 @@ add_value_single_box_constraint(GRBenv *env, GRBmodel *model, int* indices_array
             if (game_board[row][col].is_const == FALSE && game_board[row][col].value == UNASSIGNED) {
                 if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, k_value)) {
                     index = indices_array[
-                            INDICES_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
+                            MULTIDIM_ARR_LOC(row, col, k_value - 1, grid_height, grid_width, (box_height * box_width))];
 
                     if (index >= 0) {
                         ind[num_of_valid_cells] = index;
@@ -634,8 +634,8 @@ void apply_ILP_solution(double *sol, int* indices_array, board game_board, int g
 
                 /* For each cell <i,j>, check for each value k (1...dim) if Xijk == 1.0. If its true, then the solution
                  * of the ILP has set the cell <i,j> the value k */
-                for (value =01; value < (box_height * box_width); value++) {
-                    index = indices_array[INDICES_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))];
+                for (value = 0; value < (box_height * box_width); value++) {
+                    index = indices_array[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))];
 
                     if (index > -1) {
                         if (sol[index] == 1.0) {
@@ -653,9 +653,32 @@ void apply_ILP_solution(double *sol, int* indices_array, board game_board, int g
     }
 }
 
-returnCodeDesc get_ILP_solution_and_apply(GRBenv *env, GRBmodel *model, int* indices_array, int total_num_of_variables,
+void apply_LP_solution(double *sol, int* indices_array, board game_board, int grid_height, int grid_width,
+                        int box_height, int box_width, double* guess_scores) {
+    int row, col, value, index;
+
+    /* For each empty cell in the board, apply the solution of the ILP */
+    for (row = 0; row < grid_height; row++) {
+        for (col = 0; col < grid_width; col++) {
+            if (game_board[row][col].is_const == FALSE && game_board[row][col].value == UNASSIGNED) {
+
+                for (value = 0; value < (box_height * box_width); value++) {
+                    guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))] = 0;
+
+                    index = indices_array[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))];
+
+                    if (index > -1) {
+                        guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width, (box_height * box_width))] = sol[index];
+                    }
+                }
+            }
+        }
+    }
+}
+
+returnCodeDesc get_solution_and_apply(GRBenv *env, GRBmodel *model, int* indices_array, int total_num_of_variables,
                                           int grid_height, int grid_width, int box_height, int box_width,
-                                          board game_board) {
+                                          board game_board, linear_solving_mode solving_mode, double* guess_scores) {
     returnCodeDesc return_code_desc;
     int error = 0;
 
@@ -679,8 +702,14 @@ returnCodeDesc get_ILP_solution_and_apply(GRBenv *env, GRBmodel *model, int* ind
     }
 
 
-    /* Apply the solution on to the board */
-    apply_ILP_solution(sol, indices_array, game_board, grid_height, grid_width, box_height, box_width);
+    if (solving_mode == ILP) {
+        /* Apply the solution on to the board */
+        apply_ILP_solution(sol, indices_array, game_board, grid_height, grid_width, box_height, box_width);
+    }
+
+    else {
+        apply_LP_solution(sol, indices_array, game_board, grid_height, grid_width, box_height, box_width, guess_scores);
+    }
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
@@ -702,12 +731,12 @@ returnCodeDesc num_of_variables(int *variables_indices, int *total_num_of_variab
 
                 for (value = 0; value < (box_height * box_width); value++) {
                     if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, value + 1)) {
-                        variables_indices[INDICES_ARR_LOC(row, col, value, grid_height, grid_width,
+                        variables_indices[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                           (box_height * box_width))] = total_counter;
                         total_counter++;
                         has_valid_value = TRUE;
                     } else {
-                        variables_indices[INDICES_ARR_LOC(row, col, value, grid_height, grid_width,
+                        variables_indices[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                           (box_height * box_width))] = -1;
                     }
 
@@ -771,7 +800,9 @@ returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *indices_array
     return return_code_desc;
 }
 
-returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
+
+returnCodeDesc solve_gurobi(board game_board, int grid_height, int grid_width, int box_height, int box_width,
+        linear_solving_mode solving_mode, double* guess_scores) {
     returnCodeDesc return_code_desc;
 
     GRBenv *env = NULL;
@@ -781,9 +812,9 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
     int total_variables_num = 0;
     int dim = (box_height * box_width);
 
-    /* The indices array hods the mapping for each <row, col, value> to its matching variable index in the linear
+    /* The indices array holds the mapping for each <row, col, value> to its matching variable index in the linear
      * program's objective and constraints. */
-    indices_array =(int *)malloc(grid_height*grid_width*dim*sizeof(int));
+    indices_array = (int *)malloc(grid_height*grid_width*dim*sizeof(int));
 
     if (indices_array == NULL) {
         return_code_desc.error_code = E_FUNCTION_FAILED;
@@ -799,7 +830,7 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
         return return_code_desc;
     }
 
-    return_code_desc = add_variables_to_model(env, model, total_variables_num, ILP, dim);
+    return_code_desc = add_variables_to_model(env, model, total_variables_num, solving_mode, dim);
 
     /* Validate objective construction */
     if (is_error(return_code_desc) == TRUE) {
@@ -809,7 +840,7 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
         return return_code_desc;
     }
 
-    return_code_desc = add_constraints(env, model, indices_array, ILP, grid_height, grid_width, box_height,
+    return_code_desc = add_constraints(env, model, indices_array, solving_mode, grid_height, grid_width, box_height,
                                        box_width, game_board);
 
     /* Validate constraints adding */
@@ -830,8 +861,8 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
         return return_code_desc;
     }
 
-    return_code_desc = get_ILP_solution_and_apply(env, model, indices_array, total_variables_num, grid_height, grid_width, box_height,
-                                                  box_width, game_board);
+    return_code_desc = get_solution_and_apply(env, model, indices_array, total_variables_num, grid_height, grid_width, box_height,
+                                                  box_width, game_board, solving_mode, guess_scores);
 
     /* Validate applying of the solution */
     if (is_error(return_code_desc) == TRUE) {
@@ -844,6 +875,7 @@ returnCodeDesc solve_ILP(board game_board, int grid_height, int grid_width, int 
     free(indices_array);
     GRBfreemodel(model);
     GRBfreeenv(env);
+
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
     return return_code_desc;
