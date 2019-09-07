@@ -24,6 +24,7 @@ typedef struct Cell {
     int value;
     int is_const;
     int is_valid;
+    int has_changed;
 } cell;
 
 typedef enum Mode {
@@ -44,6 +45,7 @@ typedef struct comm {
     int params[3];
     int param_amount;
     char path[MAX_PATH_LENGTH];
+    double threshold;
 } command;
 
 typedef struct Move {
@@ -88,8 +90,10 @@ typedef enum _return_code {
     E_INVALID_BOARD = 20,
     E_INVALID_INPUT_TYPE = 21,
     E_BLANK_LINE = 22,
-    E_GUROBI_FAILURE = 23
-
+    E_GUROBI_FAILURE = 23,
+    E_FAILED_READING_FILE = 24,
+    E_GUROBI_NO_SOLUTION = 25,
+    E_ILLEGAL_FLOAT = 26
 } return_code;
 
 typedef struct _return_code_desc {

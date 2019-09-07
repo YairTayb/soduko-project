@@ -34,4 +34,6 @@ int is_board_valid(board game_board, int grid_height, int grid_width, int box_he
 int find_valid_values(int *values, board game_board, int grid_height, int grid_width, int box_height, int box_width,
                       int row, int col, int range);
 
+void reset_board_changed_status(board game_board, int grid_height, int grid_width);
+
 #endif

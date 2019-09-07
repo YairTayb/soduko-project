@@ -6,6 +6,8 @@
 #include "parser.h"
 
 
+returnCodeDesc parse_double(char *num, double *res);
+
 int string_to_int(char *number ){
     int i, num;
     i = 0;
@@ -362,6 +364,78 @@ returnCodeDesc  validate_amount_of_parameters(command user_command) {
     return return_code_desc;
 
 }
+returnCodeDesc parse_parameters(command *user_command, char *token) {
+    returnCodeDesc return_code_desc;
+    int invalid_input_type_error_occurred = FALSE;
+    int parsed_int;
+    double parsed_double;
+
+    (*user_command).param_amount = 0;
+
+    while(token != NULL){
+        if (invalid_input_type_error_occurred == FALSE) {
+            /* whether we need to save a path or a parameter */
+            if ((*user_command).command_chosen == edit_command ||
+                (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
+                strcpy((*user_command).path, token);
+            }
+
+            else if ((*user_command).command_chosen == guess_command) {
+                /* Parse double */
+                return_code_desc = parse_double(token, &parsed_double);
+
+                if (is_error(return_code_desc) == FALSE) {
+                    if ((*user_command).param_amount < 1) {
+                        (*user_command).threshold = parsed_double;
+                    }
+                }
+
+                else {
+                    invalid_input_type_error_occurred = TRUE;
+                }
+            }
+
+            else {
+                return_code_desc = new_string_to_int(token, &parsed_int);
+
+                if (is_error(return_code_desc) == FALSE) {
+                    if ((*user_command).param_amount < 3)
+                        /* Prevent buffer overflow of the params array*/
+                        (*user_command).params[(*user_command).param_amount] = parsed_int;
+                }
+
+                else {
+                    /* Adjust the error message - so it will be clear which param is invalid */
+                    switch ((*user_command).param_amount) {
+                        case 0:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param X should be a positive integer");
+                            break;
+                        case 1:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Y should be a positive integer");
+                            break;
+                        case 2:
+                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Z should be a positive integer");
+                            break;
+                        default:
+                            break;
+                    }
+                    invalid_input_type_error_occurred = TRUE;
+                }
+            }
+        }
+
+        (*user_command).param_amount++;
+        token = strtok(NULL, " \t\r\n");
+    }
+
+    if (invalid_input_type_error_occurred == TRUE)
+        return return_code_desc;
+
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
+
+}
 
 /**
  * Parse a game command from input stream. A command that receives an input and returns a command struct
@@ -372,13 +446,11 @@ returnCodeDesc parse_command(command *user_command){
     returnCodeDesc return_code_desc;
     char *result;
     int c;
-    int invalid_input_type_error_occurred=FALSE;
     char user_input[MAX_COMMAND_LENGTH];
     char *token;
-    int num_recieved;
 
-    /* Reached EOF - Exit! */
     if (feof(stdin)) {
+        /* Reached EOF */
         return_code_desc.error_code = E_EOF_REACHED;
         strcpy(return_code_desc.error_message, REACHED_OEF);
         return return_code_desc;
@@ -421,9 +493,8 @@ returnCodeDesc parse_command(command *user_command){
             return return_code_desc;
     }
 
-
+    /*TODO make sure what do we need to do in this case*/
     /* Skip the empty lines */
-    /* TODO: Verify in the instructions if we need to wait for input, or skip the empty line and prompt for command again */
     if (is_empty_string(user_input) == TRUE) {
         return_code_desc.error_code = E_BLANK_LINE;
         return return_code_desc;
@@ -440,64 +511,21 @@ returnCodeDesc parse_command(command *user_command){
     /* Identifying the command entered. */
     *user_command = parse_command_name(token);
 
-
     /* Verify the command is valid */
     if ((*user_command).command_chosen == invalid_type) {
         return_code_desc.error_code = E_INVALID_COMMAND;
         sprintf(return_code_desc.error_message, INVALID_COMMAND_ERROR, token);
         return return_code_desc;
     }
-
-    (*user_command).param_amount = 0;
-
-    /* Tokenizing and counting parameters */
+    /* Split the input to get the parameters part*/
     token = strtok(NULL," ");
 
-    while(token != NULL){
-        if (invalid_input_type_error_occurred == FALSE) {
-            /* whether we need to save a path or a parameter */
-            if ((*user_command).command_chosen == edit_command ||
-                (*user_command).command_chosen == save_command || (*user_command).command_chosen == solve_command) {
-                     strcpy((*user_command).path, token);
-            }
+    /* Parse the command's parameters */
+    return_code_desc = parse_parameters(user_command, token);
 
-            else if ((*user_command).command_chosen == guess_hint_command) {
-                /* Parse float */
-            }
-
-            else {
-
-                return_code_desc = new_string_to_int(token, &num_recieved);
-
-                if (is_error(return_code_desc) == FALSE) {
-                    if ((*user_command).param_amount < 3)
-                        /* PREVENT BUFFER OVERFLOW */
-                        (*user_command).params[(*user_command).param_amount] = num_recieved;
-                } else {
-                    switch ((*user_command).param_amount) {
-                        case 0:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param X should be a positive integer");
-                            break;
-                        case 1:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Y should be a positive integer");
-                            break;
-                        case 2:
-                            sprintf(return_code_desc.error_message, INVALID_INPUT_TYPE, "Param Z should be a positive integer");
-                            break;
-                        default:
-                            break;
-                    }
-                    invalid_input_type_error_occurred = TRUE;
-                }
-            }
-        }
-
-        (*user_command).param_amount++;
-        token = strtok(NULL, " \t\r\n");
-    }
-
-    if (invalid_input_type_error_occurred == TRUE)
+    if (is_error(return_code_desc) == TRUE) {
         return return_code_desc;
+    }
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
@@ -565,9 +593,10 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
         }
 
         /*preventing adding another new line in the end of the file.*/
-        if(i != grid_height-1){
+        /*if(i != grid_height-1){
             token = fprintf(fd, "\n");
-        }
+        }*/
+        token = fprintf(fd, "\n");
 
         if (token < 0) {
             return_code_desc.error_code = E_WRITE_TO_FILE_FAILED;
@@ -642,9 +671,17 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     /* Initialize the buffer to zeros */
     memset(read_buffer, 0, BUFFER_SIZE);
 
+
     /*reading as much as we can*/
     /* TODO: Add error handling for the fread(). Seems that if the ret val of fread != to BUGGER_SIZE - 1 then an error or EOF happend */
-    while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0) {
+    while (fread(read_buffer, sizeof(char), BUFFER_SIZE - 1, fd) > 0 ) {
+
+        if(ferror(fd)){
+            ret_val.error_code = E_FAILED_READING_FILE;
+            strcpy(ret_val.error_message,READING_FROM_FILE);
+            return ret_val;
+        }
+
         tok = strtok(read_buffer, " \t\r\n");
         values_read_amount++;
         /*parsing while we can*/
@@ -695,15 +732,14 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                     
                     if(!(curr_val >= 0 && curr_val <= total_length))
                     {
-                        /* TODO: Maybe change to more informative error? regarding the valid range */
                         ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-                        strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                        sprintf(ret_val.error_message,FILE_PARAMS_NOT_IN_RANGE,0,total_length);
                         free_board(*grid_pointer, total_length);
                         return ret_val;
                     }
                 } else {
                     ret_val.error_code = E_INVALID_FILE_STRUCTURE;
-                    strcpy(ret_val.error_message,INVALID_FILE_STRUCTURE_ERROR);
+                    strcpy(ret_val.error_message,FILE_PARAMS_NOT_LEGAL);
                     tok[strlen(tok) - 1] = '\0';
                     free_board(*grid_pointer, total_length);
                     return ret_val;
@@ -745,6 +781,132 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     return ret_val;
 
 }
+
+int is_a_number(char num){
+    if(num < '0' || num > '9' ){
+        return FALSE;
+    }
+    return TRUE;
+}
+
+int is_legal_double(char *num){
+    int i, period_counter, before_count, after_count, period_flag;
+
+    i = 0;
+    period_counter = 0;
+    period_flag = 0;
+    before_count = 0;
+    after_count = 0;
+
+    /*if is a simple decimal integer.*/
+    if(is_numeric(num)){
+        return TRUE;
+    }
+
+    /*counting how many periods are in the double*/
+    while(num[i]){
+        if(num[i] == '.'){
+            period_counter++;
+        }
+        if(period_counter > 1){
+            return FALSE;
+        }
+        i++;
+    }
+
+    i = 0;
+
+    while(num[i]){
+
+        if(num[i] == '.'){
+            period_flag = 1;
+        } else {
+            /*making sure the number is composed of either numbers or a dot.*/
+            if(is_a_number(num[i]) != TRUE){
+                return FALSE;
+            } 
+
+            /*making sure the number is of the correct format*/
+            if(period_flag == 1){
+                after_count++;
+            } else {
+                before_count++;
+            }
+
+        } 
+        
+        i++;
+    }
+    /*making sure the number is of the form: X.Y */
+    if ((period_counter == 1) && (before_count == 0 || after_count == 0)) {
+        return FALSE;
+    }
+
+    return TRUE;
+
+}
+
+returnCodeDesc parse_double(char *num, double *res){
+
+    int i = 0;
+    returnCodeDesc return_code_desc;
+    double power_of_ten;
+    
+    power_of_ten = 1;
+
+    if(is_numeric(num)){
+        *res = (double)string_to_int(num);
+    }
+    if(!is_legal_double(num)){
+        return_code_desc.error_code = E_ILLEGAL_FLOAT;
+        strcpy(return_code_desc.error_message, INVALID_FLOAT_PARAM);
+        return return_code_desc;
+    }
+
+    /*the number is of the format: x.y*/
+    while(num[i] != '.'){
+        *res = *res * 10;
+        *res += num[i] - '0';
+        i++;
+    }
+    i++;
+    while(num[i]){
+        power_of_ten *= 10;
+        *res += ((double)(num[i] - '0') / power_of_ten );
+        i++;
+    }
+
+    return_code_desc.error_code = E_SUCCESS;
+    strcpy(return_code_desc.error_message, NO_ERRORS);
+    return return_code_desc;
+
+}
+
+/*
+int main(){
+
+    double testFloat;
+    printf("%d",is_legal_double("5"));
+    printf("%d",is_legal_double("a"));
+    printf("%d",is_legal_double(".5"));
+    printf("%d",is_legal_double("0."));
+    printf("%d",is_legal_double("0.5"));
+    printf("%d",is_legal_double("0.5.5"));
+    parse_double("1.5",&testFloat);
+    printf("%f", testFloat);
+
+
+    return 0;
+}*/
+
+
+
+/*
+double parse_double(char *num){
+
+}
+*/
+
 
 /*
 int main(){

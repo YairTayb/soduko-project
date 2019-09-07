@@ -36,7 +36,8 @@
 #define INVALID_COMMAND_ERROR "Error: invalid command. Valid commands are: solve, edit, set, mark_errors, print_board, validate, undo, redo, reset, save, autofill, num_solutions, generate, guess, hint, guess_hint, exit %s\n"
 #define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
 #define CELL_IS_NOT_EMPTY_ERROR "Error: cell (%d,%d) is not empty\n"
-#define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d-%d]\n"
+#define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d,%d]\n"
+#define INVALID_DOUBLE_VALUE_ERROR "Error: value is invalid. Value should be in range (%f,%f)\n"
 #define INVALID_INPUT_TYPE "Error: Invalid input type. %s\n"
 #define WIN_MSG "Puzzle solved successfully\n"
 #define SOLUTIONS_COUNT_MSG "Total number of solutions for current board: %d\n"
@@ -48,7 +49,7 @@
 #define FUNCTION_FAILED "Error: %s has failed\n"
 #define FAILED_OPENING_FILE "Error: Unable to open the file at the given path [%s]\n"
 #define REACHED_OEF "Error: Reached EOF while reading user input.\n"
-#define NO_ERRORS "No errors occurred.\n"
+#define NO_ERRORS ""
 #define TOO_MANY_PARAMETERS "Error: Too many parameters were entered. Syntax: %s\n"
 #define NOT_ENOUGH_PARAMETERS "Error: Not enough parameters were entered. Syntax: %s\n"
 #define WRITING_TO_FILE_ERROR "Error: Unable to write to file\n"
@@ -67,4 +68,18 @@
 #define SAVED_SUCCESSFULL "Game was successfully to %s\n"
 #define INVALID_MARK_ERRORS_VALUE "Error: Invalid value for mark_errors. Valid values are 0, 1.\n"
 #define GENERATE_EXCEEDED_ITERATIONS "Error: generate method exceeded %d iterations\n"
+#define FILE_PARAMS_NOT_IN_RANGE "Error: some file parameters are not in the legal range. Value should be in range [%d-%d]\n"
+#define FILE_PARAMS_NOT_LEGAL "Error: some file parameters are not legal\n"
+#define BOARD_IS_ERRONOUS "Error: board is erronous, generate could not generate any value. \n"
+#define READING_FROM_FILE "Error: could not read from the file. \n"
+#define INVALID_FLOAT_PARAM "Error: Param X should be a valid float number.\n"
+
+#define SUCCESFULL_SET "Set cell (%d,%d) to %d.\n"
+#define SUCCESFULL_AUTOFILL "Autofilled the board.\n"
+#define SUCCESFULL_GENERATE "Generate was done successfully.\n"
+#define SUCCESFULL_MARK_ERRORS "Set mark error to:%d.\n"
+
+#define GUESS_HINT_MSG "Cell (%d,%d) - VALUE: %d, SCORE: %f\n"
+
+#define GUROBI_NO_SOLUTION_ERROR "Error: No solution found using Gurobi\n"
 #endif

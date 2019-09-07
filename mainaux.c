@@ -269,3 +269,8 @@ int is_empty_string(char *s) {
     }
     return TRUE;
 }
+
+
+double get_random_in_range(double min, double max) {
+    return min + (rand() / (RAND_MAX / (max - min)));
+}

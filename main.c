@@ -22,6 +22,9 @@ int main() {
     game_mode current_mode = init_mode;
     struct MovesList game_moves;
 
+    /*init the move list*/
+    game_moves.current_move = NULL;
+
     printf(WELCOME_MESSAGE);
 
     /* Game begins */
@@ -88,7 +91,7 @@ int main() {
             }
 
             continue;
-        }
+        } 
 
         if (invalid_type_error_occurred == TRUE) {
             handle_errors(temp_return_code_desc);
@@ -113,7 +116,6 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 current_mode = solve_mode;
-
                 free_whole_list(&game_moves);
                 init_move_list(&game_moves, grid_height, grid_width);
                 add_move_to_list(game_board, &game_moves);
@@ -152,6 +154,7 @@ int main() {
 
             if (is_error(return_code_desc) == FALSE) {
                 /*adding the move*/
+                game_board[user_command.params[0] - 1][user_command.params[1] - 1].has_changed = TRUE;/*ROW - COL*/
                 add_move_to_list(game_board, &game_moves);
             }
 
@@ -160,6 +163,8 @@ int main() {
 
         } else if (user_command.command_chosen == guess_command) {
             should_print_board = TRUE;
+            return_code_desc = guess(game_board, grid_height, grid_width, box_height, box_width, user_command.threshold);
+            add_move_to_list(game_board, &game_moves);
 
         } else if (user_command.command_chosen == generate_command) {
             should_print_board = TRUE;
@@ -195,7 +200,8 @@ int main() {
                                     user_command.params[1] - 1);
 
         } else if (user_command.command_chosen == guess_hint_command) {
-
+            return_code_desc = guess_hint(game_board, grid_height, grid_width, box_height, box_width, user_command.params[0] - 1,
+                                    user_command.params[1] - 1);
         } else if (user_command.command_chosen == num_solutions_command) {
             return_code_desc = num_solutions(game_board, grid_height, grid_width, box_height, box_width);
 
@@ -235,9 +241,17 @@ int main() {
             }
 
             continue;
+        } else {
+            printf("%s",return_code_desc.error_message);
         }
 
         update_board_errors(game_board, grid_height, grid_width, box_height, box_width);
+        reset_board_changed_status(game_board, grid_height, grid_width);
+        
+
+        if (should_print_board == TRUE) {
+            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
+        }
 
         /* Check if the game was won */
         if (current_mode == solve_mode && is_board_complete(game_board, grid_height, grid_width)) {
@@ -251,12 +265,6 @@ int main() {
                 print_winning_message();
                 current_mode = init_mode;
             }
-        }
-
-        if (should_print_board == TRUE) {
-            /* TODO: Validate if printing of the board should come after the winning message (from instructions -
-             * TODO: seems like printing is the last output). We shoudl validate against the previous semester inputs */
-            print_board(game_board, grid_height, grid_width, box_height, box_width, current_mode, mark_errors);
         }
     }
 

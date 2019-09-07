@@ -36,4 +36,8 @@ returnCodeDesc reset_game(board game_board, struct MovesList *list);
 
 returnCodeDesc set_mark_errors(int* mark_errors, int input);
 
+returnCodeDesc guess(board game_board, int grid_height, int grid_width, int box_height, int box_width, double threshold);
+
+returnCodeDesc guess_hint(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col);
+
 #endif

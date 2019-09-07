@@ -64,10 +64,11 @@ struct Node* find_list_head(struct MovesList*  list){
 	if(list->current_move == NULL){
 		return NULL;
 	}
-	/* TODO - when temp is NULL - failing */
+
 	while (temp->prev != NULL ){
 		temp = temp->prev;
 	}
+	
 	return temp;
 }
 
@@ -79,14 +80,11 @@ struct Node* find_list_head(struct MovesList*  list){
  */
 void free_partial_list(struct Node* head, int board_height){
 	struct Node* temp_node;
-
 	while(head != NULL){
 
 		temp_node = head;
 		head = head->next;
 		temp_node->prev=NULL;
-        /* TODO: This is failing when doing edit with no params on the first move in debug mode. Seems we are freeing the data (board) which was not allocated yet) */
-        /* TODO: This happens only in debug mode... */
         free_board(temp_node->data,board_height);
 		free(temp_node);
 	}

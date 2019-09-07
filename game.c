@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "game.h"
+#include "gurobi_solver.h"
 #include "mainaux.h"
 #include "solver.h"
 #include "moves_list.h"
@@ -57,7 +57,7 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
     game_board[row][col].value = value;
 
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    sprintf(return_code_desc.error_message,SUCCESFULL_SET,(row + 1),(col + 1),value);
     return return_code_desc;
 
 }
@@ -67,14 +67,14 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
     for(i = 0;i < grid_height; i++){
         for(j = 0; j < grid_width; j++){
             /*check if the value has changed*/
-            if(before[i][j].value != after[i][j].value){
+            if(after[i][j].has_changed == TRUE || before[i][j].value != after[i][j].value){
 
                 if(comm == undo){
                     printf("Undo ");
                 } else if(comm == redo){
                     printf("Redo ");
                 } 
-                printf("%d,%d from %d to %d .\n",i,j, before[i][j].value , after[i][j].value);
+                printf("(%d,%d) from %d to %d.\n",(i + 1),(j + 1), before[i][j].value , after[i][j].value);
 
             }
         }
@@ -171,7 +171,6 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (fclose(fd) != 0) {
         /* Error handling */
-        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
@@ -203,17 +202,19 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
         strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
     }
 
-    /* If board is solvable - update the solution */
-    else if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
-        print_validation_passed();
-        /* Free memory allocation for previous solution */
-        return_code_desc.error_code = E_SUCCESS;
-        strcpy(return_code_desc.error_message, NO_ERRORS);
+    else {
+        return_code_desc = solve_gurobi(new_solution, grid_height, grid_width, box_height, box_width, ILP, NULL);
 
-    } else {
-        /* No solution for the current board */
-        return_code_desc.error_code = E_NO_SOLUTION;
-        strcpy(return_code_desc.error_message, VALIDATION_FAILED);
+        /* Check if there were errors while running the ILP solver.
+         * If An error has occurred while running the Gurobi ILP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error.
+         * Otherwise the validation has passed. */
+        if (is_error(return_code_desc) == FALSE) {
+            print_validation_passed();
+            return_code_desc.error_code = E_SUCCESS;
+            strcpy(return_code_desc.error_message, NO_ERRORS);
+        }
+
     }
 
     /* Free memory allocation for previous solution */
@@ -282,7 +283,7 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
     free_board(temp_board, grid_height);
 
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    strcpy(return_code_desc.error_message, SUCCESFULL_AUTOFILL);
     return return_code_desc;
 
 }
@@ -349,7 +350,12 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     int *valid_values;
     board temp_board = create_empty_board(grid_height, grid_width);
 
-    /* TODO: What if board is errornous? DO we even run this? See discussion in forum */
+    /*Should not run if the board is erronous - wasting cpu time*/
+    if(is_board_errornous(game_board, grid_height, grid_width)){
+        return_code_desc.error_code = E_GENERAL_ERROR;
+        strcpy(return_code_desc.error_message,BOARD_IS_ERRONOUS);
+        return return_code_desc;
+    }
 
     valid_values = (int*) malloc((box_height * box_width) * sizeof(int));
 
@@ -460,12 +466,15 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
+
     returnCodeDesc return_code_desc;
     FILE *fd;
     board temp_grid = NULL;
 
     /* Might need to change to rb */
     fd = fopen(path, "rb");
+
+    
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
@@ -478,8 +487,6 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
                                        box_width_pointer);
 
     if (fclose(fd) != 0) {
-        /* Error handling */
-        /* TODO - Do we exit? or do we continue and consider this as failure in board saving? */
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
@@ -495,7 +502,7 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
         strcpy(return_code_desc.error_message, INVALID_BOARD);
         return return_code_desc;
     }
-
+    
     if (*grid_pointer != NULL)
         free_board((*grid_pointer), *grid_height_pointer);
 
@@ -574,6 +581,182 @@ returnCodeDesc set_mark_errors(int* mark_errors, int input){
 
     *mark_errors = input;
     return_code_desc.error_code = E_SUCCESS;
-    strcpy(return_code_desc.error_message, NO_ERRORS);
+    sprintf(return_code_desc.error_message,SUCCESFULL_MARK_ERRORS,input);
     return return_code_desc;
+}
+
+
+returnCodeDesc guess(board game_board, int grid_height, int grid_width, int box_height, int box_width, double threshold) {
+    returnCodeDesc return_code_desc;
+    int row, col;
+    double scores_sum = 0.0;
+    double normalised_score = 0.0;
+    double random_value = 0;
+    double min = 1.0;
+    int value;
+    int chosen_value = -1;
+
+    double *guess_scores = NULL;
+
+    /* Validate the input */
+    if (threshold <= 0.0 || threshold >= 1.0) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        sprintf(return_code_desc.error_message, INVALID_DOUBLE_VALUE_ERROR, 0.0, 1.0);
+    }
+
+    else if (is_board_errornous(game_board, grid_height, grid_width) == TRUE) {
+        return_code_desc.error_code = E_ERRORNOUS_BOARD;
+        strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
+    }
+    else {
+        guess_scores = (double *) malloc(grid_height * grid_width * (box_height * box_width) * sizeof(double));
+
+        if (guess_scores == NULL) {
+            return_code_desc.error_code = E_FUNCTION_FAILED;
+            sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
+            return return_code_desc;
+        }
+
+        return_code_desc = solve_gurobi(game_board, grid_height, grid_width, box_height, box_width, LP, guess_scores);
+
+        /* Check if there were errors while running the LP solver.
+         * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error. */
+        if (is_error(return_code_desc) == TRUE) {
+            free(guess_scores);
+            return return_code_desc;
+        }
+
+        for(row = 0; row < grid_height; row++){
+            for (col = 0; col < grid_width; col++) {
+                if (is_empty(game_board, row, col)) {
+                    scores_sum = 0.0;
+                    normalised_score = 0.0;
+                    chosen_value = -1;
+                    min = 1.0;
+
+                    for (value = 0; value < (box_height * box_width); value++) {
+                        if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, value + 1) &&
+                            (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                           (box_height * box_width))] >= threshold)) {
+                            scores_sum += guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                                        (box_height * box_width))];
+                        }
+                        else {
+                            guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                          (box_height * box_width))] = 0;
+                        }
+                    }
+
+                    if (scores_sum > 0.0) {
+                        for (value = 0; value < (box_height * box_width); value++) {
+                            if (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                              (box_height * box_width))] > 0) {
+                                normalised_score += (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                                                   (box_height * box_width))]) / scores_sum;
+                                guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                              (box_height * box_width))] = normalised_score;
+                            }
+                        }
+
+                        random_value = get_random_in_range(0.0, 1.0);
+
+                        for (value = 0; value < (box_height * box_width); value++) {
+                            if (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                              (box_height * box_width))] >= random_value &&
+                                    guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                                  (box_height * box_width))]  <= min) {
+                                    min = guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                                        (box_height * box_width))];
+                                    chosen_value = value + 1;
+                            }
+                        }
+                    }
+
+                    if (chosen_value != -1) {
+                        game_board[row][col].value = chosen_value;
+                        game_board[row][col].has_changed = TRUE;
+                    }
+                }
+            }
+        }
+
+        free(guess_scores);
+        return_code_desc.error_code = E_SUCCESS;
+        strcpy(return_code_desc.error_message, NO_ERRORS);
+    }
+
+    return return_code_desc;
+
+}
+
+returnCodeDesc
+guess_hint(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
+    returnCodeDesc return_code_desc;
+    int value;
+    double *guess_scores = NULL;
+
+    /* Validate the input */
+    if (!is_valid_input(row, grid_height)) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
+    }
+
+    else if (!is_valid_input(col, grid_width)) {
+        return_code_desc.error_code = E_INVALID_VALUE;
+        sprintf(return_code_desc.error_message, INVALID_VALUE_ERROR, 1, grid_height);
+    }
+
+    else if (is_board_errornous(game_board, grid_height, grid_width) == TRUE) {
+        return_code_desc.error_code = E_ERRORNOUS_BOARD;
+        strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
+    }
+
+    /* Validate the cell is not fixed - if it is print an error and don't perform command */
+    else if (game_board[row][col].is_const == TRUE) {
+        return_code_desc.error_code = E_CELL_IS_FIXED;
+        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row, col);
+    }
+
+    /* Validate the cell is empty - if it isn't print an error and don't perform command */
+    else if (!is_empty(game_board, row, col)){
+        return_code_desc.error_code = E_CELL_IS_NOT_EMPTY;
+        sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row, col);
+    }
+
+    else {
+        guess_scores = (double *) malloc(grid_height * grid_width * (box_height * box_width) * sizeof(double));
+
+        if (guess_scores == NULL) {
+            return_code_desc.error_code = E_FUNCTION_FAILED;
+            sprintf(return_code_desc.error_message, FUNCTION_FAILED, "malloc");
+            return return_code_desc;
+        }
+
+        return_code_desc = solve_gurobi(game_board, grid_height, grid_width, box_height, box_width, LP, guess_scores);
+
+        /* Check if there were errors while running the LP solver.
+         * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error. */
+        if (is_error(return_code_desc) == TRUE) {
+            free(guess_scores);
+            return return_code_desc;
+        }
+
+        for (value = 0; value < (box_height * box_width); value++) {
+            if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, value + 1) &&
+                (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                               (box_height * box_width))] > 0.0)) {
+                printf(GUESS_HINT_MSG, row, col, value + 1, guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                                                                                          (box_height * box_width))]);
+            }
+        }
+
+        return_code_desc.error_code = E_SUCCESS;
+        strcpy(return_code_desc.error_message, NO_ERRORS);
+        free(guess_scores);
+    }
+
+    return return_code_desc;
+
 }
