@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "gurobi_solver.h"
 #include "mainaux.h"
@@ -49,7 +50,7 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
      * print error and don't perform command */
     if (mode == solve_mode && game_board[row][col].is_const == TRUE) {
         return_code_desc.error_code = E_CELL_IS_FIXED;
-        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row, col);
+        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row + 1, col + 1);
         return return_code_desc;
     }
 
@@ -184,10 +185,9 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
-        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, path);
+        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, strerror(errno), path);
 
     } else {
-        /* TODO - Maybe write_board_to_file shouldn't get mode, and all the narking of fixed/non fixed should happen here? */
         return_code_desc = write_board_to_file(game_board, grid_height, grid_width, box_width, box_height, fd, mode);
     }
 
@@ -338,13 +338,13 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
     /* Validate the cell is not fixed - if it is print an error and don't perform command */
     else if (game_board[row][col].is_const == TRUE) {
         return_code_desc.error_code = E_CELL_IS_FIXED;
-        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row, col);
+        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row + 1, col + 1);
     }
 
     /* Validate the cell is empty - if it isn't print an error and don't perform command */
     else if (!is_empty(game_board, row, col)){
         return_code_desc.error_code = E_CELL_IS_NOT_EMPTY;
-        sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row, col);
+        sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row + 1, col + 1);
     }
     
     else 
@@ -355,7 +355,7 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
          * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
          * or there was an error in the runtime of the solver - raise the error. */
         if (is_error(return_code_desc) == FALSE) {
-            print_hint_message(row, col, new_solution[row][col].value);
+            printf(HINT_MSG, row + 1, col + 1, new_solution[row][col].value);
             return_code_desc.error_code = E_SUCCESS;
             strcpy(return_code_desc.error_message, NO_ERRORS);
         }
@@ -517,11 +517,10 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     /* Might need to change to rb */
     fd = fopen(path, "rb");
 
-    
-
     if (!fd) {
+        perror("Error: ");
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
-        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, path);
+        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, strerror(errno), path);
         return return_code_desc;
 
     }
@@ -576,14 +575,12 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
         return return_code_desc;
     } 
 
-
     fd = fopen(path, "rb");
 
     if (!fd) {
         return_code_desc.error_code = E_OPEN_FILE_FAILED;
-        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, path);
+        sprintf(return_code_desc.error_message, FAILED_OPENING_FILE, strerror(errno), path);
         return return_code_desc;
-
     }
 
     return_code_desc = read_board_from_file(fd, &temp_grid, grid_height_pointer, grid_width_pointer, box_height_pointer,
@@ -758,13 +755,13 @@ guess_hint(board game_board, int grid_height, int grid_width, int box_height, in
     /* Validate the cell is not fixed - if it is print an error and don't perform command */
     else if (game_board[row][col].is_const == TRUE) {
         return_code_desc.error_code = E_CELL_IS_FIXED;
-        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row, col);
+        sprintf(return_code_desc.error_message, CELL_IS_FIXED_ERROR, row + 1, col + 1);
     }
 
     /* Validate the cell is empty - if it isn't print an error and don't perform command */
     else if (!is_empty(game_board, row, col)){
         return_code_desc.error_code = E_CELL_IS_NOT_EMPTY;
-        sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row, col);
+        sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row + 1, col + 1);
     }
 
     else {
@@ -790,7 +787,7 @@ guess_hint(board game_board, int grid_height, int grid_width, int box_height, in
             if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, value + 1) &&
                 (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                (box_height * box_width))] > 0.0)) {
-                printf(GUESS_HINT_MSG, row, col, value + 1, guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                printf(GUESS_HINT_MSG, row + 1, col + 1, value + 1, guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                                                           (box_height * box_width))]);
             }
         }

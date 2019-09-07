@@ -47,7 +47,7 @@
 #define VALIDATION_FAILED "Error: Validation failed. board is unsolvable\n"
 #define VALIDATION_PASSED "Validation passed: board is solvable\n"
 #define FUNCTION_FAILED "Error: %s has failed\n"
-#define FAILED_OPENING_FILE "Error: Unable to open the file at the given path [%s]\n"
+#define FAILED_OPENING_FILE "Error: Unable to open the file at the given path [%s] - %s\n"
 #define REACHED_OEF "Error: Reached EOF while reading user input\n"
 #define NO_ERRORS ""
 #define TOO_MANY_PARAMETERS "Error: Too many parameters were entered. Syntax: %s\n"
