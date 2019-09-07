@@ -33,7 +33,7 @@
 #define CONST_CELL " %2d."
 #define INVALID_NUMBER_OF_CELLS_TO_FILL "Error: invalid number of cells to fill (should be between 0 and 80)\n"
 #define NUMBER_OF_CELLS_TO_FILL_MSG "Please enter the number of cells to fill [0-80]:\n"
-#define INVALID_COMMAND_ERROR "Error: invalid command. Valid commands are: solve, edit, set, mark_errors, print_board, validate, undo, redo, reset, save, autofill, num_solutions, generate, guess, hint, guess_hint, exit %s\n"
+#define INVALID_COMMAND_ERROR "Error: invalid command %s. Valid commands are: solve, edit, set, mark_errors, print_board, validate, undo, redo, reset, save, autofill, num_solutions, generate, guess, hint, guess_hint, exit\n"
 #define CELL_IS_FIXED_ERROR "Error: cell (%d,%d) is fixed\n"
 #define CELL_IS_NOT_EMPTY_ERROR "Error: cell (%d,%d) is not empty\n"
 #define INVALID_VALUE_ERROR "Error: value is invalid. Value should be in range [%d,%d]\n"
