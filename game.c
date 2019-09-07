@@ -55,6 +55,7 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
 
     /* Set the cell */
     game_board[row][col].value = value;
+    game_board[row][col].has_changed = TRUE;
 
     return_code_desc.error_code = E_SUCCESS;
     sprintf(return_code_desc.error_message,SUCCESFULL_SET,(row + 1),(col + 1),value);
@@ -146,14 +147,19 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (mode == edit_mode) {
         if (is_board_errornous(game_board, grid_height, grid_width) == TRUE) {
+            free_board(board_copy, grid_height);
             return_code_desc.error_code = E_ERRORNOUS_BOARD;
             strcpy(return_code_desc.error_message, ERROR_BOARD_MSG);
             return return_code_desc;
         }
 
-        if (!solve_grid(board_copy, grid_height, grid_width, box_height, box_width, 0, 0)) {
-            return_code_desc.error_code = E_NO_SOLUTION;
-            strcpy(return_code_desc.error_message, VALIDATION_FAILED);
+        return_code_desc = solve_gurobi(board_copy, grid_height, grid_width, box_height, box_width, ILP, NULL);
+
+        /* Check if there were errors while running the LP solver.
+         * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error. */
+        if (is_error(return_code_desc) == TRUE) {
+            free_board(board_copy, grid_height);
             return return_code_desc;
         }
     }
@@ -171,11 +177,13 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
     if (fclose(fd) != 0) {
         /* Error handling */
+        free_board(board_copy, grid_height);
         return_code_desc.error_code = E_READ_FROM_FILE_FAILED;
         sprintf(return_code_desc.error_message, FUNCTION_FAILED, "fclose");
         return return_code_desc;
     }
 
+    free_board(board_copy, grid_height);
     return return_code_desc;
 
 }
@@ -272,6 +280,7 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
                     if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, num)) {
                         /* Set the cell */
                         temp_board[row][col].value = num;
+                        temp_board[row][col].has_changed = TRUE;
                         break;
                     }
                 }
@@ -321,16 +330,24 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
         return_code_desc.error_code = E_CELL_IS_NOT_EMPTY;
         sprintf(return_code_desc.error_message, CELL_IS_NOT_EMPTY_ERROR, row, col);
     }
+    
+    else 
+    {
+        return_code_desc = solve_gurobi(new_solution, grid_height, grid_width, box_height, box_width, ILP, NULL);
 
-    else if (solve_grid(new_solution, grid_height, grid_width, box_height, box_width, 0, 0) == TRUE) {
-        print_hint_message(row, col, new_solution[row][col].value);
-        return_code_desc.error_code = E_SUCCESS;
-        strcpy(return_code_desc.error_message, NO_ERRORS);
-
-    } else {
-        /* No solution for the current board */
-        return_code_desc.error_code = E_NO_SOLUTION;
-        strcpy(return_code_desc.error_message, VALIDATION_FAILED);
+        /* Check if there were errors while running the LP solver.
+         * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error. */
+        if (is_error(return_code_desc) == FALSE) {
+            print_hint_message(row, col, new_solution[row][col].value);
+            return_code_desc.error_code = E_SUCCESS;
+            strcpy(return_code_desc.error_message, NO_ERRORS);
+        }
+        else {
+            /* No solution for the current board */
+            return_code_desc.error_code = E_NO_SOLUTION;
+            strcpy(return_code_desc.error_message, VALIDATION_FAILED);
+        }
     }
 
     /* Free memory allocation for previous solution */
@@ -343,7 +360,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
         int num_of_cells_to_fill, int num_of_cells_to_keep) {
     returnCodeDesc return_code_desc;
     int i, random_index, row, col, num_of_valid_values;
-    int is_error = FALSE;
+    int error_occurred = FALSE;
     int number_of_iterations = 0;
     int filled_cells_count = 0;
     int cleared_cells_count = 0;
@@ -383,7 +400,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
         /* Reset the temp board to the original board */
         copy_board(game_board, temp_board, grid_height, grid_width);
 
-        is_error = FALSE;
+        error_occurred = FALSE;
         filled_cells_count = 0;
         cleared_cells_count = 0;
 
@@ -406,13 +423,14 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
                     /* Random cell has got at least one possible valid value */
                     random_index = (rand() % (num_of_valid_values));
                     temp_board[row][col].value = valid_values[random_index];
+                    temp_board[row][col].has_changed = TRUE;
                     filled_cells_count++;
 
                 }
 
                 else {
                     /* No valid values available to the random empty cell*/
-                    is_error = TRUE;
+                    error_occurred = TRUE;
                     break;
                 }
             }
@@ -424,6 +442,14 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
         }
 
         /* Finished randomly filling the board. Try to solve it and check if there is a solution*/
+        return_code_desc = solve_gurobi(temp_board, grid_height, grid_width, box_height, box_width, ILP, NULL);
+
+        /* Check if there were errors while running the LP solver.
+         * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
+         * or there was an error in the runtime of the solver - raise the error. */
+        if (is_error(return_code_desc) == TRUE) {
+            continue;
+        }
         if (solve_grid(temp_board, grid_height, grid_width, box_height, box_width, 0, 0) == FALSE) {
             /* No valid solution to the board - try again */
             continue;
@@ -437,6 +463,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
             /* Verify cell is not yet empty */
             if (is_empty(temp_board, row, col) == FALSE) {
                 temp_board[row][col].value = UNASSIGNED;
+                temp_board[row][col].has_changed = TRUE;
                 cleared_cells_count++;
             }
 

@@ -640,6 +640,7 @@ void apply_ILP_solution(double *sol, int* indices_array, board game_board, int g
                     if (index > -1) {
                         if (sol[index] == 1.0) {
                             game_board[row][col].value = value + 1;
+                            game_board[row][col].has_changed = TRUE;
                             break;
                         }
                     }

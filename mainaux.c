@@ -80,6 +80,8 @@ void copy_board(board source_grid, board destination_grid, int grid_height, int 
             destination_grid[i][j].value = source_grid[i][j].value;
             destination_grid[i][j].is_const = source_grid[i][j].is_const;
             destination_grid[i][j].is_valid = source_grid[i][j].is_valid;
+            destination_grid[i][j].has_changed = source_grid[i][j].has_changed;
+
         }
     }
 }
@@ -121,6 +123,7 @@ board create_empty_board(int grid_height, int grid_width) {
         for (j = 0; j < grid_width; j++) {
             game_board[i][j].value = UNASSIGNED;
             game_board[i][j].is_const = FALSE;
+            game_board[i][j].has_changed = FALSE;
         }
     }
 
