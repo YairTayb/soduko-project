@@ -297,6 +297,7 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
                 for (num = 1; num <= (box_height * box_width); num++){
                     if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, num)) {
                         /* Set the cell */
+                        printf("Cell (%d,%d) from %d to %d. \n",col,row,temp_board[row][col].value,num);
                         temp_board[row][col].value = num;
                         temp_board[row][col].has_changed = TRUE;
                         break;
