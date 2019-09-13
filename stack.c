@@ -3,6 +3,7 @@
 #include "stack.h"
 #include "mainaux.h"
 
+
 void initialize(stack *stk) {
     stk->count = 0;
     stk->top = NULL;
