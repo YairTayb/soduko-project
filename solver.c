@@ -51,6 +51,14 @@ void update_board_errors(board game_board, int grid_height, int grid_width, int 
     }
 }
 
+
+/**
+ * Reset each of the board cells status to unchanged. used in order to tell the difference between game boards.
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ 
+ */
 void reset_board_changed_status(board game_board, int grid_height, int grid_width){
     int i,j;
 
@@ -328,6 +336,19 @@ int count_solutions(board game_board, int grid_height, int grid_width, int box_h
     return count;
 }
 
+/**
+ * A method to count how many solutions are there to a given board using iterative counting. 
+ * this method is a helper to the main count solutions which is used when the player wants to count solutions.
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height The box height
+ * @param box_width The box width
+ * @param row the row to start from
+ * @param col the col to start from
+ * @param stack the stack used for the iterative counting
+ * @return the number of solutions
+ */
 int _count_solutions_iterative(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         int row, int col, stack* s){
     int count = 0;
@@ -398,6 +419,15 @@ int _count_solutions_iterative(board game_board, int grid_height, int grid_width
     return count;
 }
 
+/**
+ * A method to count how many solutions are there to a given board using iterative counting. 
+ * @param board The game board
+ * @param grid_height The board height
+ * @param grid_width The board width
+ * @param box_height The box height
+ * @param box_width The box width
+ * @return the number of solutions
+ */
 int count_solutions_iterative(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
     stack s;
     move m;

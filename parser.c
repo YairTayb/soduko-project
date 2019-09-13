@@ -6,7 +6,11 @@
 #include "parser.h"
 
 
-
+/**
+ * A method to return
+ * @param a string representation of a number
+ * @return the number of solutions
+ */
 int string_to_int(char *number ){
     int i, num;
     i = 0;
