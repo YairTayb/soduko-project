@@ -7,9 +7,9 @@
 
 
 /**
- * A method to return
- * @param a string representation of a number
- * @return the number of solutions
+ * converting a string to an integer.
+ * @param number a string representation of a number
+ * @return the number as int
  */
 int string_to_int(char *number ){
     int i, num;
@@ -26,6 +26,12 @@ int string_to_int(char *number ){
 
 }
 
+/**
+ * converting a string to an integer.
+ * @param number a string representation of a number
+ * @param result the result of the conversion
+ * @return the status code of the action
+ */
 returnCodeDesc new_string_to_int(char *number,int *result){
     int i = 0;
     returnCodeDesc return_code_desc;
@@ -51,7 +57,11 @@ returnCodeDesc new_string_to_int(char *number,int *result){
 
 
 
-
+/**
+ * checks if a string represents a constant number
+ * @param number a string representation of a number
+ * @return 1 - True, 0 - False
+ */
 int check_if_const(char *number){
     int i;
     i = strlen(number);
@@ -64,6 +74,11 @@ int check_if_const(char *number){
     return FALSE;
 }
 
+/**
+ * parsing the command name out of a command
+ * @param command_name a string representation of a command name
+ * @return the command
+ */
 command parse_command_name(char* command_name) {
     command received_command;
 
@@ -127,6 +142,12 @@ command parse_command_name(char* command_name) {
 }
 
 
+/**
+ * validating the given command mode
+ * @param user_command user inserted command
+ * @param current_mode current game mode
+ * @return the status of the validation
+ */
 returnCodeDesc validate_command_mode(command user_command, game_mode current_mode) {
     returnCodeDesc return_code_desc;
     return_code_desc.error_code = E_SUCCESS;
@@ -225,7 +246,11 @@ returnCodeDesc validate_command_mode(command user_command, game_mode current_mod
 
 }
 
-
+/**
+ * validating the given command parameters amount
+ * @param user_command user inserted command
+ * @return the status of the validation
+ */
 returnCodeDesc  validate_amount_of_parameters(command user_command) {
     returnCodeDesc return_code_desc;
     return_code_desc.error_code = E_SUCCESS;
@@ -367,6 +392,14 @@ returnCodeDesc  validate_amount_of_parameters(command user_command) {
     return return_code_desc;
 
 }
+
+
+/**
+ * parsing the command
+ * @param user_command the parsed command
+ * @param token given command as an array of chars
+ * @return the status of the parsing
+ */
 returnCodeDesc parse_parameters(command *user_command, char *token) {
     returnCodeDesc return_code_desc;
     int invalid_input_type_error_occurred = FALSE;
@@ -608,6 +641,11 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
     return return_code_desc;
 }
 
+/**
+ * checks if a string represents a number in the format used for files
+ * @param num a string representation of a number
+ * @return 1 - True, 0 - False
+ */
 int is_valid_number(char *num){
     int dot_flag;
     int i = 0;
@@ -636,6 +674,12 @@ int is_valid_number(char *num){
 
     return TRUE;
 }
+
+/**
+ * checks if a string represents a number
+ * @param num a string representation of a number
+ * @return 1 - True, 0 - False
+ */
 int is_numeric(char *num){
     int i = 0;
     while(num[i]){
