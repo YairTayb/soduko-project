@@ -568,6 +568,17 @@ returnCodeDesc parse_command(command *user_command){
 }
 
 
+/**
+ * Writes a board to a given file
+ * @param grid The game board
+ * @param grid_height The board height
+ * @param grid_width The width of the board
+ * @param box_width The box width
+ * @param box_height The box height
+ * @param fd the file descriptor of the file 
+ * @param mode_of_game the game mode
+ * @return the status of the parsing
+ */
 returnCodeDesc
 write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd,
                     game_mode mode_of_game) {
@@ -694,6 +705,17 @@ int is_numeric(char *num){
 }
 
 
+
+/**
+ * reads a board from a given file
+ * @param fd the file descriptor of the file
+ * @param grid_poimter The game board to write to
+ * @param grid_height_pointer The board height to write to
+ * @param grid_width_pointer The width of the board to write to
+ * @param box_width_pointer The box width to write to
+ * @param box_height_pointer The box height to write to
+ * @return the status of the parsing
+ */
 returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
                          int *box_width_pointer) {
@@ -823,6 +845,12 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
 
 }
 
+
+/**
+ * checks if a char is a number (0 - 9)
+ * @param num the char to check
+ * @return 1 - True, 0 - False
+ */
 int is_a_number(char num){
     if(num < '0' || num > '9' ){
         return FALSE;
@@ -830,6 +858,12 @@ int is_a_number(char num){
     return TRUE;
 }
 
+
+/**
+ * checks if a string is a legal double
+ * @param num a string representation of a number
+ * @return 1 - True, 0 - False
+ */
 int is_legal_double(char *num){
     int i, period_counter, before_count, after_count, period_flag;
 
@@ -887,6 +921,13 @@ int is_legal_double(char *num){
 
 }
 
+
+/**
+ * parsing a double out of a string
+ * @param num a string representation of a double
+ * @param res the param in which the double will be inserted
+ * @return the command status
+ */
 returnCodeDesc parse_double(char *num, double *res){
 
     int i = 0;
