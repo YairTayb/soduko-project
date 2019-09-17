@@ -5,6 +5,8 @@ COMP_FLAG = -ansi -Wall -Wextra -Werror -pedantic-errors
 GUROBI_COMP = -I/usr/local/lib/gurobi563/include
 GUROBI_LIB = -L/usr/local/lib/gurobi563/lib -lgurobi56
 
+all: $(OBJS)
+	$(CC) $(OBJS) $(GUROBI_LIB) -o $(EXEC) -lm
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(GUROBI_LIB) -o $@ -lm
 main.o: main.c mainaux.h parser.h game.h consts.h data_models.h
