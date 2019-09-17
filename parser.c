@@ -729,7 +729,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
     read_cols = FALSE;
 
     /*parsing the file into the board*/
-    values_read_amount = 0;
+    values_read_amount = 1;
 
     /* Initialize the buffer to zeros */
     memset(read_buffer, 0, BUFFER_SIZE);
@@ -745,7 +745,7 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
         }
 
         tok = strtok(read_buffer, " \t\r\n");
-        values_read_amount++;
+
         /*parsing while we can*/
         while (tok) {
             if (read_rows == FALSE) {
@@ -818,7 +818,9 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
                 (*grid_pointer)[cur_row][cur_col].value = curr_val;
                 (*grid_pointer)[cur_row][cur_col].is_const = check_if_const(tok);
                 (*grid_pointer)[cur_row][cur_col].is_valid = 1;
+
                 values_read_amount++;
+
             }
 
             tok = strtok(NULL, " \t\r\n");
