@@ -13,10 +13,10 @@
 
 
 /**
- * initialize the list.
- * @param list The moves list.
- * @param grid_height the height of the board.
- * @param grid_width the width of the board.
+ * initialize the moves list.
+ * @param list {MovesList*} The moves list.
+ * @param grid_height {int} the height of the board.
+ * @param grid_width {int} the width of the board.
  */
 void init_move_list(struct MovesList*  list, int grid_height, int grid_width){
 	list->current_move=NULL;
@@ -26,14 +26,14 @@ void init_move_list(struct MovesList*  list, int grid_height, int grid_width){
 
 /**
  * creates a new move to add to the list.
- * @param game_board the current game board to be added to the move.
- * @param list the moves list.
- * @return the new move.
+ * @param game_board {board} the current game board to be added to the move.
+ * @param list {MovesList*} the moves list.
+ * @return {Node*} the new move.
  */
 struct Node* create_new_move (struct Cell** game_board, struct MovesList* list) {
 
 	
-	struct Node* new_node ;
+	struct Node* new_node = NULL;
     board temp_board = NULL;
 	new_node = (struct Node*)malloc(sizeof(struct Node));
 
@@ -51,12 +51,10 @@ struct Node* create_new_move (struct Cell** game_board, struct MovesList* list) 
 }
 
 
-
-
 /**
- * finds the list head.
- * @param list The moves list
- * @return the list head, NULL if it doesnt exist
+ * Finds the head of the list
+ * @param list {MovesList*} The moves list
+ * @return {Node*} the list head, NULL if it doesnt exist
  */
 struct Node* find_list_head(struct MovesList*  list){
 	struct Node* temp = list->current_move;
@@ -74,9 +72,9 @@ struct Node* find_list_head(struct MovesList*  list){
 
 
 /**
- * free a list from memory, from the head.
- * @param list The moves list
- * @param board_height the board height the list cells contain.
+ * Free a list from memory, from the head.
+ * @param list {movesList*} The moves list
+ * @param board_height {int} the board height the list cells contain.
  */
 void free_partial_list(struct Node* head, int board_height){
 	struct Node* temp_node;
@@ -92,7 +90,7 @@ void free_partial_list(struct Node* head, int board_height){
 
 /**
  * free the whole list from memory.
- * @param list The moves list
+ * @param list {MovesList*} The moves list
  */
 void free_whole_list(struct MovesList*  list){
 	struct Node* head_to_free = find_list_head(list);
@@ -102,8 +100,8 @@ void free_whole_list(struct MovesList*  list){
 
 /**
  * Add the board to the move list.
- * @param game_board The game board
- * @param list The moves list
+ * @param game_board {board} The game board
+ * @param list {MovesList*} The moves list
  */
 void add_move_to_list (board game_board, struct MovesList*  list){
 
@@ -128,11 +126,10 @@ void add_move_to_list (board game_board, struct MovesList*  list){
 }
 
 
-
 /**
  * Undo the current move from the list only.
- * @param list The moves list
- * @return the current move if it exists, Null otherwise
+ * @param list {MovesList*} The moves list
+ * @return {Node*} the current move if it exists, Null otherwise
  */
 struct Node* psuedo_undo(struct MovesList*  list){
 	
@@ -147,8 +144,8 @@ struct Node* psuedo_undo(struct MovesList*  list){
 
 /**
  * Redo the current move from the list only.
- * @param list The moves list.
- * @return the current move if it exists, Null otherwise.
+ * @param list {MovesList*} The moves list.
+ * @return {Node*} the current move if it exists, Null otherwise.
  */
 struct Node* psuedo_redo(struct MovesList*  list){
 
@@ -162,8 +159,8 @@ struct Node* psuedo_redo(struct MovesList*  list){
 
 /**
  * Reset the current list to the starting move.
- * @param list The moves list.
- * @return the current move.
+ * @param list {MovesList*} The moves list.
+ * @return {Node*} the current move.
  */
 struct Node* psuedo_reset(struct MovesList*  list){
 	list->current_move = find_list_head(list);
@@ -172,7 +169,7 @@ struct Node* psuedo_reset(struct MovesList*  list){
 
 /**
  * Restart the move list and free the whole list as well.
- * @param list The moves list
+ * @param list {MovesList*} The moves list
  */
 void restart_list(struct MovesList*  list){
 	free_whole_list(list);

@@ -7,9 +7,9 @@
 
 
 /**
- * converting a string to an integer.
- * @param number a string representation of a number
- * @return the number as int
+ * Convert a string to an integer.
+ * @param number {char*} The string representation of a number
+ * @return {int} the number as an int
  */
 int string_to_int(char *number ){
     int i, num;
@@ -27,10 +27,10 @@ int string_to_int(char *number ){
 }
 
 /**
- * converting a string to an integer.
- * @param number a string representation of a number
- * @param result the result of the conversion
- * @return the status code of the action
+ * Convert a string to an integer.
+ * @param number {char*} The string representation of a number
+ * @param result {int*} The pointer to the result of the conversion
+ * @return the status code of the function
  */
 returnCodeDesc new_string_to_int(char *number,int *result){
     int i = 0;
@@ -56,10 +56,9 @@ returnCodeDesc new_string_to_int(char *number,int *result){
 }
 
 
-
 /**
- * checks if a string represents a constant number
- * @param number a string representation of a number
+ * Check if a string represents a constant number (representing fixed cell)
+ * @param number {char*} The string representation of a number
  * @return 1 - True, 0 - False
  */
 int check_if_const(char *number){
@@ -75,9 +74,9 @@ int check_if_const(char *number){
 }
 
 /**
- * parsing the command name out of a command
- * @param command_name a string representation of a command name
- * @return the command
+ * Parse the command name out of a command
+ * @param command_name {char*} The string representation of a command name
+ * @return {command} The matching command object
  */
 command parse_command_name(char* command_name) {
     command received_command;
@@ -143,10 +142,10 @@ command parse_command_name(char* command_name) {
 
 
 /**
- * validating the given command mode
- * @param user_command user inserted command
- * @param current_mode current game mode
- * @return the status of the validation
+ * Validate a mode is valid for a given command
+ * @param user_command {command} The command to validate
+ * @param current_mode {game_mode} The game mode to validate against
+ * @return {returnCodeDesc} the status of the validation
  */
 returnCodeDesc validate_command_mode(command user_command, game_mode current_mode) {
     returnCodeDesc return_code_desc;
@@ -247,9 +246,9 @@ returnCodeDesc validate_command_mode(command user_command, game_mode current_mod
 }
 
 /**
- * validating the given command parameters amount
- * @param user_command user inserted command
- * @return the status of the validation
+ * Validate a given command's parameters amount
+ * @param user_command {command} The command to validate
+ * @return {returnCodeDesc} the status of the validation
  */
 returnCodeDesc  validate_amount_of_parameters(command user_command) {
     returnCodeDesc return_code_desc;
@@ -395,10 +394,10 @@ returnCodeDesc  validate_amount_of_parameters(command user_command) {
 
 
 /**
- * parsing the command
- * @param user_command the parsed command
- * @param token given command as an array of chars
- * @return the status of the parsing
+ * Parse the command's parameters
+ * @param user_command {command*} Pointer to the command's object
+ * @param token {char*} The user input with the parametres that needs to be parsed out
+ * @return {returnCodeDesc} The status of the parsing
  */
 returnCodeDesc parse_parameters(command *user_command, char *token) {
     returnCodeDesc return_code_desc;
@@ -474,9 +473,10 @@ returnCodeDesc parse_parameters(command *user_command, char *token) {
 }
 
 /**
- * Parse a game command from input stream. A command that receives an input and returns a command struct
- *containing the parsed command from the user.
- * @return {Command} The parsed command struct.
+ * Parse a game command from input stream. A command that receives an input and fills a command object
+ * with the parsed data.
+ * @param user_command {command*} The pointer to the command's object
+ * @return {returnCodeDesc} The status of the parsing.
  */
 returnCodeDesc parse_command(command *user_command){
     returnCodeDesc return_code_desc;
@@ -570,14 +570,14 @@ returnCodeDesc parse_command(command *user_command){
 
 /**
  * Writes a board to a given file
- * @param grid The game board
- * @param grid_height The board height
- * @param grid_width The width of the board
- * @param box_width The box width
- * @param box_height The box height
- * @param fd the file descriptor of the file 
- * @param mode_of_game the game mode
- * @return the status of the parsing
+ * @param grid {board} The game board
+ * @param grid_height {int} The board height
+ * @param grid_width {int} The width of the board
+ * @param box_width {int} The box width
+ * @param box_height {int} The box height
+ * @param fd {FILE*} the file descriptor of the file
+ * @param mode_of_game {game_mode} the game mode
+ * @return {returnCodeDesc} the status of the parsing
  */
 returnCodeDesc
 write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box_width, int box_height, FILE *fd,
@@ -653,8 +653,8 @@ write_board_to_file(struct Cell **grid, int grid_height, int grid_width, int box
 }
 
 /**
- * checks if a string represents a number in the format used for files
- * @param num a string representation of a number
+ * Validate that a string represents a number in the format used for files
+ * @param num {char*} a string representation of a number
  * @return 1 - True, 0 - False
  */
 int is_valid_number(char *num){
@@ -687,8 +687,8 @@ int is_valid_number(char *num){
 }
 
 /**
- * checks if a string represents a number
- * @param num a string representation of a number
+ * Verify if a string represents a number (is numeric)
+ * @param num {char*} a string representation of a number
  * @return 1 - True, 0 - False
  */
 int is_numeric(char *num){
@@ -705,16 +705,15 @@ int is_numeric(char *num){
 }
 
 
-
 /**
- * reads a board from a given file
- * @param fd the file descriptor of the file
- * @param grid_poimter The game board to write to
- * @param grid_height_pointer The board height to write to
- * @param grid_width_pointer The width of the board to write to
- * @param box_width_pointer The box width to write to
- * @param box_height_pointer The box height to write to
- * @return the status of the parsing
+ * Read and load a board from a given file
+ * @param fd {FILE*} the file descriptor of the file
+ * @param grid_pointer {board*} Pointer to the game board to write to
+ * @param grid_height_pointer {int*} Pointer to the board height to write to
+ * @param grid_width_pointer {int*} Pointer to the width of the board to write to
+ * @param box_width_pointer {int*} Pointer to the box width to write to
+ * @param box_height_pointer {int*} Pointer to the box height to write to
+ * @return {returnCodeDesc} the status of the function
  */
 returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_height_pointer, int *grid_width_pointer,
                          int *box_height_pointer,
@@ -847,8 +846,8 @@ returnCodeDesc read_board_from_file(FILE *fd, board *grid_pointer, int *grid_hei
 
 
 /**
- * checks if a char is a number (0 - 9)
- * @param num the char to check
+ * Verify if a char is a digit (0 - 9)
+ * @param num {char*} the char to check
  * @return 1 - True, 0 - False
  */
 int is_a_number(char num){
@@ -860,8 +859,8 @@ int is_a_number(char num){
 
 
 /**
- * checks if a string is a legal double
- * @param num a string representation of a number
+ * Verify a string is a legal double
+ * @param num {char*} a string representation of a number
  * @return 1 - True, 0 - False
  */
 int is_legal_double(char *num){
@@ -923,10 +922,10 @@ int is_legal_double(char *num){
 
 
 /**
- * parsing a double out of a string
- * @param num a string representation of a double
- * @param res the param in which the double will be inserted
- * @return the command status
+ * Parse a double out of a string
+ * @param num {char*} a string representation of a double
+ * @param res {double*} the pointer of the variable in which the double will be inserted
+ * @return {returnCodeDesc} the command status
  */
 returnCodeDesc parse_double(char *num, double *res){
 

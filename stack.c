@@ -4,11 +4,20 @@
 #include "mainaux.h"
 
 
+/**
+ * Initialize a stack
+ * @param stk {stack*} The pointer to the stack to initialize
+ */
 void initialize(stack *stk) {
     stk->count = 0;
     stk->top = NULL;
 }
 
+/**
+ * Push a move to the stack
+ * @param stk {stack*} The pointer to the stack to push the move to
+ * @param data {move} The move to push
+ */
 void push(stack *stk, move data) {
     elem *p = NULL;
 
@@ -24,7 +33,11 @@ void push(stack *stk, move data) {
     stk->count++;
 }
 
-
+/**
+ * Pop a move from the stack
+ * @param stk {stack*} The pointer to the stack to pop from
+ * @return {move} The popped move
+ */
 move pop(stack *stk){
     move data;
     elem *p = NULL;
@@ -37,10 +50,11 @@ move pop(stack *stk){
     return data;
 }
 
-move top(stack *stk){
-    return stk->top->data;
-}
-
+/**
+ * Check if the stack is empty
+ * @param stk {stack*} The pointer to the stack
+ * @return {int} TRUE if empty, FALSE otherwise.
+ */
 int empty(stack *stk){
     if (stk->count == EMPTY)
         return TRUE;

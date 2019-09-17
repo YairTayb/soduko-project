@@ -10,8 +10,6 @@ void push(stack *stk, move data);
 
 move pop(stack *stk);
 
-move top(stack *stk);
-
 int empty(stack *stk);
 
 #endif

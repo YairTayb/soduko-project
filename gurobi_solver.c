@@ -7,14 +7,24 @@
 #include "mainaux.h"
 #include "gurobi_c.h"
 
+/**
+ * Add variables to the model and create the objective function. For ILP, the coefficients of the objective
+ * function's variables are 1. For LP, the coefficients are randomly chosen in range of (1-dim*dim)
+ * @param env {GRBenv*} pointer to the gurobi environment
+ * @param model {GRBModel *} Pointer to the gurobi model
+ * @param total_num_of_variables {int} The total number of variables to add to the model
+ * @param solving_mode {linear_solving_mode} Whether solving in ILP or LP
+ * @param dim {int} The board dimension
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_num_of_variables,
         linear_solving_mode solving_mode, int dim) {
     returnCodeDesc return_code_desc;
 
     int error = 0;
     int i = 0;
-    double *obj;
-    char *vtype;
+    double *obj = NULL;
+    char *vtype = NULL;
 
     obj = malloc(sizeof(double) * total_num_of_variables);
 
@@ -78,6 +88,23 @@ returnCodeDesc add_variables_to_model(GRBenv *env, GRBmodel * model, int total_n
 
 }
 
+/**
+ * Add the constraints to a single cell. The constraints are:
+ * 1. In ILP, each variable should be 0 or 1 for every variable representing a 3-tuple (row, col, val).
+ *    In LP, each variable should be between 0 and 1.
+ * 2. Each cell should contain only 1 value.
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their mathcing variable index.
+ * @param solving_mode {linear_solving_mode} Whether to solve using ILP or LP
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} The row of the cell to set constraints to
+ * @param col {int} The col of the cell to set constraints to
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc
 add_cell_single_value_constraints(GRBenv *env, GRBmodel *model, int* indices_array, linear_solving_mode solving_mode,
                      int grid_height, int grid_width, int box_height, int box_width, int row,
@@ -190,6 +217,21 @@ add_cell_single_value_constraints(GRBenv *env, GRBmodel *model, int* indices_arr
 
 }
 
+/**
+ * Set constraints for a given row and value. The constraints are:
+ * 1. The given value must be in the given row exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param row {int} The row number
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc
 add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int* indices_array,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
@@ -257,7 +299,7 @@ add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int* indices_array
             return return_code_desc;
         }
 
-            /* Add the sum lower constraint for the variables Xi1k + ... + Xijk <= 1 (j = dimension of the board) */
+            /* Add the sum lower constraint for the variables Xi1k + ... + Xijk >= 1 (j = dimension of the board) */
         else if ((error = GRBaddconstr(model, num_of_valid_cells, ind, val, GRB_GREATER_EQUAL, 1.0, NULL)) != 0) {
             return_code_desc.error_code = E_GUROBI_FAILURE;
             sprintf(return_code_desc.error_message, "Error: %d GRBaddconstr(): %s\n", error, GRBgeterrormsg(env));
@@ -276,6 +318,20 @@ add_value_single_row_constraint(GRBenv *env, GRBmodel *model, int* indices_array
 
 }
 
+/**
+ * Given a value, set the following constraints:
+ * - Each row must contain the given value exactly once
+ * @param env {GRBenv} the gurobi environment
+ * @param model {GRBModel} the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model, int* indices_array,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
@@ -297,6 +353,21 @@ returnCodeDesc add_value_row_constraints(GRBenv *env, GRBmodel *model, int* indi
     return return_code_desc;
 }
 
+/**
+ * Set constraints for a given col and value. The constraints are:
+ * 1. The given value must be in the given col exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param col {int} The col number
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc
 add_value_col_single_constraint(GRBenv *env, GRBmodel *model, int* indices_array,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
@@ -384,6 +455,20 @@ add_value_col_single_constraint(GRBenv *env, GRBmodel *model, int* indices_array
 
 }
 
+/**
+ * Given a value, set the following constraints:
+ * - Each col must contain the given value exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model, int* indices_array,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
@@ -405,6 +490,22 @@ returnCodeDesc add_value_col_constraints(GRBenv *env, GRBmodel *model, int* indi
     return return_code_desc;
 }
 
+/**
+ * Set constraints for a given col and value. The constraints are:
+ * 1. The given value must be in the given col exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param box_start_row {int} The start row of the box
+ * @param box_start_col {int} The start col of the box
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc
 add_value_single_box_constraint(GRBenv *env, GRBmodel *model, int* indices_array,
                                 int grid_height, int grid_width, int box_height, int box_width, board game_board,
@@ -494,6 +595,20 @@ add_value_single_box_constraint(GRBenv *env, GRBmodel *model, int* indices_array
 
 }
 
+/**
+ * Given a value, set the following constraints:
+ * - Each box must contain the given value exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param k_value {int} The value to set the constraint upon
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model, int* indices_array,
                                          int grid_height, int grid_width, int box_height, int box_width,
                                          board game_board, int k_value) {
@@ -519,6 +634,24 @@ returnCodeDesc add_value_box_constraints(GRBenv *env, GRBmodel *model, int* indi
     return return_code_desc;
 }
 
+/**
+ * Add constraints to the model. The contraints are:
+ * 1. Each cell must contain exactly a single value
+ * 2. Each variable should be 0 or 1 in ILP, or between 0 and 1 in LP
+ * 3. Each row must contain each value exactly once
+ * 4. Each col must contain each value exactly once
+ * 5. Each box must contain each value exactly once
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param solving_mode {linear_solving_mode} Whether to solve in ILP or LP.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int* indices_array,
                                linear_solving_mode solving_mode,
                                int grid_height, int grid_width, int box_height, int box_width,
@@ -579,6 +712,12 @@ returnCodeDesc add_constraints(GRBenv *env, GRBmodel *model, int* indices_array,
 
 }
 
+/**
+ * Solve the model
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc solve_model(GRBenv *env, GRBmodel *model) {
     returnCodeDesc return_code_desc;
     int error = 0;
@@ -620,6 +759,16 @@ returnCodeDesc solve_model(GRBenv *env, GRBmodel *model) {
 }
 
 
+/**
+ * Apply the ILP solution to the board
+ * @param sol {double*} The double array with the solutions of the model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ */
 void apply_ILP_solution(double *sol, int* indices_array, board game_board, int grid_height, int grid_width,
                         int box_height, int box_width) {
     int row, col, value, index;
@@ -647,6 +796,17 @@ void apply_ILP_solution(double *sol, int* indices_array, board game_board, int g
     }
 }
 
+/**
+ * Apply the LP solution to the guess scores array
+ * @param sol {double*} The double array with the solutions of the model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param guess_scores {double*} The mapping of the 3-tuple (row, col, val) to their guess scores.
+ */
 void apply_LP_solution(double *sol, int* indices_array, board game_board, int grid_height, int grid_width,
                         int box_height, int box_width, double* guess_scores) {
     int row, col, value, index;
@@ -670,13 +830,28 @@ void apply_LP_solution(double *sol, int* indices_array, board game_board, int gr
     }
 }
 
+/**
+ * Get the model solution and apply it onto the board / guess_scores array
+ * @param env {GRBenv*} the pointer to the gurobi environment
+ * @param model {GRBModel*} the pointer to the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param total_num_of_variables {int} The total number of variables in the model
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param game_board {board} The game board
+ * @param guess_scores {double*} The mapping of the 3-tuple (row, col, val) to their guess scores.
+ * @param solving_mode {linear_solving_mode} Whether to use LP or ILP
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc get_solution_and_apply(GRBenv *env, GRBmodel *model, int* indices_array, int total_num_of_variables,
                                           int grid_height, int grid_width, int box_height, int box_width,
                                           board game_board, linear_solving_mode solving_mode, double* guess_scores) {
     returnCodeDesc return_code_desc;
     int error = 0;
 
-    double* sol;
+    double* sol = NULL;
 
     /* sol array will hold the values of the ILP solution */
     sol = (double *) malloc(sizeof(double) * total_num_of_variables);
@@ -712,6 +887,19 @@ returnCodeDesc get_solution_and_apply(GRBenv *env, GRBmodel *model, int* indices
 
 }
 
+/**
+ * Count the total number of variables in the model and fill in the variables_indices array.
+ * The variables_indices will hold for each 3-tuple of (row, col, val) the index of the matching variable.
+ * So variables_indices[i][j][k] will hold the index of param Xijk
+ * @param variables_indices {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index to fill in
+ * @param total_num_of_variables {int *} The pointer to the total number of variables in the model variable
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc num_of_variables(int *variables_indices, int *total_num_of_variables, board game_board, int grid_height, int grid_width,
                                 int box_height, int box_width) {
     returnCodeDesc return_code_desc;
@@ -755,6 +943,20 @@ returnCodeDesc num_of_variables(int *variables_indices, int *total_num_of_variab
 
 }
 
+/**
+ * Initialize a gurobi model. Initialize the environment, model, count the total number of variables in the model
+ * and map them to the indices_array.
+ ** @param env {GRBenv**} the pointer to the pointer of the gurobi environment
+ * @param model {GRBModel**} the pointer to the pointer of the gurobi model
+ * @param indices_array {int*} The mapping of the 3-tuple (row, col, val) to their matching variable index.
+ * @param total_variables_num {int*} The pointer to the total number of variables in the model
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {returnCodeDesc} The status of the function
+ */
 returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *indices_array, int *total_variables_num, board game_board, int grid_height, int grid_width,
                               int box_height, int box_width) {
     returnCodeDesc return_code_desc;
@@ -796,6 +998,18 @@ returnCodeDesc initialize_GRB(GRBenv **env, GRBmodel **model, int *indices_array
 }
 
 
+/**
+ * Solve a board using gurobi. If solve using ILP - solve the board and apply the solution on it.
+ * If LP - solve a board and apply the solution to the guess_scores array.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param solving_mode {linear_solving_mode} Whether to use LP or ILP
+ * @param guess_scores {double*} The mapping of the 3-tuple (row, col, val) to their guess scores to fill.
+ * @return
+ */
 returnCodeDesc solve_gurobi(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         linear_solving_mode solving_mode, double* guess_scores) {
     returnCodeDesc return_code_desc;

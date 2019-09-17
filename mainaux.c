@@ -4,12 +4,15 @@
 #include "mainaux.h"
 
 /**
- * Print the current board to the user
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
+ * Print the given board to stdout, according to the game's mode and mark_errors flag.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param mark_errors {int} Whether to mark errors on the board or not (TRUE/FALSE)
+ * @param mode {game_mode} The mode of the game
+ * @return {returnCodeDesc} the status code of the method
  */
 void print_board(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         game_mode mode, int mark_errors) {
@@ -67,10 +70,10 @@ void print_board(board game_board, int grid_height, int grid_width, int box_heig
 
 /**
  * Copy a board
- * @param source_grid The board to copy from
- * @param destination_grid The board to copy to
- * @param grid_height The height of the board
- * @param grid_width The width of the board
+ * @param source_grid {board} The board to copy from
+ * @param destination_grid {board} The board to copy to
+ * @param grid_height {int} The height of the board
+ * @param grid_width {int} The width of the board
  */
 void copy_board(board source_grid, board destination_grid, int grid_height, int grid_width) {
     int i;
@@ -86,17 +89,12 @@ void copy_board(board source_grid, board destination_grid, int grid_height, int 
     }
 }
 
-void print_cell_is_not_empty(int row, int col){
-    printf(CELL_IS_NOT_EMPTY_ERROR, row, col);
-}
-
-
 
 /**
  * Create an empty board
- * @param grid_height The board height
- * @param grid_width The board width
- * @return
+ * @param grid_height {int} The board height
+ * @param grid_width {int} The board width
+ * @return {board} A new empty board with the given dimensions
  */
 board create_empty_board(int grid_height, int grid_width) {
     board game_board = (board) malloc(grid_height * sizeof(struct Cell*));/**/
@@ -132,9 +130,9 @@ board create_empty_board(int grid_height, int grid_width) {
 
 /**
  * Empty a given board
- * @param board_to_empty The board to empty
- * @param grid_height The board height
- * @param grid_width The board width
+ * @param board_to_empty {board} The board to empty
+ * @param grid_height {int} The board height
+ * @param grid_width {int} The board width
  */
 void empty_board(board board_to_empty, int grid_height, int grid_width) {
     int i, j;
@@ -146,6 +144,11 @@ void empty_board(board board_to_empty, int grid_height, int grid_width) {
     }
 }
 
+/**
+ * Free a board
+ * @param game_board {board} The game board to free
+ * @param grid_height {int} The height of the board to free
+ */
 void free_board(board game_board, int grid_height){
     int i;
 
@@ -156,6 +159,13 @@ void free_board(board game_board, int grid_height){
     free(game_board);
 }
 
+/**
+ * Check whether a board is errornous or not
+ * @param board {board} The game board to validate
+ * @param grid_height {int} The height of the given board
+ * @param grid_width {int} The width of the given board
+ * @return {int} TRUE if errornous, otherwise FALSE
+ */
 int is_board_errornous(board board, int grid_height, int grid_width) {
     int i, j;
     for (i = 0; i < grid_height; i++) {
@@ -168,6 +178,12 @@ int is_board_errornous(board board, int grid_height, int grid_width) {
     return FALSE;
 }
 
+/**
+ * Unfix a board. Given a board, make all the cells non-fixed.
+ * @param board {board} The game board to validate
+ * @param grid_height {int} The height of the given board
+ * @param grid_width {int} The width of the given board
+ */
 void unfix_board(board board, int grid_height, int grid_width) {
     int i, j;
     for (i = 0; i < grid_height; i++) {
@@ -179,8 +195,8 @@ void unfix_board(board board, int grid_height, int grid_width) {
 
 /**
  * Check if an input is in valid range
- * @param num The input
- * @param max_num_in_range The upper bound of the range
+ * @param num {int} The input
+ * @param max_num_in_range {int} The upper bound of the range
  * @return 1 = Valid, 0 = Invalid.
  */
 int is_valid_input(int num, int max_num_in_range) {
@@ -188,62 +204,11 @@ int is_valid_input(int num, int max_num_in_range) {
 }
 
 /**
- * Print validation failed message.
+ * Handle errors returned from the project's functions (the returnCodeDesc objects).
+ * In case an error occurred - print the relevant error message and terminate or continue,
+ * depending on the error.
+ * @param return_code_desc {retrunCodeDesc} The returned status of the function.
  */
-void print_validation_failed() {
-    printf(VALIDATION_FAILED);
-}
-
-/**
- * Print validation passed message.
- */
-void print_validation_passed() {
-    printf(VALIDATION_PASSED);
-}
-
-/**
- * Print invalid value error
- */
-void print_invalid_value(int lower_limit, int upper_limit) {
-    printf(INVALID_VALUE_ERROR, lower_limit, upper_limit);
-}
-
-/**
- * Print invalid value error
- */
-void print_num_of_solutions(int solutions_count) {
-    printf(SOLUTIONS_COUNT_MSG, solutions_count);
-}
-
-/**
- * Print fixed cell error
- */
-void print_fixed_cell_error(int row, int col) {
-    printf(CELL_IS_FIXED_ERROR, row, col);
-}
-
-/**
- * Print winning message
- */
-void print_winning_message() {
-    printf(WIN_MSG);
-}
-
-/**
- * Print errornous board message
- */
-void print_errornous_board_message() {
-    printf(ERROR_BOARD_MSG);
-}
-
-/**
- * Print hint message
- * @param hint_value The hint value to print
- */
-void print_hint_message(int row, int col, int hint_value) {
-    printf(HINT_MSG, row, col, hint_value);
-}
-
 void handle_errors(returnCodeDesc return_code_desc){
     if (return_code_desc.error_code != E_SUCCESS) {
         /* An error occurred while parsing command */
@@ -258,12 +223,22 @@ void handle_errors(returnCodeDesc return_code_desc){
     }
 }
 
+/**
+ * Determine if a returnCodeDesc is considered error or not
+ * @param return_code_desc {returnCodeDesc} The status object
+ * @return {int} TRUE if error, otherwise FALSE
+ */
 int is_error(returnCodeDesc return_code_desc){
     if (return_code_desc.error_code != E_SUCCESS)
         return TRUE;
     return FALSE;
 }
 
+/**
+ * Determine if a string is considered empty (whitespaces only) or not
+ * @param s {char*} The string to check
+ * @return {int} TRUE if empty string, FALSE otherwise.
+ */
 int is_empty_string(char *s) {
     while (*s != '\0') {
         if (!isspace((unsigned char)*s))
@@ -274,6 +249,12 @@ int is_empty_string(char *s) {
 }
 
 
+/**
+ * Get a truly random number in given range, as described in http://c-faq.com/lib/randrange.html
+ * @param min {double} Lower bound of random range
+ * @param max {double} Upper bound of the random range
+ * @return {double} The chosen random number
+ */
 double get_random_in_range(double min, double max) {
     return min + (rand() / (RAND_MAX / (max - min)));
 }

@@ -13,15 +13,15 @@
 
 /**
  * Perform set command. Set a value on a given cell.
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @param col The column of the cell to set
- * @param row The width of the cell to set
- * @param value The value to set to the cell
- * @return 1 = Game was won, 0 = Set was successful, -1 = Error, -2 = Board is errornous.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param col {int} The column of the cell to set
+ * @param row {int} The width of the cell to set
+ * @param value {int} The value to set to the cell
+ * @return {returnCodeDesc} The status of the command
  */
 returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         int row, int col, int value, game_mode mode) {
@@ -66,12 +66,12 @@ returnCodeDesc set(board game_board, int grid_height, int grid_width, int box_he
 
 /**
  * A method to print board changes.
- * @param before The game board
- * @param after the board height
- * @param grid_height the current board height
- * @param grid_width the board width
- * @param comm the command which revoked the changes print
- * @return the status code of the method
+ * @param before {board} The game board
+ * @param after {board} the board height
+ * @param grid_height {int} the current board height
+ * @param grid_width {int} the board width
+ * @param comm {command_changed_from} the command which revoked the changes print
+ * @return {returnCodeDesc} the status code of the method
  */
 void print_changes(board before, board after, int grid_height, int grid_width, command_changed_from comm){
 
@@ -97,14 +97,15 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
     }
 }
 
+
 /**
  * Perform undo command.
  * Performing an undo command on the board.
- * @param game_board The game board
- * @param grid_height the board height
- * @param grid_width the board width
- * @param list the current move list of the game
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} the board height
+ * @param grid_width {int} the board width
+ * @param list {MovesList*} the current move list of the game
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc undo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
 
@@ -137,11 +138,11 @@ returnCodeDesc undo_move(board game_board, int grid_height, int grid_width, stru
 /**
  * Perform redo command.
  * Performing a redo command on the board.
- * @param game_board The game board
- * @param list the current move list of the game
- * @param grid_height the board height
- * @param grid_width the board width
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param list {MovesList*} the current move list of the game
+ * @param grid_height {int} the board height
+ * @param grid_width {int} the board width
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc redo_move(board game_board, int grid_height, int grid_width, struct MovesList *list) {
 
@@ -164,9 +165,9 @@ returnCodeDesc redo_move(board game_board, int grid_height, int grid_width, stru
 /**
  * Perform save command.
  * Parsing the current board and saving it to the given path.
- * @param game_board The game board
- * @param list the current move list of the game
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param list {MovesList*} the current move list of the game
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc reset_game(board game_board, struct MovesList *list) {
     returnCodeDesc return_code_desc;
@@ -179,20 +180,17 @@ returnCodeDesc reset_game(board game_board, struct MovesList *list) {
 }
 
 
-
-
-
 /**
  * Perform save command.
  * Parsing the current board and saving it to the given path.
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @param mode the current game mode
- * @param path the path to save the folder at
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param mode {game_mode} the current game mode
+ * @param path {char*} the path to save the folder at
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_height, int box_width, game_mode mode, char* path) {
 
@@ -249,12 +247,12 @@ returnCodeDesc save(board game_board, int grid_height, int grid_width, int box_h
 
 /**
  * Perform validate command.
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc validate(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
     returnCodeDesc return_code_desc;
@@ -276,7 +274,7 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
          * or there was an error in the runtime of the solver - raise the error.
          * Otherwise the validation has passed. */
         if (is_error(return_code_desc) == FALSE) {
-            print_validation_passed();
+            printf(VALIDATION_PASSED);
             return_code_desc.error_code = E_SUCCESS;
             strcpy(return_code_desc.error_message, NO_ERRORS);
         }
@@ -292,12 +290,12 @@ returnCodeDesc validate(board game_board, int grid_height, int grid_width, int b
 
 /**
  * Count number of possible solutions for the current board
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, int box_height, int box_width){
     int solutions_count;
@@ -310,7 +308,7 @@ returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, 
     }
 
     solutions_count = count_solutions_iterative(game_board, grid_height, grid_width, box_height, box_width);
-    print_num_of_solutions(solutions_count);
+    printf(SOLUTIONS_COUNT_MSG, solutions_count);
 
     return_code_desc.error_code = E_SUCCESS;
     strcpy(return_code_desc.error_message, NO_ERRORS);
@@ -320,12 +318,12 @@ returnCodeDesc num_solutions(board game_board, int grid_height, int grid_width, 
 
 /**
  * Perform autofill command.
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
     int num, row, col;
@@ -371,14 +369,14 @@ returnCodeDesc autofill(board game_board, int grid_height, int grid_width, int b
 
 /**
  * Perform hint command.
- * @param game_board The game board
- * @param grid_height The height of game board
- * @param grid_width The width of the game board
- * @param box_height The height of a sudoku box
- * @param box_width The width of a sudoku box
- * @param row the row of the cell to get a hint about
- * @param col the col of the cell to get a hint about
- * @return the status code of the method
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} the row of the cell to get a hint about
+ * @param col {int} the col of the cell to get a hint about
+ * @return {returnCodeDesc} the status code of the method
  */
 returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
     returnCodeDesc return_code_desc;
@@ -440,6 +438,17 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
 }
 
 
+/**
+ * Perform generate command.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param num_of_cells_to_fill {int} the number of cells to fill in the board
+ * @param num_of_cells_to_keep {int} the number of cells to keep in the generated board
+ * @return {returnCodeDesc} the status code of the command
+ */
 returnCodeDesc generate(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         int num_of_cells_to_fill, int num_of_cells_to_keep) {
     returnCodeDesc return_code_desc;
@@ -448,7 +457,7 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
     int number_of_iterations = 0;
     int filled_cells_count = 0;
     int cleared_cells_count = 0;
-    int *valid_values;
+    int *valid_values = NULL;
     board temp_board = create_empty_board(grid_height, grid_width);
 
     /*Should not run if the board is erronous - wasting cpu time*/
@@ -534,10 +543,6 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
         if (is_error(return_code_desc) == TRUE) {
             continue;
         }
-        if (solve_grid(temp_board, grid_height, grid_width, box_height, box_width, 0, 0) == FALSE) {
-            /* No valid solution to the board - try again */
-            continue;
-        }
 
         /* Randomly clear cells from board until only given number are left */
         while ((cleared_cells_count + num_of_cells_to_keep) < (grid_height * grid_width)) {
@@ -574,6 +579,16 @@ returnCodeDesc generate(board game_board, int grid_height, int grid_width, int b
 }
 
 
+/**
+ * Perform solve command. Load a saved board from file and continue solving it.
+ * @param grid_pointer {board*} Pointer to the game board
+ * @param grid_height_pointer {int*} Pointer to the height of game board
+ * @param grid_width_pointer {int*} Pointer to the width of the game board
+ * @param box_height_pointer {int*} Pointer to the height of a sudoku box
+ * @param box_width_pointer {int*} Pointer to the width of a sudoku box
+ * @param path {char*} The path of the file to load the board from
+ * @return {returnCodeDesc} the status code of the command
+ */
 returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer) {
@@ -622,7 +637,17 @@ returnCodeDesc solve(board *grid_pointer, char *path, int *grid_height_pointer, 
     return return_code_desc;
 }
 
-
+/**
+ * Perform edit command. Load a saved board from file and edit it, or edit an empty 9X9 board.
+ * @param grid_pointer {int*} Pointer to the game board
+ * @param grid_height_pointer {int*} Pointer to the height of game board
+ * @param grid_width_pointer {int*} Pointer to the width of the game board
+ * @param box_height_pointer {int*} Pointer to the height of a sudoku box
+ * @param box_width_pointer {int*} Pointer to the width of a sudoku box
+ * @param path {char*} The path of the file to load the board from
+ * @param path_was_passed {int} Whether a path was passed to the command or not (TRUE/FALSE)
+ * @return {returnCodeDesc} the status code of the command
+ */
 returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, int *grid_width_pointer,
                     int *box_height_pointer,
                     int *box_width_pointer, int path_was_passed) {
@@ -678,6 +703,12 @@ returnCodeDesc edit(board *grid_pointer, char *path, int *grid_height_pointer, i
     return return_code_desc;
 }
 
+/**
+ * Perform validate command.
+ * @param mark_errors {int*} The pointer to mark_errors variable
+ * @param input {int} The number to set mark_errors to
+ * @return {returnCodeDesc} the status code of the method
+ */
 returnCodeDesc set_mark_errors(int* mark_errors, int input){
     returnCodeDesc return_code_desc;
 
@@ -693,7 +724,16 @@ returnCodeDesc set_mark_errors(int* mark_errors, int input){
     return return_code_desc;
 }
 
-
+/**
+ * Perform guess command. Given a board, try guessing a solution using LP.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param threshold {double} The threshold for guessing.
+ * @return {returnCodeDesc} the status code of the method
+ */
 returnCodeDesc guess(board game_board, int grid_height, int grid_width, int box_height, int box_width, double threshold) {
     returnCodeDesc return_code_desc;
     int row, col;
@@ -798,6 +838,17 @@ returnCodeDesc guess(board game_board, int grid_height, int grid_width, int box_
 
 }
 
+/**
+ * Perform guess_hint command. Given a board, row, and col, guess a possible value for the cell using LP.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} The row of the cell to guess
+ * @param col {int} The col of the cell to guess
+ * @return {returnCodeDesc} the status code of the method
+ */
 returnCodeDesc
 guess_hint(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
     returnCodeDesc return_code_desc;

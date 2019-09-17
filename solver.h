@@ -24,9 +24,6 @@ int is_cell_errornous(board grid, int row, int col);
 
 int is_empty(board grid, int row, int col);
 
-int solve_grid(board grid, int grid_height, int grid_width, int box_height, int box_width, int row,
-               int col);
-
 int count_empty_cells(board board, int grid_height, int grid_width);
 
 int is_board_valid(board game_board, int grid_height, int grid_width, int box_height, int box_width);

@@ -4,11 +4,11 @@
 
 /**
  * Count the number of empty cells in the board
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
  * @return The number of empty cells in the board
  */
 int count_empty_cells(board game_board, int grid_height, int grid_width){
@@ -29,11 +29,11 @@ int count_empty_cells(board game_board, int grid_height, int grid_width){
 /**
  * Update the errors on the board. Iterate over every cell in the board and check if its value is valid.
  * If it is valid, mark the cell as valid, otherwise mark as error.
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
  */
 void update_board_errors(board game_board, int grid_height, int grid_width, int box_height, int box_width){
     int row, col;
@@ -53,10 +53,10 @@ void update_board_errors(board game_board, int grid_height, int grid_width, int 
 
 
 /**
- * Reset each of the board cells status to unchanged. used in order to tell the difference between game boards.
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
+ * Reset each of the board cells status to unchanged (used in order to tell the difference between game boards).
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
  
  */
 void reset_board_changed_status(board game_board, int grid_height, int grid_width){
@@ -72,11 +72,11 @@ void reset_board_changed_status(board game_board, int grid_height, int grid_widt
 
 /**
  * Validate that a given board is valid. A valid board is a board containing no conflicts between fixed cells.
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
+ ** @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
  * @return 1 = the board is valid, 0 = board is invalid
  */
 int is_board_valid(board game_board, int grid_height, int grid_width, int box_height, int box_width){
@@ -127,11 +127,11 @@ int is_board_valid(board game_board, int grid_height, int grid_width, int box_he
 
 /**
  * Check whether a number is already used in a given row
- * @param game_board The game board
- * @param grid_width The width of the board
- * @param row The row to search the number for
- * @param current_col The current col of the cell we want to place the number at
- * @param num The number to place
+ * @param game_board {board} The game board
+ * @param grid_width {int} The width of the board
+ * @param row {int} The row to search the number for
+ * @param current_col {int} The current col of the cell we want to place the number at
+ * @param num {int} The number to place
  * @return 1 = Not used, 0 = Used in row.
  */
 int used_in_row(board game_board, int grid_width, int row, int current_col, int num) {
@@ -144,11 +144,11 @@ int used_in_row(board game_board, int grid_width, int row, int current_col, int 
 
 /**
  * Check whether a number is already used in a given col
- * @param game_board The game board
- * @param grid_height The height of the board
- * @param current_row The current row of the cell we want to place the number at
- * @param col The col to search the number for
- * @param num The number to place
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of the board
+ * @param current_row {int} The current row of the cell we want to place the number at
+ * @param col {int} The col to search the number for
+ * @param num {int} The number to place
  * @return 1 = Not used, 0 = Used in col.
  */
 int used_in_col(board game_board, int grid_height, int current_row, int col, int num) {
@@ -161,14 +161,14 @@ int used_in_col(board game_board, int grid_height, int current_row, int col, int
 
 /**
  * Check whether a given number is already used in a given box
- * @param game_board The game board
- * @param box_start_row The box's starting row
- * @param box_start_col The box's starting col
- * @param box_height The box height
- * @param box_width The box width
- * @param current_row The current row to place the num at
- * @param current_col The current col to place the num at
- * @param num The number to place
+ * @param game_board {board} The game board
+ * @param box_start_row {int} The box's starting row
+ * @param box_start_col {int} The box's starting col
+ * @param box_height {int} The box height
+ * @param box_width {int} The box width
+ * @param current_row {int} The current row to place the num at
+ * @param current_col {int} The current col to place the num at
+ * @param num {int} The number to place
  * @return 1 = No used, 0 = Used in the box.
  */
 int
@@ -188,14 +188,14 @@ used_in_box(board game_board, int box_start_row, int box_start_col, int box_heig
 
 /**
  * Check whether it is valid to place a number in a given location
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
- * @param row The row to place the number at
- * @param col The column to place the number at
- * @param num The number to place
+ * @param game_board {board} The game board
+ * @param grid_height {int} The board height
+ * @param grid_width {int} The board width
+ * @param box_height {int} The box height
+ * @param box_width {int} The box width
+ * @param row {int} The row to place the number at
+ * @param col {int} The column to place the number at
+ * @param num {int} The number to place
  * @return 1 = Valid, 0 = Invalid.
  */
 int is_valid(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
@@ -209,16 +209,15 @@ int is_valid(board game_board, int grid_height, int grid_width, int box_height, 
 
 /**
  * Count valid values for a given cell
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height the box height
- * @param box_width The box width
- * @param row The row of the cell
- * @param col The column of the cell
- * @param values The values array to fill with valid values
- * @param range Upper bound of the numbers range that is valid for the cell.
- * @return Number of valid values found
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} The row of the cell
+ * @param col {int} The column of the cell
+ * @param range {int} Upper bound of the numbers range that is valid for the cell.
+ * @return {int} Number of valid values found
  */
 int count_valid_values(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
                   int range) {
@@ -236,16 +235,16 @@ int count_valid_values(board game_board, int grid_height, int grid_width, int bo
 
 /**
  * Find valid values for a given cell
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height the box height
- * @param box_width The box width
- * @param row The row of the cell
- * @param col The column of the cell
- * @param values The values array to fill with valid values
- * @param range Upper bound of the numbers range that is valid for the cell.
- * @return Number of valid values found
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} The row of the cell
+ * @param col {int} The column of the cell
+ * @param values {int*} The values array to fill with valid values
+ * @param range {int} Upper bound of the numbers range that is valid for the cell.
+ * @return {int} Number of valid values found
  */
 int find_valid_values(int* values, board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col,
                        int range) {
@@ -266,9 +265,9 @@ int find_valid_values(int* values, board game_board, int grid_height, int grid_w
 
 /**
  * Check whether the cell is empty
- * @param game_board The game board
- * @param row The row of the cell
- * @param col The column of the cell
+ * @param game_board {board} The game board
+ * @param row {int} The row of the cell
+ * @param col {int} The column of the cell
  * @return 1 = Empty, 0 = Filled
  */
 int is_empty(board game_board, int row, int col) {
@@ -279,9 +278,9 @@ int is_empty(board game_board, int row, int col) {
 
 /**
  * Check whether the cell is valid or errornous
- * @param game_board The game board
- * @param row The row of the cell
- * @param col The column of the cell
+ * @param game_board {board} The game board
+ * @param row {int} The row of the cell
+ * @param col {int} The column of the cell
  * @return 1 = errornous, 0 = valid
  */
 int is_cell_errornous(board game_board, int row, int col) {
@@ -292,62 +291,17 @@ int is_cell_errornous(board game_board, int row, int col) {
 
 
 /**
- * Count the number of solutions of a given board
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The width of the board
- * @param box_height The box height
- * @param box_width The box width
- * @param row The row of the cell to start solving from
- * @param col The column of the cell to start solving from
- * @return 1 = Solved, 0 = No solution found
- */
-int count_solutions(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row, int col) {
-    int count = 0;
-    int i;
-
-    if (row >= grid_height) {
-        /* Went through the whole board and didnt solve the sudoku. */
-        return 1;
-    }
-    /* Boundaries check */
-    if (col >= grid_width) {
-        return count_solutions(game_board, grid_height, grid_width, box_height, box_width, row + 1, 0);
-    }
-
-    /* Correct solution of a board */
-
-    if (game_board[row][col].is_const == TRUE || game_board[row][col].value != UNASSIGNED) {
-        /* We are within a legitimate cell. */
-        return count_solutions(game_board, grid_height, grid_width, box_height, box_width, row, col + 1);
-    }
-
-    /*maybe width?*/
-    for (i = 1; i <= (box_height * box_width); i++) {
-        if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, i)) {
-
-            game_board[row][col].value = i;
-            count += count_solutions(game_board, grid_height, grid_width, box_height, box_width, row, col + 1);
-            game_board[row][col].value = UNASSIGNED;
-
-        }
-    }
-
-    return count;
-}
-
-/**
  * A method to count how many solutions are there to a given board using iterative counting. 
- * this method is a helper to the main count solutions which is used when the player wants to count solutions.
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
- * @param row the row to start from
- * @param col the col to start from
- * @param stack the stack used for the iterative counting
- * @return the number of solutions
+ * This method is a helper to the main count solutions which is used when the player wants to count solutions.
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @param row {int} the row to start from
+ * @param col {int} the col to start from
+ * @param stack {stack*} The pointer to the stack used for the iterative counting
+ * @return {int} the number of solutions
  */
 int _count_solutions_iterative(board game_board, int grid_height, int grid_width, int box_height, int box_width,
         int row, int col, stack* s){
@@ -421,12 +375,12 @@ int _count_solutions_iterative(board game_board, int grid_height, int grid_width
 
 /**
  * A method to count how many solutions are there to a given board using iterative counting. 
- * @param board The game board
- * @param grid_height The board height
- * @param grid_width The board width
- * @param box_height The box height
- * @param box_width The box width
- * @return the number of solutions
+ * @param game_board {board} The game board
+ * @param grid_height {int} The height of game board
+ * @param grid_width {int} The width of the game board
+ * @param box_height {int} The height of a sudoku box
+ * @param box_width {int} The width of a sudoku box
+ * @return {int} the number of solutions
  */
 int count_solutions_iterative(board game_board, int grid_height, int grid_width, int box_height, int box_width) {
     stack s;
@@ -486,9 +440,9 @@ int count_solutions_iterative(board game_board, int grid_height, int grid_width,
 
 /**
  * Check if the board is complete (completely filled)
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The board width
+ * @param game_board {board} The game board
+ * @param grid_height {int} The board height
+ * @param grid_width {int} The board width
  * @return 1 = Game was won, 0 - Game is not won.
  */
 int is_board_complete(board game_board, int grid_height, int grid_width) {
@@ -504,66 +458,3 @@ int is_board_complete(board game_board, int grid_height, int grid_width) {
     return TRUE;
 }
 
-
-/**
- * Solve a board game game_board recursively
- * @param game_board The game board
- * @param grid_height The board height
- * @param grid_width The width of the board
- * @param box_height The box height
- * @param box_width The box width
- * @param row The row of the cell to start solving from
- * @param col The column of the cell to start solving from
- * @param flag 1 randomly 2 deterministic
- * @return 1 = Solved, 0 = No solution found
- */
-int solve_grid(board game_board, int grid_height, int grid_width, int box_height, int box_width, int row,
-                                 int col) {
-    int num;
-
-    if (row == grid_height)
-        return TRUE;
-
-    if (!is_empty(game_board, row, col)) {
-        /* Current cell is not empty - skip it and try the next one */
-        if (col + 1 < grid_width) {
-            /* If we can go further right - then go there and solve from there */
-            return solve_grid(game_board, grid_height, grid_width, box_height, box_width, row, col + 1);
-        } else {
-            /* End of the row - go to the next one and try to solve from there */
-            return solve_grid(game_board, grid_height, grid_width, box_height, box_width, row + 1, 0);
-        }
-    }
-
-    else {
-        for (num = 1; num <= (box_height * box_width); num++) {
-            /* Check if num is valid value for the current cell */
-            if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, num)) {
-                /* Fill the cell with the proposed num */
-                game_board[row][col].value = num;
-
-                if (col + 1 < grid_width) {
-                    /* If we can go further right - then go there */
-                    if (solve_grid(game_board, grid_height, grid_width, box_height, box_width, row, col + 1)) {
-                        /* Success! */
-                        return TRUE;
-                    }
-                }
-
-                else {
-                    /* End of the row - go to the next one */
-                    if (solve_grid(game_board, grid_height, grid_width, box_height, box_width, row + 1, 0)) {
-                        /* Success! */
-                        return TRUE;
-                    }
-                }
-
-                /* No solution found with current num as value in current cell - backtrack */
-                game_board[row][col].value = UNASSIGNED;
-            }
-        }
-
-        /* No solution found for current board - return False (to trigger backtracking) */
-        return FALSE;
-    }
-}
