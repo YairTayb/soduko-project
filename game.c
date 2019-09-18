@@ -906,7 +906,7 @@ guess_hint(board game_board, int grid_height, int grid_width, int box_height, in
             if (is_valid(game_board, grid_height, grid_width, box_height, box_width, row, col, value + 1) &&
                 (guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                (box_height * box_width))] > 0.0)) {
-                printf(GUESS_HINT_MSG, row + 1, col + 1, value + 1, guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
+                printf(GUESS_HINT_MSG, col + 1, row + 1, value + 1, guess_scores[MULTIDIM_ARR_LOC(row, col, value, grid_height, grid_width,
                                                                                           (box_height * box_width))]);
             }
         }
