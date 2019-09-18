@@ -822,6 +822,7 @@ returnCodeDesc guess(board game_board, int grid_height, int grid_width, int box_
                     }
 
                     if (chosen_value != -1) {
+                        printf("Cell (%d,%d) from %d to %d. \n", col+1, row+1 ,game_board[row][col].value, chosen_value);
                         game_board[row][col].value = chosen_value;
                         game_board[row][col].has_changed = TRUE;
                     }
