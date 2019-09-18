@@ -83,11 +83,11 @@ void print_changes(board before, board after, int grid_height, int grid_width, c
                 switch (comm) {
                     case redo:
                         printf("Redo ");
-                        printf("(%d,%d) from %d to %d.\n", (i + 1), (j + 1), before[i][j].value, after[i][j].value);
+                        printf("(%d,%d) from %d to %d.\n",  (j + 1), (i + 1), before[i][j].value, after[i][j].value);
                         break;
                     case undo:
                         printf("Undo ");
-                        printf("(%d,%d) from %d to %d.\n", (i + 1), (j + 1), after[i][j].value, before[i][j].value);
+                        printf("(%d,%d) from %d to %d.\n", (j + 1),(i + 1), after[i][j].value, before[i][j].value);
                         break;
                     default:
                         break;
@@ -420,7 +420,7 @@ returnCodeDesc hint(board game_board, int grid_height, int grid_width, int box_h
          * If An error has occurred while running the Gurobi LP solver, then whether the board is unsolvable,
          * or there was an error in the runtime of the solver - raise the error. */
         if (is_error(return_code_desc) == FALSE) {
-            printf(HINT_MSG, row + 1, col + 1, new_solution[row][col].value);
+            printf(HINT_MSG, col + 1, row + 1,  new_solution[row][col].value);
             return_code_desc.error_code = E_SUCCESS;
             strcpy(return_code_desc.error_message, NO_ERRORS);
         }

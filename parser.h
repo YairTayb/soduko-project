@@ -1,3 +1,6 @@
+/*Parser module.
+this module consists of all parsing function in the project.
+used in order to parse user input, files and the board.*/
 #ifndef SUDOKU_PARSER_H
 #define SUDOKU_PARSER_H
 

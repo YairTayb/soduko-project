@@ -1,3 +1,8 @@
+/*Solver module.
+This module consists of all the methods used in order to solve the board.
+The methods give indication about board statuses according to demand of other methods
+used in the solving procedure of the game.*/
+
 #ifndef SUDOKU_SOLVER_H
 #define SUDOKU_SOLVER_H
 

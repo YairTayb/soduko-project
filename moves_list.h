@@ -1,3 +1,7 @@
+/*Moves lsit module
+this module consists of the functions used to manage the moves list during the game,
+in order to implement undo- redo mechanic.
+*/
 #ifndef SUDOKU_MOVES_LIST_H
 #define SUDOKU_MOVES_LIST_H
 

@@ -3,6 +3,8 @@
 
 #include "data_models.h"
 
+/*Game module.
+This module consists of all the command used in the game.*/
 returnCodeDesc set(board grid, int grid_height, int grid_width, int box_height, int box_width,
         int row, int col, int value, game_mode mode);
 

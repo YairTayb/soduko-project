@@ -1,3 +1,6 @@
+/*Main aux module.
+this module consists of methods used widely in other modules.*/
+
 #ifndef SUDOKU_MAIN_AUX_H
 #define SUDOKU_MAIN_AUX_H
 

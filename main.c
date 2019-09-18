@@ -9,9 +9,7 @@
 #include "moves_list.h"
 
 
-/**
- * Run the Sudoku game
- */
+
 int main() {
     board game_board = NULL;
     int mark_errors = 1;

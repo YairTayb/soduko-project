@@ -1,3 +1,10 @@
+/*Consts module.
+this module consists of constants used widely
+in many other modules.
+This module helps a cleaner more readable code, with correct
+and minimal time spent on managment of constant variables.*/
+
+
 #ifndef NIM_CONSTS_H
 #define NIM_CONSTS_H
 

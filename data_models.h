@@ -3,6 +3,10 @@
 
 #include "consts.h"
 
+/*Data structures module.
+This module consists of all the data structures used in the project.
+Contributes to clean readable code.*/
+
 struct Node {
     struct Cell **data;
     struct Node *next;
